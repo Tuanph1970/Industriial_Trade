@@ -5,4 +5,7 @@
   <ItemGroup>
     <ProjectReference Include="..\IndustryTrade.BuildingBlocks.Application\IndustryTrade.BuildingBlocks.Application.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+  </ItemGroup>
 </Project>

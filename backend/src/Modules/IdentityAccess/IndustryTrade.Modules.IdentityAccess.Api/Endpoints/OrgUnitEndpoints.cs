@@ -14,8 +14,8 @@ internal static class OrgUnitEndpoints
     public static void MapOrgUnitEndpoints(this IEndpointRouteBuilder endpoints)
     {
         var group = endpoints.MapGroup("/api/identity/org-units")
-            .WithTags("Identity & Access — Org Units");
-        // .RequireAuthorization()  // enabled in Phase 1 once Keycloak policies land
+            .WithTags("Identity & Access — Org Units")
+            .RequireAuthorization(); // authenticated; per-permission checks run in the AuthorizationBehavior
 
         group.MapGet("/", async (ISender sender, int page = 1, int pageSize = 10, string? keyword = null) =>
         {

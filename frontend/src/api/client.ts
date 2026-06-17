@@ -1,8 +1,17 @@
 import axios from 'axios';
+import { userManager } from '../auth';
 
-// Same-origin '/api' in dev (Vite proxy) and prod (Nginx). A Keycloak bearer-token
-// interceptor is added in Phase 1.
+// Same-origin '/api' in dev (Vite proxy) and prod (Nginx).
 export const api = axios.create({ baseURL: '/' });
+
+// Attach the Keycloak access token to every request.
+api.interceptors.request.use(async (config) => {
+  const user = await userManager.getUser();
+  if (user?.access_token) {
+    config.headers.Authorization = `Bearer ${user.access_token}`;
+  }
+  return config;
+});
 
 export interface PagedResult<T> {
   items: T[];

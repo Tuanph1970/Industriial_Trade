@@ -1,0 +1,91 @@
+{
+  "realm": "industry-trade",
+  "enabled": true,
+  "sslRequired": "none",
+  "registrationAllowed": false,
+  "roles": {
+    "realm": [
+      { "name": "super-admin", "description": "Unrestricted system administrator" },
+      { "name": "identity.orgunits.read", "description": "View org units" },
+      { "name": "identity.orgunits.manage", "description": "Create/modify org units" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "industry-trade-api",
+      "name": "Industry & Trade API (resource server)",
+      "enabled": true,
+      "bearerOnly": true,
+      "publicClient": false
+    },
+    {
+      "clientId": "industry-trade-spa",
+      "name": "Industry & Trade SPA",
+      "enabled": true,
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "redirectUris": ["http://localhost:8081/*", "http://localhost:5173/*"],
+      "webOrigins": ["http://localhost:8081", "http://localhost:5173"],
+      "attributes": { "pkce.code.challenge.method": "S256" },
+      "protocolMappers": [
+        {
+          "name": "realm-roles-to-permission",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "permission",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false",
+            "userinfo.token.claim": "false"
+          }
+        },
+        {
+          "name": "data-scope",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "config": {
+            "user.attribute": "data_scope",
+            "claim.name": "scope_path",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "access.token.claim": "true",
+            "id.token.claim": "false"
+          }
+        },
+        {
+          "name": "api-audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "config": {
+            "included.client.audience": "industry-trade-api",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "superadmin",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Super",
+      "lastName": "Admin",
+      "credentials": [{ "type": "password", "value": "admin", "temporary": false }],
+      "realmRoles": ["super-admin"]
+    },
+    {
+      "username": "chuyenvien",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Chuyen",
+      "lastName": "Vien",
+      "credentials": [{ "type": "password", "value": "chuyenvien", "temporary": false }],
+      "realmRoles": ["identity.orgunits.read", "identity.orgunits.manage"],
+      "attributes": { "data_scope": ["SCT_HY"] }
+    }
+  ]
+}

@@ -6,7 +6,10 @@ using IndustryTrade.Modules.IdentityAccess.Domain.Organizations;
 namespace IndustryTrade.Modules.IdentityAccess.Application.Organizations;
 
 public sealed record CreateOrgUnitCommand(string Code, string Name, OrgUnitType Type, Guid? ParentId)
-    : ICommand<Guid>;
+    : ICommand<Guid>, IPermissionAuthorized
+{
+    public string RequiredPermission => IdentityPermissions.OrgUnitsManage;
+}
 
 public sealed class CreateOrgUnitValidator : AbstractValidator<CreateOrgUnitCommand>
 {

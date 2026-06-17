@@ -1,4 +1,5 @@
 using FluentValidation;
+using IndustryTrade.BuildingBlocks.Application.Security;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -24,6 +25,14 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
                 problem.Extensions["errors"] = validation.Errors
                     .GroupBy(e => e.PropertyName)
                     .ToDictionary(g => g.Key, g => g.Select(e => e.ErrorMessage).ToArray());
+                break;
+            case ForbiddenAccessException forbidden:
+                problem = new ProblemDetails
+                {
+                    Status = StatusCodes.Status403Forbidden,
+                    Title = "Forbidden",
+                    Detail = forbidden.Message
+                };
                 break;
             default:
                 logger.LogError(exception, "Unhandled exception");
