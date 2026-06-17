@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\IndustryTrade.Modules.IdentityAccess.Domain\IndustryTrade.Modules.IdentityAccess.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\IndustryTrade.BuildingBlocks.Application\IndustryTrade.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+</Project>

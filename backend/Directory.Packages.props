@@ -1,0 +1,51 @@
+<Project>
+  <PropertyGroup>
+    <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <!-- Lets us bump vulnerable/transitive packages from one place. -->
+    <CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- CQRS / mediation. MediatR 12.x is Apache-2.0 (free); 13+ is commercially licensed.
+         The pipeline is abstracted in BuildingBlocks.Application so it can be swapped. -->
+    <PackageVersion Include="MediatR" Version="12.4.1" />
+
+    <!-- Validation -->
+    <PackageVersion Include="FluentValidation" Version="11.9.2" />
+    <PackageVersion Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.2" />
+
+    <!-- Mapping -->
+    <PackageVersion Include="Mapster" Version="7.4.0" />
+    <PackageVersion Include="Mapster.DependencyInjection" Version="1.0.1" />
+
+    <!-- EF Core + PostgreSQL + PostGIS -->
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.0" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
+    <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="10.0.0" />
+
+    <!-- Messaging -->
+    <PackageVersion Include="MassTransit" Version="8.2.5" />
+    <PackageVersion Include="MassTransit.RabbitMQ" Version="8.2.5" />
+
+    <!-- DI / config / logging abstractions (for web-free building blocks) -->
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+
+    <!-- Hosting cross-cutting -->
+    <PackageVersion Include="Serilog.AspNetCore" Version="8.0.3" />
+    <PackageVersion Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+
+    <!-- Auth -->
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.0" />
+
+    <!-- Transitive security pins (override vulnerable versions pulled in by other packages). -->
+    <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.9" />
+
+    <!-- Tests -->
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageVersion Include="xunit" Version="2.9.2" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
+    <PackageVersion Include="FluentAssertions" Version="6.12.0" />
+  </ItemGroup>
+</Project>

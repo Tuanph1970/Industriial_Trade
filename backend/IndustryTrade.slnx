@@ -1,0 +1,23 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/BuildingBlocks/">
+    <Project Path="src/BuildingBlocks/IndustryTrade.BuildingBlocks.Application/IndustryTrade.BuildingBlocks.Application.csproj" />
+    <Project Path="src/BuildingBlocks/IndustryTrade.BuildingBlocks.Domain/IndustryTrade.BuildingBlocks.Domain.csproj" />
+    <Project Path="src/BuildingBlocks/IndustryTrade.BuildingBlocks.Infrastructure/IndustryTrade.BuildingBlocks.Infrastructure.csproj" />
+    <Project Path="src/BuildingBlocks/IndustryTrade.BuildingBlocks.Web/IndustryTrade.BuildingBlocks.Web.csproj" />
+  </Folder>
+  <Folder Name="/src/Hosts/">
+    <Project Path="src/Hosts/IndustryTrade.Api/IndustryTrade.Api.csproj" />
+    <Project Path="src/Hosts/IndustryTrade.Worker/IndustryTrade.Worker.csproj" />
+  </Folder>
+  <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/IdentityAccess/">
+    <Project Path="src/Modules/IdentityAccess/IndustryTrade.Modules.IdentityAccess.Api/IndustryTrade.Modules.IdentityAccess.Api.csproj" />
+    <Project Path="src/Modules/IdentityAccess/IndustryTrade.Modules.IdentityAccess.Application/IndustryTrade.Modules.IdentityAccess.Application.csproj" />
+    <Project Path="src/Modules/IdentityAccess/IndustryTrade.Modules.IdentityAccess.Domain/IndustryTrade.Modules.IdentityAccess.Domain.csproj" />
+    <Project Path="src/Modules/IdentityAccess/IndustryTrade.Modules.IdentityAccess.Infrastructure/IndustryTrade.Modules.IdentityAccess.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/IndustryTrade.Modules.IdentityAccess.Tests/IndustryTrade.Modules.IdentityAccess.Tests.csproj" />
+  </Folder>
+</Solution>
