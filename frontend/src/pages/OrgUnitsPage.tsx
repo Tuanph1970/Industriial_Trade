@@ -16,7 +16,7 @@ export default function OrgUnitsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['org-units', page, pageSize, keyword],
-    queryFn: () => getOrgUnits(page, pageSize, keyword),
+    queryFn: () => getOrgUnits({ page, pageSize, keyword }),
   });
 
   const create = useMutation({

@@ -1,4 +1,6 @@
 using IndustryTrade.Modules.IdentityAccess.Application.Organizations;
+using IndustryTrade.Modules.IdentityAccess.Application.Roles;
+using IndustryTrade.Modules.IdentityAccess.Application.Users;
 using IndustryTrade.Modules.IdentityAccess.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -23,6 +25,9 @@ public static class IdentityAccessInfrastructure
             }));
 
         services.AddScoped<IOrgUnitRepository, OrgUnitRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserAuthorizationProvider, UserAuthorizationProvider>();
         return services;
     }
 }

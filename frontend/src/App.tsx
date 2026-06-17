@@ -1,18 +1,29 @@
-import { Button, Dropdown, Layout, Menu, Result, Space, Spin, Typography } from 'antd';
-import { ApartmentOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
-import { Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Button, Dropdown, Layout, Menu, Result, Spin, Typography } from 'antd';
+import {
+  ApartmentOutlined, BarsOutlined, LogoutOutlined, SafetyCertificateOutlined, TeamOutlined, UserOutlined,
+} from '@ant-design/icons';
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
 import OrgUnitsPage from './pages/OrgUnitsPage';
+import UsersPage from './pages/UsersPage';
+import RolesPage from './pages/RolesPage';
+import IndicatorsPage from './pages/IndicatorsPage';
 
 const { Header, Sider, Content } = Layout;
 
+const navItems = [
+  { key: 'org-units', icon: <ApartmentOutlined />, label: 'Cơ quan, đơn vị' },
+  { key: 'users', icon: <TeamOutlined />, label: 'Người dùng' },
+  { key: 'roles', icon: <SafetyCertificateOutlined />, label: 'Vai trò' },
+  { key: 'indicators', icon: <BarsOutlined />, label: 'Chỉ tiêu thống kê' },
+];
+
 export default function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const auth = useAuth();
 
-  if (auth.isLoading) {
-    return <Spin fullscreen tip="Đang tải..." />;
-  }
+  if (auth.isLoading) return <Spin fullscreen tip="Đang tải..." />;
 
   if (!auth.isAuthenticated) {
     return (
@@ -26,11 +37,17 @@ export default function App() {
   }
 
   const userName = auth.user?.profile.preferred_username ?? 'Người dùng';
+  const selectedKey = location.pathname.split('/')[1] || 'org-units';
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography.Title level={4} style={{ color: '#fff', margin: 0 }}>
+      <Header
+        style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          background: '#fff', borderBottom: '1px solid #f0f0f0', paddingInline: 24,
+        }}
+      >
+        <Typography.Title level={4} style={{ margin: 0, color: '#1677ff' }}>
           CSDL ngành Công Thương — Hưng Yên
         </Typography.Title>
         <Dropdown
@@ -39,27 +56,27 @@ export default function App() {
             onClick: () => void auth.signoutRedirect(),
           }}
         >
-          <Button type="text" style={{ color: '#fff' }} icon={<UserOutlined />}>
-            {userName}
-          </Button>
+          <Button type="text" icon={<UserOutlined />}>{userName}</Button>
         </Dropdown>
       </Header>
       <Layout>
         <Sider width={240} theme="light">
           <Menu
             mode="inline"
-            defaultSelectedKeys={['org-units']}
+            selectedKeys={[selectedKey]}
             onClick={({ key }) => navigate(`/${key}`)}
-            items={[{ key: 'org-units', icon: <ApartmentOutlined />, label: 'Cơ quan, đơn vị' }]}
+            style={{ height: '100%', borderInlineEnd: 0 }}
+            items={navItems}
           />
         </Sider>
-        <Content style={{ padding: 24 }}>
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Routes>
-              <Route path="/" element={<Navigate to="/org-units" replace />} />
-              <Route path="/org-units" element={<OrgUnitsPage />} />
-            </Routes>
-          </Space>
+        <Content style={{ padding: 24, background: '#fff' }}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/org-units" replace />} />
+            <Route path="/org-units" element={<OrgUnitsPage />} />
+            <Route path="/users" element={<UsersPage />} />
+            <Route path="/roles" element={<RolesPage />} />
+            <Route path="/indicators" element={<IndicatorsPage />} />
+          </Routes>
         </Content>
       </Layout>
     </Layout>

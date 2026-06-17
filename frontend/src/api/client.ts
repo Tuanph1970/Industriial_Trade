@@ -21,6 +21,15 @@ export interface PagedResult<T> {
   totalPages: number;
 }
 
+interface PageParams {
+  page: number;
+  pageSize: number;
+  keyword?: string;
+}
+
+const pageParams = (p: PageParams) => ({ page: p.page, pageSize: p.pageSize, keyword: p.keyword || undefined });
+
+// ---- Org units -----------------------------------------------------------
 export type OrgUnitType = 1 | 2 | 3; // Department | Division | Commune
 
 export interface OrgUnit {
@@ -33,19 +42,75 @@ export interface OrgUnit {
   isActive: boolean;
 }
 
-export async function getOrgUnits(page: number, pageSize: number, keyword?: string) {
-  const { data } = await api.get<PagedResult<OrgUnit>>('/api/identity/org-units', {
-    params: { page, pageSize, keyword: keyword || undefined },
-  });
-  return data;
-}
+export const getOrgUnits = (p: PageParams) =>
+  api.get<PagedResult<OrgUnit>>('/api/identity/org-units', { params: pageParams(p) }).then((r) => r.data);
 
-export async function createOrgUnit(input: {
+export const createOrgUnit = (b: { code: string; name: string; type: OrgUnitType; parentId?: string | null }) =>
+  api.post<{ id: string }>('/api/identity/org-units', b).then((r) => r.data);
+
+// ---- Roles ---------------------------------------------------------------
+export interface Role {
+  id: string;
   code: string;
   name: string;
-  type: OrgUnitType;
-  parentId?: string | null;
-}) {
-  const { data } = await api.post<{ id: string }>('/api/identity/org-units', input);
-  return data;
+  permissions: string[];
+  isActive: boolean;
 }
+
+export const ALL_PERMISSIONS = [
+  'identity.orgunits.read', 'identity.orgunits.manage',
+  'identity.users.read', 'identity.users.manage',
+  'identity.roles.read', 'identity.roles.manage',
+  'catalog.indicators.read', 'catalog.indicators.manage',
+];
+
+export const getRoles = (p: PageParams) =>
+  api.get<PagedResult<Role>>('/api/identity/roles', { params: pageParams(p) }).then((r) => r.data);
+
+export const createRole = (b: { code: string; name: string; permissions: string[] }) =>
+  api.post<{ id: string }>('/api/identity/roles', b).then((r) => r.data);
+
+// ---- Users ---------------------------------------------------------------
+export interface UserAccount {
+  id: string;
+  userName: string;
+  fullName: string | null;
+  email: string | null;
+  orgUnitId: string | null;
+  roleIds: string[];
+  isActive: boolean;
+}
+
+export const getUsers = (p: PageParams) =>
+  api.get<PagedResult<UserAccount>>('/api/identity/users', { params: pageParams(p) }).then((r) => r.data);
+
+export const createUser = (b: {
+  userName: string; fullName?: string; email?: string; orgUnitId?: string | null; roleIds: string[];
+}) => api.post<{ id: string }>('/api/identity/users', b).then((r) => r.data);
+
+// ---- Indicators (Catalog) ------------------------------------------------
+export type IndicatorDataType = 1 | 2 | 3; // Number | Text | Enumeration
+export type IndustrySector = 1 | 2 | 3 | 4; // Industry | Energy | Commerce | MarketSurveillance
+
+export interface Indicator {
+  id: string;
+  code: string;
+  name: string;
+  unit: string;
+  dataType: IndicatorDataType;
+  sector: IndustrySector;
+  effectiveFrom: string;
+  retiredAt: string | null;
+  version: number;
+  isActive: boolean;
+}
+
+export const getIndicators = (p: PageParams & { sector?: IndustrySector }) =>
+  api.get<PagedResult<Indicator>>('/api/catalog/indicators', {
+    params: { ...pageParams(p), sector: p.sector },
+  }).then((r) => r.data);
+
+export const createIndicator = (b: {
+  code: string; name: string; unit: string;
+  dataType: IndicatorDataType; sector: IndustrySector; effectiveFrom: string;
+}) => api.post<{ id: string }>('/api/catalog/indicators', b).then((r) => r.data);

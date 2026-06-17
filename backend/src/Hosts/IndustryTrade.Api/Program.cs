@@ -2,6 +2,7 @@ using IndustryTrade.Api;
 using IndustryTrade.BuildingBlocks.Application.Behaviors;
 using IndustryTrade.BuildingBlocks.Web;
 using IndustryTrade.BuildingBlocks.Web.Security;
+using IndustryTrade.Modules.Catalog.Api;
 using IndustryTrade.Modules.IdentityAccess.Api;
 using MediatR;
 using Microsoft.OpenApi.Models;
@@ -20,7 +21,7 @@ builder.Host.UseSerilog((ctx, cfg) => cfg
 IModule[] modules =
 [
     new IdentityAccessModule(),
-    // new CatalogModule(),
+    new CatalogModule(),
     // new SectorDataModule(),
     // new ReportingModule(),
     // new AnalyticsModule(),

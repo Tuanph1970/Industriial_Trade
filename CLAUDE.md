@@ -4,8 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status: walking skeleton scaffolded
 
-A buildable Phase-0 skeleton exists. The IdentityAccess context is wired end-to-end (DB → API → UI)
-as the reference; the other six contexts are not built yet — replicate the IdentityAccess shape.
+Two bounded contexts are built end-to-end (DB → API → UI): **IdentityAccess** (org units, users,
+roles, Keycloak auth + DB-driven function/data-scope authorization) and **Catalog** (versioned
+statistical indicators). Five contexts remain (SectorData, Reporting, Analytics, Integration,
+AuditSystem) — replicate the IdentityAccess/Catalog shape. The frontend uses an explicit **light
+theme** (`theme.defaultAlgorithm`) as the default for all pages.
+
+Authorization note: function-scope permissions and data-scope org-unit paths are resolved from the
+**IdentityAccess database** (a user's roles + assigned unit) via a claims transformation after
+Keycloak authentication — not from static token attributes. A dev seeder creates demo org units,
+roles, and users (`superadmin`, `chuyenvien`) matching the Keycloak realm.
 
 - `docs/Mo ta ky thuat BC nganh CT.pdf` — authoritative Vietnamese requirements. 75 pages; read with
   the `pages` parameter in chunks.

@@ -1,5 +1,7 @@
 using IndustryTrade.BuildingBlocks.Infrastructure.Outbox;
 using IndustryTrade.Modules.IdentityAccess.Domain.Organizations;
+using IndustryTrade.Modules.IdentityAccess.Domain.Roles;
+using IndustryTrade.Modules.IdentityAccess.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace IndustryTrade.Modules.IdentityAccess.Infrastructure.Persistence;
@@ -14,6 +16,8 @@ public sealed class IdentityAccessDbContext(DbContextOptions<IdentityAccessDbCon
     public const string Schema = "identity";
 
     public DbSet<OrgUnit> OrgUnits => Set<OrgUnit>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<UserAccount> Users => Set<UserAccount>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

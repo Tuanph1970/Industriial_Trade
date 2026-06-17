@@ -2,8 +2,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\BuildingBlocks\IndustryTrade.BuildingBlocks.Web\IndustryTrade.BuildingBlocks.Web.csproj" />
     <ProjectReference Include="..\..\BuildingBlocks\IndustryTrade.BuildingBlocks.Infrastructure\IndustryTrade.BuildingBlocks.Infrastructure.csproj" />
-    <!-- Module Api projects. Add the other six contexts here as they are built. -->
+    <!-- Module Api projects. Add the remaining contexts here as they are built. -->
     <ProjectReference Include="..\..\Modules\IdentityAccess\IndustryTrade.Modules.IdentityAccess.Api\IndustryTrade.Modules.IdentityAccess.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Catalog\IndustryTrade.Modules.Catalog.Api\IndustryTrade.Modules.Catalog.Api.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" />

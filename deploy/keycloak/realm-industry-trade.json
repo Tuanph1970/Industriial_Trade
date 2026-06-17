@@ -43,19 +43,6 @@
           }
         },
         {
-          "name": "data-scope",
-          "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-attribute-mapper",
-          "config": {
-            "user.attribute": "data_scope",
-            "claim.name": "scope_path",
-            "jsonType.label": "String",
-            "multivalued": "true",
-            "access.token.claim": "true",
-            "id.token.claim": "false"
-          }
-        },
-        {
           "name": "api-audience",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-audience-mapper",
@@ -84,8 +71,7 @@
       "firstName": "Chuyen",
       "lastName": "Vien",
       "credentials": [{ "type": "password", "value": "chuyenvien", "temporary": false }],
-      "realmRoles": ["identity.orgunits.read", "identity.orgunits.manage"],
-      "attributes": { "data_scope": ["SCT_HY"] }
+      "realmRoles": ["identity.orgunits.read", "identity.orgunits.manage"]
     }
   ]
 }
