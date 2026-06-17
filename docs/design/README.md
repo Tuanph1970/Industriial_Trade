@@ -21,6 +21,7 @@ designed a better, modern architecture.
 | 3 | [03-domain-model-ddd.md](./03-domain-model-ddd.md) | Bounded contexts, aggregates, domain events, the reporting-approval state machine/saga |
 | 4 | [04-data-architecture.md](./04-data-architecture.md) | PostgreSQL schema strategy, partitioning, PostGIS, audit, scaling, data migration from the legacy SQL Server |
 | 5 | [05-implementation-plan.md](./05-implementation-plan.md) | Phased delivery plan, milestones, team mapping, backlog, risks, definition of done |
+| — | [../PROJECT-STATUS.md](../PROJECT-STATUS.md) | **Live build status** — phases done/partial/pending, verification, next steps |
 
 ## Key decisions (ADR summary)
 

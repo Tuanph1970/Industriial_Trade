@@ -1,5 +1,7 @@
 # 05 — Implementation Plan
 
+> 📊 **Live status:** see [../PROJECT-STATUS.md](../PROJECT-STATUS.md) for what is built/verified vs. pending.
+
 ## 1. Approach
 
 - **Iterative, vertical slices.** Deliver end-to-end (DB → API → UI) per bounded context so each
