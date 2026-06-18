@@ -48,7 +48,8 @@ export PATH="$HOME/.dotnet:$PATH" DOTNET_ROOT="$HOME/.dotnet"
 ```bash
 # backend (from backend/)
 dotnet build                                   # build solution
-dotnet test                                    # all tests
+dotnet test                                    # all tests (integration tests need Docker — Testcontainers)
+dotnet test --filter "Category!=Integration"   # unit tests only (no Docker required)
 dotnet test --filter "FullyQualifiedName~OrgUnitTests"   # single test class
 dotnet run --project src/Hosts/IndustryTrade.Api         # API + Swagger; auto-migrates in Dev
 dotnet dotnet-ef migrations add <Name> -p <Module>.Infrastructure -s src/Hosts/IndustryTrade.Api -o Persistence/Migrations
@@ -63,6 +64,10 @@ cp .env.example .env && docker compose up -d --build   # api :8080, frontend :80
 
 To add a bounded context, copy the IdentityAccess four-project shape and register it in
 `Program.cs` — full steps in `backend/README.md`.
+
+CI: `.github/workflows/ci.yml` builds + tests the backend (.NET 10) and builds the frontend on every
+push/PR to `main`. Integration tests (`tests/IndustryTrade.IntegrationTests`) use Testcontainers to
+spin up real PostgreSQL, so they require Docker; tag them `[Trait("Category","Integration")]`.
 
 ## What the system is
 

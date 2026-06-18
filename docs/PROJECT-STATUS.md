@@ -9,7 +9,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 | Phase | Scope | Status |
 |------|-------|--------|
-| 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~85% |
+| 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~90% |
 | 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak, audit log | ✅ ~95% |
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
@@ -28,7 +28,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Transactional outbox**: SaveChanges interceptor writes domain events to per-context outbox
   tables; an `OutboxProcessor<TContext>` background service drains them and publishes in-process via
   MediatR (verified: seeded `OrgUnitCreated` events written + processed)
-- ⬜ CI/CD pipeline (GitHub Actions) — not yet
+- ✅ **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`) — builds + tests the backend on .NET 10
+  and builds the frontend on every push/PR to main
+- ✅ **Integration tests** via Testcontainers (real PostgreSQL): outbox interceptor + data-scope spec
 - ⬜ OpenTelemetry traces + Prometheus/Grafana metrics + Seq/Loki logs — not yet
 - ⬜ Redis/MinIO not yet used in code; RabbitMQ delivery (Worker) is the future cross-service path
 
@@ -103,7 +105,8 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **38/38 pass** (domain + authorization + state-machine + notification + audit + service lifecycle)
+- `dotnet test` → **40/40 pass** — 38 unit + **2 integration** (Testcontainers PostgreSQL: outbox
+  interceptor, data-scope specification)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK
@@ -114,7 +117,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 All 7 designed bounded contexts are built. Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
-- **CI/CD** pipeline, OpenTelemetry/metrics; per-user notification routing
+- OpenTelemetry/metrics; per-user notification routing; broaden integration-test coverage
 - UX polish: dashboard charts, interactive **GIS map**, Excel/XML batch import, edit/delete + detail views
 - Catalog completion (indicator sets, report templates, reporting periods)
 
