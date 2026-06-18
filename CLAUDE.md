@@ -6,9 +6,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Three bounded contexts are built (DB → API → UI): **IdentityAccess** (org units, users, roles,
 Keycloak auth + DB-driven function/data-scope authorization), **Catalog** (versioned statistical
-indicators), and **SectorData** (generic `IndicatorObservation` + `IndustrialCluster` with PostGIS
-geometry; more rich entities pending). Remaining: Reporting, Analytics, Integration, AuditSystem —
-replicate the existing module shape. The frontend uses an explicit **light theme**
+indicators), and **SectorData** (generic `IndicatorObservation`; rich entities — industrial clusters, petroleum
+stations, commerce locations with PostGIS geometry, e-commerce participants, market-violation
+records). Remaining: Reporting, Analytics, Integration, AuditSystem — replicate the existing module
+shape. The frontend uses an explicit **light theme**
 (`theme.defaultAlgorithm`) as the default for all pages.
 
 Data-scope has two forms on `ICurrentUser`: `DataScopePaths` (org-unit tree prefix match) and

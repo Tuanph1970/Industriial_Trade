@@ -186,3 +186,48 @@ export const createViolation = (b: {
   caseNo: string; group: ViolationGroup; orgUnitId: string; businessName: string;
   inspectedOn: string; violationContent: string;
 }) => api.post<{ id: string }>('/api/sector/violations', b).then((r) => r.data);
+
+export type StationStatus = 1 | 2 | 3; // Operating | Suspended | Closed
+
+export interface PetrolStation {
+  id: string; code: string; name: string; orgUnitId: string;
+  licenseNo: string | null; address: string | null;
+  latitude: number | null; longitude: number | null; status: StationStatus;
+}
+
+export const getPetrolStations = (p: PageParams) =>
+  api.get<PagedResult<PetrolStation>>('/api/sector/petrol-stations', { params: pageParams(p) }).then((r) => r.data);
+
+export const createPetrolStation = (b: {
+  code: string; name: string; orgUnitId: string; licenseNo?: string | null; address?: string | null;
+  latitude?: number | null; longitude?: number | null; status: StationStatus;
+}) => api.post<{ id: string }>('/api/sector/petrol-stations', b).then((r) => r.data);
+
+export type CommerceLocationType = 1 | 2 | 3 | 4; // Market | Supermarket | Mall | ConvenienceStore
+
+export interface CommerceLocation {
+  id: string; code: string; name: string; type: CommerceLocationType; orgUnitId: string;
+  address: string | null; latitude: number | null; longitude: number | null;
+}
+
+export const getCommerceLocations = (p: PageParams & { type?: CommerceLocationType }) =>
+  api.get<PagedResult<CommerceLocation>>('/api/sector/commerce-locations', {
+    params: { ...pageParams(p), type: p.type },
+  }).then((r) => r.data);
+
+export const createCommerceLocation = (b: {
+  code: string; name: string; type: CommerceLocationType; orgUnitId: string;
+  address?: string | null; latitude?: number | null; longitude?: number | null;
+}) => api.post<{ id: string }>('/api/sector/commerce-locations', b).then((r) => r.data);
+
+export interface EcommerceParticipant {
+  id: string; taxCode: string; businessName: string; orgUnitId: string;
+  platforms: string[]; mainGoods: string | null;
+}
+
+export const getEcommerce = (p: PageParams) =>
+  api.get<PagedResult<EcommerceParticipant>>('/api/sector/ecommerce-participants', { params: pageParams(p) }).then((r) => r.data);
+
+export const createEcommerce = (b: {
+  taxCode: string; businessName: string; orgUnitId: string; platforms: string[]; mainGoods?: string | null;
+}) => api.post<{ id: string }>('/api/sector/ecommerce-participants', b).then((r) => r.data);

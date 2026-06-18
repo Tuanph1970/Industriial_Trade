@@ -1,7 +1,7 @@
 import { Button, Dropdown, Layout, Menu, Result, Spin, Typography } from 'antd';
 import {
-  ApartmentOutlined, BarsOutlined, ClusterOutlined, FundOutlined, LogoutOutlined,
-  SafetyCertificateOutlined, TeamOutlined, UserOutlined, WarningOutlined,
+  ApartmentOutlined, BarsOutlined, ClusterOutlined, FundOutlined, GoldOutlined, LogoutOutlined,
+  SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined, WarningOutlined,
 } from '@ant-design/icons';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
@@ -12,6 +12,9 @@ import IndicatorsPage from './pages/IndicatorsPage';
 import ClustersPage from './pages/ClustersPage';
 import ObservationsPage from './pages/ObservationsPage';
 import ViolationsPage from './pages/ViolationsPage';
+import PetrolStationsPage from './pages/PetrolStationsPage';
+import CommerceLocationsPage from './pages/CommerceLocationsPage';
+import EcommercePage from './pages/EcommercePage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -22,6 +25,9 @@ const navItems = [
   { key: 'indicators', icon: <BarsOutlined />, label: 'Chỉ tiêu thống kê' },
   { key: 'clusters', icon: <ClusterOutlined />, label: 'Cụm công nghiệp' },
   { key: 'observations', icon: <FundOutlined />, label: 'Số liệu chỉ tiêu' },
+  { key: 'petrol-stations', icon: <GoldOutlined />, label: 'Cửa hàng xăng dầu' },
+  { key: 'commerce-locations', icon: <ShopOutlined />, label: 'Địa điểm thương mại' },
+  { key: 'ecommerce', icon: <ShoppingOutlined />, label: 'Thương mại điện tử' },
   { key: 'violations', icon: <WarningOutlined />, label: 'Hồ sơ vi phạm' },
 ];
 
@@ -85,6 +91,9 @@ export default function App() {
             <Route path="/indicators" element={<IndicatorsPage />} />
             <Route path="/clusters" element={<ClustersPage />} />
             <Route path="/observations" element={<ObservationsPage />} />
+            <Route path="/petrol-stations" element={<PetrolStationsPage />} />
+            <Route path="/commerce-locations" element={<CommerceLocationsPage />} />
+            <Route path="/ecommerce" element={<EcommercePage />} />
             <Route path="/violations" element={<ViolationsPage />} />
           </Routes>
         </Content>

@@ -12,7 +12,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 | 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~80% |
 | 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak | ✅ ~90% |
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
-| 3 — Sector Data | Observations + rich entities (clusters, violations, petrol…) | 🟡 ~55% |
+| 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
 | 4 — Reporting & Workflow | Campaigns, approval saga/state machine | ⬜ |
 | 5 — Analytics & Dashboards | Read models, aggregate reports | ⬜ |
 | 6 — Integration, Security L3, Go-live | LGSP/NDXP, hardening, data migration | ⬜ |
@@ -50,19 +50,21 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ Data-scope by **org-unit id** (user's unit + descendants) — provider/claims now emit `scope_unit`
 - ✅ **Market-violation cases** (hồ sơ vi phạm) — both groups (prohibited/counterfeit, food-safety),
   case lifecycle (reported → handling → resolved), data-scoped by unit
-- ✅ `SectorData` module on its own `sector` schema + migration; create/list endpoints; registered in host
-- ⬜ Remaining rich entities: petroleum stations, commerce locations, e-commerce participants
+- ✅ **Petroleum stations** & **commerce locations** (markets/supermarkets/malls/convenience stores)
+  — rich entities with PostGIS Point geometry; **e-commerce participants** (platforms + goods)
+- ✅ `SectorData` module on its own `sector` schema (6 entity tables, 3 PostGIS geometry columns);
+  create/list endpoints; registered in host
 - ⬜ Excel/XML batch import; observation submit/approve workflow hooks; map view in UI
 
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
-- ✅ Pages: Org Units, Users, Roles, Indicators, Industrial Clusters, Observations,
-  **Market Violations** (list / search / create)
+- ✅ Pages: Org Units, Users, Roles, Indicators, Industrial Clusters, Observations, Market Violations,
+  **Petroleum Stations, Commerce Locations, E-commerce Participants** (list / search / create)
 - ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **22/22 pass** (domain + authorization behavior across 3 modules)
+- `dotnet test` → **25/25 pass** (domain + authorization behavior across 3 modules)
 - `npm run build` (frontend) → OK
 - Runtime smoke test → `identity` + `catalog` + `sector` schemas migrate, dev seed applies, PostGIS
   geometry column + GIST index created, all endpoints reject anonymous callers (401)

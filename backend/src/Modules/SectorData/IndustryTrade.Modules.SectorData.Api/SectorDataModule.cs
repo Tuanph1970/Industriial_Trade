@@ -31,6 +31,9 @@ public sealed class SectorDataModule : IModule
         endpoints.MapObservationEndpoints();
         endpoints.MapClusterEndpoints();
         endpoints.MapViolationEndpoints();
+        endpoints.MapPetrolStationEndpoints();
+        endpoints.MapCommerceLocationEndpoints();
+        endpoints.MapEcommerceEndpoints();
     }
 
     public async Task ApplyMigrationsAsync(IServiceProvider services)

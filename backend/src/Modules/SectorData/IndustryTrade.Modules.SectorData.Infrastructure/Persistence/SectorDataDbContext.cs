@@ -1,6 +1,9 @@
 using IndustryTrade.BuildingBlocks.Infrastructure.Outbox;
 using IndustryTrade.Modules.SectorData.Domain.Clusters;
+using IndustryTrade.Modules.SectorData.Domain.CommerceLocations;
+using IndustryTrade.Modules.SectorData.Domain.Ecommerce;
 using IndustryTrade.Modules.SectorData.Domain.Observations;
+using IndustryTrade.Modules.SectorData.Domain.PetroleumStations;
 using IndustryTrade.Modules.SectorData.Domain.Violations;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +17,9 @@ public sealed class SectorDataDbContext(DbContextOptions<SectorDataDbContext> op
     public DbSet<IndicatorObservation> Observations => Set<IndicatorObservation>();
     public DbSet<IndustrialCluster> Clusters => Set<IndustrialCluster>();
     public DbSet<MarketViolationCase> Violations => Set<MarketViolationCase>();
+    public DbSet<PetroleumStation> PetroleumStations => Set<PetroleumStation>();
+    public DbSet<CommerceLocation> CommerceLocations => Set<CommerceLocation>();
+    public DbSet<EcommerceParticipant> EcommerceParticipants => Set<EcommerceParticipant>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

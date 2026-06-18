@@ -25,7 +25,10 @@ public static class IdentityAccessSeeder
                 "catalog.indicators.read", "catalog.indicators.manage",
                 "sector.observations.read", "sector.observations.manage",
                 "sector.clusters.read", "sector.clusters.manage",
-                "sector.violations.read", "sector.violations.manage"
+                "sector.violations.read", "sector.violations.manage",
+                "sector.petrol.read", "sector.petrol.manage",
+                "sector.commerce.read", "sector.commerce.manage",
+                "sector.ecommerce.read", "sector.ecommerce.manage"
             ]);
         db.Roles.AddRange(adminRole, specialistRole);
 

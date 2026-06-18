@@ -1,5 +1,8 @@
 using IndustryTrade.Modules.SectorData.Application.Clusters;
+using IndustryTrade.Modules.SectorData.Application.CommerceLocations;
+using IndustryTrade.Modules.SectorData.Application.Ecommerce;
 using IndustryTrade.Modules.SectorData.Application.Observations;
+using IndustryTrade.Modules.SectorData.Application.PetroleumStations;
 using IndustryTrade.Modules.SectorData.Application.Violations;
 using IndustryTrade.Modules.SectorData.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -26,6 +29,9 @@ public static class SectorDataInfrastructure
         services.AddScoped<IObservationRepository, ObservationRepository>();
         services.AddScoped<IClusterRepository, ClusterRepository>();
         services.AddScoped<IViolationRepository, ViolationRepository>();
+        services.AddScoped<IPetrolStationRepository, PetrolStationRepository>();
+        services.AddScoped<ICommerceLocationRepository, CommerceLocationRepository>();
+        services.AddScoped<IEcommerceParticipantRepository, EcommerceParticipantRepository>();
         return services;
     }
 }
