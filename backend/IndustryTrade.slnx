@@ -11,6 +11,11 @@
     <Project Path="src/Hosts/IndustryTrade.Worker/IndustryTrade.Worker.csproj" />
   </Folder>
   <Folder Name="/src/Modules/" />
+  <Folder Name="/src/Modules/Analytics/">
+    <Project Path="src/Modules/Analytics/IndustryTrade.Modules.Analytics.Api/IndustryTrade.Modules.Analytics.Api.csproj" />
+    <Project Path="src/Modules/Analytics/IndustryTrade.Modules.Analytics.Application/IndustryTrade.Modules.Analytics.Application.csproj" />
+    <Project Path="src/Modules/Analytics/IndustryTrade.Modules.Analytics.Infrastructure/IndustryTrade.Modules.Analytics.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Catalog/">
     <Project Path="src/Modules/Catalog/IndustryTrade.Modules.Catalog.Api/IndustryTrade.Modules.Catalog.Api.csproj" />
     <Project Path="src/Modules/Catalog/IndustryTrade.Modules.Catalog.Application/IndustryTrade.Modules.Catalog.Application.csproj" />

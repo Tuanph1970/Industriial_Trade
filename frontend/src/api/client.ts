@@ -293,3 +293,18 @@ export const getUnreadCount = () =>
 
 export const markNotificationRead = (id: string) => api.post(`/api/notifications/${id}/read`);
 export const markAllNotificationsRead = () => api.post('/api/notifications/read-all');
+
+// ---- Analytics & Dashboards ----------------------------------------------
+export interface Dashboard {
+  clusters: number; petrolStations: number; commerceLocations: number; ecommerceParticipants: number;
+  violations: number; observations: number; indicators: number; campaigns: number;
+  submissions: number; pendingApproval: number;
+}
+export interface ViolationSummaryRow { group: number; status: number; count: number; totalFine: number; }
+export interface StateCount { state: number; count: number; }
+
+export const getDashboard = () => api.get<Dashboard>('/api/analytics/dashboard').then((r) => r.data);
+export const getViolationsSummary = () =>
+  api.get<ViolationSummaryRow[]>('/api/analytics/violations-summary').then((r) => r.data);
+export const getReportingSummary = () =>
+  api.get<StateCount[]>('/api/analytics/reporting-summary').then((r) => r.data);

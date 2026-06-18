@@ -14,7 +14,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
 | 4 — Reporting & Workflow | Campaigns, approval saga/state machine, notifications | 🟡 ~95% |
-| 5 — Analytics & Dashboards | Read models, aggregate reports | ⬜ |
+| 5 — Analytics & Dashboards | Read models, aggregate reports | 🟡 ~75% |
 | 6 — Integration, Security L3, Go-live | LGSP/NDXP, hardening, data migration | ⬜ |
 
 ## What is built (detail)
@@ -73,12 +73,21 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ⬜ Per-user notification routing (currently a shared activity feed); RabbitMQ cross-service delivery
 - ⬜ Bind report content to Catalog templates / SectorData observations (auto-extract)
 
+### Phase 5 — Analytics & Dashboards 🟡
+- ✅ `Analytics` context (read-only, no schema): CQRS read side via Dapper aggregate queries over the
+  operational schemas, **data-scoped** by org unit (super-admin sees all)
+- ✅ Endpoints: leadership **dashboard** (cross-domain counts), violations summary (by group/status +
+  total fines), reporting summary (submissions by state)
+- ⬜ Materialized views refreshed on events (currently live queries); charts; more aggregate reports
+  (industry/commerce per Circular-34 templates); export
+
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
 - ✅ Pages: Org Units, Users, Roles, Indicators, Industrial Clusters, Observations, Market Violations,
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
 - ✅ **Campaigns** + **Submissions** (workflow action buttons per state + transition-history timeline)
 - ✅ **Notifications** page + header bell with unread badge
+- ✅ **Dashboard** (landing page): statistic cards + reporting/violation breakdown tables
 - ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
 
 ## Verification (current)
@@ -91,11 +100,11 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   geometry column + GIST index created, all endpoints reject anonymous callers (401)
 
 ## Next up
-- Phase 5 — **Analytics & Dashboards**: CQRS read models / materialized views, aggregate reports
-  for leadership (consumes SectorData + Reporting)
-- Phase 6 — **Integration** (LGSP/NDXP) + **AuditSystem** (audit-log context) + security L3 hardening
+- **AuditSystem** context — audit log of all actions (a Level-3 requirement) + an audit pipeline
+  behavior; the file/resource (MinIO) module
+- Phase 6 — **Integration** (LGSP/NDXP connectors + connection-status API)
 - Cross-cutting backlog: CI/CD pipeline, OpenTelemetry/metrics, per-user notification routing,
-  interactive map view (GIS), Excel/XML import
+  materialized views + charts, interactive map view (GIS), Excel/XML import
 
 ## Commits so far (this branch)
 - `e1544f2` docs: design baseline

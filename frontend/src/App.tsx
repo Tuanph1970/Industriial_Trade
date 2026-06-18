@@ -1,8 +1,8 @@
 import { Badge, Button, Dropdown, Layout, Menu, Result, Space, Spin, Typography } from 'antd';
 import {
   ApartmentOutlined, AuditOutlined, BarsOutlined, BellOutlined, CalendarOutlined, ClusterOutlined,
-  FundOutlined, GoldOutlined, LogoutOutlined, SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined,
-  TeamOutlined, UserOutlined, WarningOutlined,
+  DashboardOutlined, FundOutlined, GoldOutlined, LogoutOutlined, SafetyCertificateOutlined, ShopOutlined,
+  ShoppingOutlined, TeamOutlined, UserOutlined, WarningOutlined,
 } from '@ant-design/icons';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
@@ -21,10 +21,12 @@ import EcommercePage from './pages/EcommercePage';
 import CampaignsPage from './pages/CampaignsPage';
 import SubmissionsPage from './pages/SubmissionsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import DashboardPage from './pages/DashboardPage';
 
 const { Header, Sider, Content } = Layout;
 
 const navItems = [
+  { key: 'dashboard', icon: <DashboardOutlined />, label: 'Tổng quan' },
   { key: 'org-units', icon: <ApartmentOutlined />, label: 'Cơ quan, đơn vị' },
   { key: 'users', icon: <TeamOutlined />, label: 'Người dùng' },
   { key: 'roles', icon: <SafetyCertificateOutlined />, label: 'Vai trò' },
@@ -65,7 +67,7 @@ export default function App() {
   }
 
   const userName = auth.user?.profile.preferred_username ?? 'Người dùng';
-  const selectedKey = location.pathname.split('/')[1] || 'org-units';
+  const selectedKey = location.pathname.split('/')[1] || 'dashboard';
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -104,7 +106,8 @@ export default function App() {
         </Sider>
         <Content style={{ padding: 24, background: '#fff' }}>
           <Routes>
-            <Route path="/" element={<Navigate to="/org-units" replace />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/dashboard" element={<DashboardPage />} />
             <Route path="/org-units" element={<OrgUnitsPage />} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/roles" element={<RolesPage />} />

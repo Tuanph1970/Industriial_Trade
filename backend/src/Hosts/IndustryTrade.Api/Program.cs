@@ -3,6 +3,7 @@ using IndustryTrade.BuildingBlocks.Application.Behaviors;
 using IndustryTrade.BuildingBlocks.Web;
 using IndustryTrade.BuildingBlocks.Web.Security;
 using IndustryTrade.Modules.Catalog.Api;
+using IndustryTrade.Modules.Analytics.Api;
 using IndustryTrade.Modules.IdentityAccess.Api;
 using IndustryTrade.Modules.Notifications.Api;
 using IndustryTrade.Modules.Reporting.Api;
@@ -28,7 +29,7 @@ IModule[] modules =
     new SectorDataModule(),
     new ReportingModule(),
     new NotificationsModule(),
-    // new AnalyticsModule(),
+    new AnalyticsModule(),
     // new IntegrationModule(),
     // new AuditSystemModule(),
 ];

@@ -23,6 +23,9 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NetTopologySuite" Version="10.0.0" />
     <PackageVersion Include="NetTopologySuite" Version="2.6.0" />
+    <!-- Dapper for read-only analytics aggregate queries (docs/design/03 §6). -->
+    <PackageVersion Include="Dapper" Version="2.1.66" />
+    <PackageVersion Include="Npgsql" Version="10.0.0" />
 
     <!-- Messaging -->
     <PackageVersion Include="MassTransit" Version="8.2.5" />
