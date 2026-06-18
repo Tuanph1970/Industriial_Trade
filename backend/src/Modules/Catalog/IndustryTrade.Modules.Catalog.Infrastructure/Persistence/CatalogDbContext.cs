@@ -1,5 +1,8 @@
 using IndustryTrade.BuildingBlocks.Infrastructure.Outbox;
 using IndustryTrade.Modules.Catalog.Domain.Indicators;
+using IndustryTrade.Modules.Catalog.Domain.IndicatorSets;
+using IndustryTrade.Modules.Catalog.Domain.ReportingPeriods;
+using IndustryTrade.Modules.Catalog.Domain.ReportTemplates;
 using Microsoft.EntityFrameworkCore;
 
 namespace IndustryTrade.Modules.Catalog.Infrastructure.Persistence;
@@ -10,6 +13,9 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public const string Schema = "catalog";
 
     public DbSet<Indicator> Indicators => Set<Indicator>();
+    public DbSet<IndicatorSet> IndicatorSets => Set<IndicatorSet>();
+    public DbSet<ReportTemplate> ReportTemplates => Set<ReportTemplate>();
+    public DbSet<ReportingPeriodDefinition> ReportingPeriods => Set<ReportingPeriodDefinition>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

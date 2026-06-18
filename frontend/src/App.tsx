@@ -26,6 +26,9 @@ import DashboardPage from './pages/DashboardPage';
 import AuditLogsPage from './pages/AuditLogsPage';
 import IntegrationPage from './pages/IntegrationPage';
 import MapPage from './pages/MapPage';
+import IndicatorSetsPage from './pages/IndicatorSetsPage';
+import ReportTemplatesPage from './pages/ReportTemplatesPage';
+import ReportingPeriodsPage from './pages/ReportingPeriodsPage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -35,7 +38,15 @@ const navItems = [
   { key: 'org-units', icon: <ApartmentOutlined />, label: 'Cơ quan, đơn vị' },
   { key: 'users', icon: <TeamOutlined />, label: 'Người dùng' },
   { key: 'roles', icon: <SafetyCertificateOutlined />, label: 'Vai trò' },
-  { key: 'indicators', icon: <BarsOutlined />, label: 'Chỉ tiêu thống kê' },
+  {
+    key: 'catalog', icon: <BarsOutlined />, label: 'Danh mục',
+    children: [
+      { key: 'indicators', label: 'Chỉ tiêu thống kê' },
+      { key: 'indicator-sets', label: 'Bộ chỉ tiêu' },
+      { key: 'report-templates', label: 'Biểu mẫu báo cáo' },
+      { key: 'reporting-periods', label: 'Kỳ báo cáo (danh mục)' },
+    ],
+  },
   { key: 'clusters', icon: <ClusterOutlined />, label: 'Cụm công nghiệp' },
   { key: 'observations', icon: <FundOutlined />, label: 'Số liệu chỉ tiêu' },
   { key: 'petrol-stations', icon: <GoldOutlined />, label: 'Cửa hàng xăng dầu' },
@@ -106,6 +117,7 @@ export default function App() {
           <Menu
             mode="inline"
             selectedKeys={[selectedKey]}
+            defaultOpenKeys={['catalog']}
             onClick={({ key }) => navigate(`/${key}`)}
             style={{ height: '100%', borderInlineEnd: 0 }}
             items={navItems}
@@ -120,6 +132,9 @@ export default function App() {
             <Route path="/users" element={<UsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/indicators" element={<IndicatorsPage />} />
+            <Route path="/indicator-sets" element={<IndicatorSetsPage />} />
+            <Route path="/report-templates" element={<ReportTemplatesPage />} />
+            <Route path="/reporting-periods" element={<ReportingPeriodsPage />} />
             <Route path="/clusters" element={<ClustersPage />} />
             <Route path="/observations" element={<ObservationsPage />} />
             <Route path="/petrol-stations" element={<PetrolStationsPage />} />

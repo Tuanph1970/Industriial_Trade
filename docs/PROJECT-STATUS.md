@@ -11,7 +11,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 |------|-------|--------|
 | 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~95% |
 | 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak, audit log | ✅ ~95% |
-| 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
+| 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | ✅ ~90% |
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
 | 4 — Reporting & Workflow | Campaigns, approval saga/state machine, notifications | 🟡 ~95% |
 | 5 — Analytics & Dashboards | Read models, aggregate reports | 🟡 ~75% |
@@ -48,9 +48,11 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ⬜ Reset-password-to-default (Keycloak admin API) — endpoint not built
 - ⬜ `ltree` column type + GIST index (currently `text` + prefix match); update/delete endpoints
 
-### Phase 2 — Catalog 🟡
+### Phase 2 — Catalog ✅
 - ✅ Versioned `Indicator` aggregate (Circular 33/2022) — create/list/search on `catalog` schema
-- ⬜ Indicator sets (bộ chỉ tiêu), report templates, reporting periods, administrative-unit catalog, classification catalogs, batch import
+- ✅ **Indicator sets** (bộ chỉ tiêu, member indicators), **report templates** (biểu mẫu, owned
+  ordered lines bound to indicators, Circular 34), **reporting-period definitions** (kỳ báo cáo)
+- ⬜ Administrative-unit catalog + classification catalogs; batch import
 
 ### Phase 3 — Sector Data 🟡
 - ✅ Generic `IndicatorObservation` aggregate (numeric stats by indicator + unit + period), data-scoped by unit
@@ -98,7 +100,8 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
-- ✅ Pages: Org Units, Users, Roles, Indicators, Industrial Clusters, Observations, Market Violations,
+- ✅ Catalog (grouped nav): Indicators, **Indicator Sets, Report Templates, Reporting Periods**
+- ✅ Pages: Org Units, Users, Roles, Industrial Clusters, Observations, Market Violations,
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
 - ✅ **Campaigns** + **Submissions** (workflow action buttons per state + transition-history timeline)
 - ✅ **Notifications** page + header bell with unread badge
@@ -110,7 +113,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **40/40 pass** — 38 unit + **2 integration** (Testcontainers PostgreSQL: outbox
+- `dotnet test` → **43/43 pass** — 41 unit + **2 integration** (Testcontainers PostgreSQL: outbox
   interceptor, data-scope specification)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
@@ -126,7 +129,7 @@ Remaining work is hardening, real integrations, and polish:
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
 - UX polish: dashboard charts, Excel/XML batch import, edit/delete + detail views
   (internal tile server for the GIS map in closed networks)
-- Catalog completion (indicator sets, report templates, reporting periods)
+- Catalog: administrative-unit + classification catalogs (the remaining master-data lists)
 
 ## Commits so far (this branch)
 - `e1544f2` docs: design baseline

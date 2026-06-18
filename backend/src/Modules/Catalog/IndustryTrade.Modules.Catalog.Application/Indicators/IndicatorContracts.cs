@@ -8,6 +8,9 @@ public static class CatalogPermissions
 {
     public const string IndicatorsRead = "catalog.indicators.read";
     public const string IndicatorsManage = "catalog.indicators.manage";
+    // Indicator sets, report templates, and reporting-period definitions (catalog master data).
+    public const string MasterDataRead = "catalog.masterdata.read";
+    public const string MasterDataManage = "catalog.masterdata.manage";
 }
 
 public sealed record IndicatorDto(

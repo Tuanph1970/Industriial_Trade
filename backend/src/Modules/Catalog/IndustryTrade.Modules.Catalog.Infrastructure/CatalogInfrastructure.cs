@@ -1,4 +1,7 @@
 using IndustryTrade.Modules.Catalog.Application.Indicators;
+using IndustryTrade.Modules.Catalog.Application.IndicatorSets;
+using IndustryTrade.Modules.Catalog.Application.ReportingPeriods;
+using IndustryTrade.Modules.Catalog.Application.ReportTemplates;
 using IndustryTrade.Modules.Catalog.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -22,6 +25,9 @@ public static class CatalogInfrastructure
             }));
 
         services.AddScoped<IIndicatorRepository, IndicatorRepository>();
+        services.AddScoped<IIndicatorSetRepository, IndicatorSetRepository>();
+        services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
+        services.AddScoped<IReportingPeriodRepository, ReportingPeriodRepository>();
         return services;
     }
 }

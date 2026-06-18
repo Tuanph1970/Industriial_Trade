@@ -26,7 +26,11 @@ public sealed class CatalogModule : IModule
         return services;
     }
 
-    public void MapEndpoints(IEndpointRouteBuilder endpoints) => endpoints.MapIndicatorEndpoints();
+    public void MapEndpoints(IEndpointRouteBuilder endpoints)
+    {
+        endpoints.MapIndicatorEndpoints();
+        endpoints.MapCatalogMasterDataEndpoints();
+    }
 
     public async Task ApplyMigrationsAsync(IServiceProvider services)
     {

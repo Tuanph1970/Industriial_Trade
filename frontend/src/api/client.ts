@@ -115,6 +115,31 @@ export const createIndicator = (b: {
   dataType: IndicatorDataType; sector: IndustrySector; effectiveFrom: string;
 }) => api.post<{ id: string }>('/api/catalog/indicators', b).then((r) => r.data);
 
+// Catalog master data: indicator sets, report templates, reporting periods.
+export interface IndicatorSet {
+  id: string; code: string; name: string; description: string | null; indicatorIds: string[]; isActive: boolean;
+}
+export const getIndicatorSets = (p: PageParams) =>
+  api.get<PagedResult<IndicatorSet>>('/api/catalog/indicator-sets', { params: pageParams(p) }).then((r) => r.data);
+export const createIndicatorSet = (b: { code: string; name: string; description?: string; indicatorIds: string[] }) =>
+  api.post<{ id: string }>('/api/catalog/indicator-sets', b).then((r) => r.data);
+
+export interface TemplateLine { indicatorId: string; label: string; rowOrder: number; }
+export interface ReportTemplate {
+  id: string; code: string; name: string; description: string | null; lines: TemplateLine[]; isActive: boolean;
+}
+export const getReportTemplates = (p: PageParams) =>
+  api.get<PagedResult<ReportTemplate>>('/api/catalog/report-templates', { params: pageParams(p) }).then((r) => r.data);
+export const createReportTemplate = (b: { code: string; name: string; description?: string; lines: TemplateLine[] }) =>
+  api.post<{ id: string }>('/api/catalog/report-templates', b).then((r) => r.data);
+
+export type Periodicity = 1 | 2 | 3; // Monthly | Quarterly | Yearly
+export interface ReportingPeriod { id: string; code: string; name: string; periodicity: Periodicity; isActive: boolean; }
+export const getReportingPeriods = (p: PageParams) =>
+  api.get<PagedResult<ReportingPeriod>>('/api/catalog/reporting-periods', { params: pageParams(p) }).then((r) => r.data);
+export const createReportingPeriod = (b: { code: string; name: string; periodicity: Periodicity }) =>
+  api.post<{ id: string }>('/api/catalog/reporting-periods', b).then((r) => r.data);
+
 // ---- Sector Data ---------------------------------------------------------
 export type ObservationStatus = 1 | 2 | 3; // Draft | Submitted | Approved
 
