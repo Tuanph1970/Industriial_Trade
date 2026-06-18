@@ -1,8 +1,9 @@
 import { Badge, Button, Dropdown, Layout, Menu, Result, Space, Spin, Typography } from 'antd';
 import {
   ApartmentOutlined, AuditOutlined, BarsOutlined, BellOutlined, CalendarOutlined, ClusterOutlined,
-  ApiOutlined, DashboardOutlined, FileSearchOutlined, FundOutlined, GoldOutlined, LogoutOutlined,
-  SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined, WarningOutlined,
+  ApiOutlined, DashboardOutlined, EnvironmentOutlined, FileSearchOutlined, FundOutlined, GoldOutlined,
+  LogoutOutlined, SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined,
+  WarningOutlined,
 } from '@ant-design/icons';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
@@ -24,11 +25,13 @@ import NotificationsPage from './pages/NotificationsPage';
 import DashboardPage from './pages/DashboardPage';
 import AuditLogsPage from './pages/AuditLogsPage';
 import IntegrationPage from './pages/IntegrationPage';
+import MapPage from './pages/MapPage';
 
 const { Header, Sider, Content } = Layout;
 
 const navItems = [
   { key: 'dashboard', icon: <DashboardOutlined />, label: 'Tổng quan' },
+  { key: 'map', icon: <EnvironmentOutlined />, label: 'Bản đồ' },
   { key: 'org-units', icon: <ApartmentOutlined />, label: 'Cơ quan, đơn vị' },
   { key: 'users', icon: <TeamOutlined />, label: 'Người dùng' },
   { key: 'roles', icon: <SafetyCertificateOutlined />, label: 'Vai trò' },
@@ -112,6 +115,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/map" element={<MapPage />} />
             <Route path="/org-units" element={<OrgUnitsPage />} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/roles" element={<RolesPage />} />

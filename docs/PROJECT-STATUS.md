@@ -62,7 +62,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   — rich entities with PostGIS Point geometry; **e-commerce participants** (platforms + goods)
 - ✅ `SectorData` module on its own `sector` schema (6 entity tables, 3 PostGIS geometry columns);
   create/list endpoints; registered in host
-- ⬜ Excel/XML batch import; observation submit/approve workflow hooks; map view in UI
+- ✅ Interactive **GIS map** (Leaflet): clusters, petrol stations, commerce locations as toggleable
+  color-coded layers over OpenStreetMap tiles
+- ⬜ Excel/XML batch import; observation submit/approve workflow hooks
 
 ### Phase 4 — Reporting & Workflow 🟡
 - ✅ `ReportingCampaign` (kỳ báo cáo) — create/list
@@ -101,6 +103,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Campaigns** + **Submissions** (workflow action buttons per state + transition-history timeline)
 - ✅ **Notifications** page + header bell with unread badge
 - ✅ **Dashboard** (landing page): statistic cards + reporting/violation breakdown tables
+- ✅ **Map** (Leaflet/OpenStreetMap): toggleable layers for clusters, petrol stations, commerce locations
 - ✅ **Audit log** page (search by user/action, expandable payload)
 - ✅ **Integration** page (connection-status panel + data-sharing service registry with publish/revoke)
 - ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
@@ -121,7 +124,8 @@ Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
-- UX polish: dashboard charts, interactive **GIS map**, Excel/XML batch import, edit/delete + detail views
+- UX polish: dashboard charts, Excel/XML batch import, edit/delete + detail views
+  (internal tile server for the GIS map in closed networks)
 - Catalog completion (indicator sets, report templates, reporting periods)
 
 ## Commits so far (this branch)
