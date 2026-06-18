@@ -74,6 +74,8 @@ export const getRoles = (p: PageParams) =>
 export const createRole = (b: { code: string; name: string; permissions: string[] }) =>
   api.post<{ id: string }>('/api/identity/roles', b).then((r) => r.data);
 
+export const deleteRole = (id: string) => api.delete(`/api/identity/roles/${id}`);
+
 // ---- Users ---------------------------------------------------------------
 export interface UserAccount {
   id: string;
@@ -91,6 +93,8 @@ export const getUsers = (p: PageParams) =>
 export const createUser = (b: {
   userName: string; fullName?: string; email?: string; orgUnitId?: string | null; roleIds: string[];
 }) => api.post<{ id: string }>('/api/identity/users', b).then((r) => r.data);
+
+export const deleteUser = (id: string) => api.delete(`/api/identity/users/${id}`);
 
 // ---- Indicators (Catalog) ------------------------------------------------
 export type IndicatorDataType = 1 | 2 | 3; // Number | Text | Enumeration
@@ -148,6 +152,10 @@ export const getReportingPeriods = (p: PageParams) =>
   api.get<PagedResult<ReportingPeriod>>('/api/catalog/reporting-periods', { params: pageParams(p) }).then((r) => r.data);
 export const createReportingPeriod = (b: { code: string; name: string; periodicity: Periodicity }) =>
   api.post<{ id: string }>('/api/catalog/reporting-periods', b).then((r) => r.data);
+
+export const deleteIndicatorSet = (id: string) => api.delete(`/api/catalog/indicator-sets/${id}`);
+export const deleteReportTemplate = (id: string) => api.delete(`/api/catalog/report-templates/${id}`);
+export const deleteReportingPeriod = (id: string) => api.delete(`/api/catalog/reporting-periods/${id}`);
 
 // ---- Sector Data ---------------------------------------------------------
 export type ObservationStatus = 1 | 2 | 3; // Draft | Submitted | Approved

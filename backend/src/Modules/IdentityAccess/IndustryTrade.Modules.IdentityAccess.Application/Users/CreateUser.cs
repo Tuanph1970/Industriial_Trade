@@ -36,3 +36,14 @@ public sealed class CreateUserHandler(IUserRepository repository) : ICommandHand
         return user.Id;
     }
 }
+
+public sealed record DeleteUserCommand(Guid Id) : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => IdentityPermissions.UsersManage;
+}
+
+public sealed class DeleteUserHandler(IUserRepository repository) : ICommandHandler<DeleteUserCommand>
+{
+    public async Task<Result> Handle(DeleteUserCommand command, CancellationToken ct) =>
+        await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("User"));
+}

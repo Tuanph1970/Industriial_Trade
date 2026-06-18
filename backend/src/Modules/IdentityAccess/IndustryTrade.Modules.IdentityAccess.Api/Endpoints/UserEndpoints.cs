@@ -24,6 +24,9 @@ internal static class UserEndpoints
                 await sender.Send(new CreateUserCommand(
                     body.UserName, body.FullName, body.Email, body.OrgUnitId, body.RoleIds ?? [])),
                 id => Results.Created($"/api/identity/users/{id}", new { id })));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteUserCommand(id))));
     }
 }
 

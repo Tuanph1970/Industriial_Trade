@@ -31,3 +31,14 @@ public sealed class CreateRoleHandler(IRoleRepository repository) : ICommandHand
         return role.Id;
     }
 }
+
+public sealed record DeleteRoleCommand(Guid Id) : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => IdentityPermissions.RolesManage;
+}
+
+public sealed class DeleteRoleHandler(IRoleRepository repository) : ICommandHandler<DeleteRoleCommand>
+{
+    public async Task<Result> Handle(DeleteRoleCommand command, CancellationToken ct) =>
+        await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("Role"));
+}

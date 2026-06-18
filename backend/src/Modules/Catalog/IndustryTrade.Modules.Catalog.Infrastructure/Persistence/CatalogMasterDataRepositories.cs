@@ -18,6 +18,8 @@ internal sealed class IndicatorSetRepository(CatalogDbContext db) : IIndicatorSe
     public Task<int> CountAsync(Specification<IndicatorSet> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.IndicatorSets.AsQueryable(), spec).CountAsync(ct);
     public async Task AddAsync(IndicatorSet set, CancellationToken ct) => await db.IndicatorSets.AddAsync(set, ct);
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.IndicatorSets.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }
 
@@ -29,6 +31,8 @@ internal sealed class ReportTemplateRepository(CatalogDbContext db) : IReportTem
     public Task<int> CountAsync(Specification<ReportTemplate> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.ReportTemplates.AsQueryable(), spec).CountAsync(ct);
     public async Task AddAsync(ReportTemplate template, CancellationToken ct) => await db.ReportTemplates.AddAsync(template, ct);
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.ReportTemplates.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }
 
@@ -40,5 +44,7 @@ internal sealed class ReportingPeriodRepository(CatalogDbContext db) : IReportin
     public Task<int> CountAsync(Specification<ReportingPeriodDefinition> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.ReportingPeriods.AsQueryable(), spec).CountAsync(ct);
     public async Task AddAsync(ReportingPeriodDefinition period, CancellationToken ct) => await db.ReportingPeriods.AddAsync(period, ct);
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.ReportingPeriods.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }

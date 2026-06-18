@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, Modal, Select, Space, Table } from 'antd';
+import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createReportTemplate, getIndicators, getReportTemplates, ReportTemplate } from '../api/client';
+import { createReportTemplate, deleteReportTemplate, getIndicators, getReportTemplates, ReportTemplate } from '../api/client';
 
 export default function ReportTemplatesPage() {
   const { message } = AntApp.useApp();
@@ -22,6 +22,11 @@ export default function ReportTemplatesPage() {
     mutationFn: createReportTemplate,
     onSuccess: () => { message.success('Đã tạo biểu mẫu'); setOpen(false); form.resetFields(); qc.invalidateQueries({ queryKey: ['report-templates'] }); },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
+  });
+  const remove = useMutation({
+    mutationFn: deleteReportTemplate,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['report-templates'] }); },
+    onError: () => message.error('Không xoá được'),
   });
 
   // Build template lines from the chosen indicators (label = indicator name, ordered by selection).
@@ -50,6 +55,10 @@ export default function ReportTemplatesPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên biểu mẫu', dataIndex: 'name' },
           { title: 'Số dòng', dataIndex: 'lines', width: 110, render: (l: unknown[]) => l.length },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
       <Modal title="Thêm biểu mẫu báo cáo" open={open} onCancel={() => setOpen(false)}

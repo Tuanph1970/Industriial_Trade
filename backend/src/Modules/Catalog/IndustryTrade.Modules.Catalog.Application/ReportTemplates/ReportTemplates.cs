@@ -25,6 +25,7 @@ public interface IReportTemplateRepository
     Task<IReadOnlyList<ReportTemplate>> ListAsync(Specification<ReportTemplate> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<ReportTemplate> spec, CancellationToken ct);
     Task AddAsync(ReportTemplate template, CancellationToken ct);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
 
@@ -99,4 +100,15 @@ public sealed class GetReportTemplatesHandler(IReportTemplateRepository reposito
         return new PagedResult<ReportTemplateDto>(items.Select(ReportTemplateDto.FromEntity).ToList(), total,
             page.NormalizedPage, page.NormalizedPageSize);
     }
+}
+
+public sealed record DeleteReportTemplateCommand(Guid Id) : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => CatalogPermissions.MasterDataManage;
+}
+
+public sealed class DeleteReportTemplateHandler(IReportTemplateRepository repository) : ICommandHandler<DeleteReportTemplateCommand>
+{
+    public async Task<Result> Handle(DeleteReportTemplateCommand command, CancellationToken ct) =>
+        await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("Report template"));
 }

@@ -20,6 +20,8 @@ internal sealed class RoleRepository(IdentityAccessDbContext db) : IRoleReposito
         SpecificationEvaluator.Apply(db.Roles.AsQueryable(), spec).CountAsync(ct);
 
     public async Task AddAsync(Role role, CancellationToken ct) => await db.Roles.AddAsync(role, ct);
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.Roles.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }
 
@@ -41,5 +43,7 @@ internal sealed class UserRepository(IdentityAccessDbContext db) : IUserReposito
         SpecificationEvaluator.Apply(db.Users.AsQueryable(), spec).CountAsync(ct);
 
     public async Task AddAsync(UserAccount user, CancellationToken ct) => await db.Users.AddAsync(user, ct);
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.Users.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }

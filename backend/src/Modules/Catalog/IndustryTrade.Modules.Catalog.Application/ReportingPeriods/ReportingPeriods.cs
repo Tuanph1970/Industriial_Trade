@@ -20,6 +20,7 @@ public interface IReportingPeriodRepository
     Task<IReadOnlyList<ReportingPeriodDefinition>> ListAsync(Specification<ReportingPeriodDefinition> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<ReportingPeriodDefinition> spec, CancellationToken ct);
     Task AddAsync(ReportingPeriodDefinition period, CancellationToken ct);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
 
@@ -87,4 +88,15 @@ public sealed class GetReportingPeriodsHandler(IReportingPeriodRepository reposi
         return new PagedResult<ReportingPeriodDto>(items.Select(ReportingPeriodDto.FromEntity).ToList(), total,
             page.NormalizedPage, page.NormalizedPageSize);
     }
+}
+
+public sealed record DeleteReportingPeriodCommand(Guid Id) : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => CatalogPermissions.MasterDataManage;
+}
+
+public sealed class DeleteReportingPeriodHandler(IReportingPeriodRepository repository) : ICommandHandler<DeleteReportingPeriodCommand>
+{
+    public async Task<Result> Handle(DeleteReportingPeriodCommand command, CancellationToken ct) =>
+        await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("Reporting period"));
 }

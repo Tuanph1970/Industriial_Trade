@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, Modal, Select, Space, Table } from 'antd';
+import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createIndicatorSet, getIndicators, getIndicatorSets, IndicatorSet } from '../api/client';
+import { createIndicatorSet, deleteIndicatorSet, getIndicators, getIndicatorSets, IndicatorSet } from '../api/client';
 
 export default function IndicatorSetsPage() {
   const { message } = AntApp.useApp();
@@ -23,6 +23,11 @@ export default function IndicatorSetsPage() {
     onSuccess: () => { message.success('Đã tạo bộ chỉ tiêu'); setOpen(false); form.resetFields(); qc.invalidateQueries({ queryKey: ['indicator-sets'] }); },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
   });
+  const remove = useMutation({
+    mutationFn: deleteIndicatorSet,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['indicator-sets'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -39,6 +44,10 @@ export default function IndicatorSetsPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên bộ chỉ tiêu', dataIndex: 'name' },
           { title: 'Số chỉ tiêu', dataIndex: 'indicatorIds', width: 130, render: (ids: string[]) => ids.length },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
       <Modal title="Thêm bộ chỉ tiêu" open={open} onCancel={() => setOpen(false)}

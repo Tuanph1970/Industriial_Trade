@@ -26,6 +26,9 @@ internal static class MasterDataEndpoints
                 await sender.Send(new CreateIndicatorSetCommand(body.Code, body.Name, body.Description, body.IndicatorIds ?? [])),
                 id => Results.Created($"/api/catalog/indicator-sets/{id}", new { id })));
 
+        sets.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteIndicatorSetCommand(id))));
+
         var templates = endpoints.MapGroup("/api/catalog/report-templates")
             .WithTags("Catalog — Report Templates").RequireAuthorization();
 
@@ -37,6 +40,9 @@ internal static class MasterDataEndpoints
                 await sender.Send(new CreateReportTemplateCommand(body.Code, body.Name, body.Description, body.Lines ?? [])),
                 id => Results.Created($"/api/catalog/report-templates/{id}", new { id })));
 
+        templates.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteReportTemplateCommand(id))));
+
         var periods = endpoints.MapGroup("/api/catalog/reporting-periods")
             .WithTags("Catalog — Reporting Periods").RequireAuthorization();
 
@@ -47,6 +53,9 @@ internal static class MasterDataEndpoints
             ApiResults.Match(
                 await sender.Send(new CreateReportingPeriodCommand(body.Code, body.Name, body.Periodicity)),
                 id => Results.Created($"/api/catalog/reporting-periods/{id}", new { id })));
+
+        periods.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteReportingPeriodCommand(id))));
     }
 }
 

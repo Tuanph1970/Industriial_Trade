@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd';
+import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ALL_PERMISSIONS, createRole, getRoles, Role } from '../api/client';
+import { ALL_PERMISSIONS, createRole, deleteRole, getRoles, Role } from '../api/client';
 
 export default function RolesPage() {
   const { message } = AntApp.useApp();
@@ -27,6 +27,11 @@ export default function RolesPage() {
     },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
   });
+  const remove = useMutation({
+    mutationFn: deleteRole,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['roles'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -49,6 +54,10 @@ export default function RolesPage() {
             title: 'Quyền', dataIndex: 'permissions',
             render: (perms: string[]) => <>{perms.map((p) => <Tag key={p}>{p}</Tag>)}</>,
           },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
 

@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd';
+import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createReportingPeriod, getReportingPeriods, Periodicity, ReportingPeriod } from '../api/client';
+import { createReportingPeriod, deleteReportingPeriod, getReportingPeriods, Periodicity, ReportingPeriod } from '../api/client';
 
 const periodicityLabels: Record<Periodicity, string> = { 1: 'Hàng tháng', 2: 'Hàng quý', 3: 'Hàng năm' };
 const options = Object.entries(periodicityLabels).map(([v, label]) => ({ value: Number(v), label }));
@@ -25,6 +25,11 @@ export default function ReportingPeriodsPage() {
     onSuccess: () => { message.success('Đã tạo kỳ báo cáo'); setOpen(false); form.resetFields(); qc.invalidateQueries({ queryKey: ['reporting-periods'] }); },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
   });
+  const remove = useMutation({
+    mutationFn: deleteReportingPeriod,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['reporting-periods'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -41,6 +46,10 @@ export default function ReportingPeriodsPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên kỳ báo cáo', dataIndex: 'name' },
           { title: 'Chu kỳ', dataIndex: 'periodicity', width: 160, render: (p: Periodicity) => <Tag>{periodicityLabels[p]}</Tag> },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
       <Modal title="Thêm kỳ báo cáo" open={open} onCancel={() => setOpen(false)}

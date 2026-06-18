@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd';
+import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createUser, getOrgUnits, getRoles, getUsers, UserAccount } from '../api/client';
+import { createUser, deleteUser, getOrgUnits, getRoles, getUsers, UserAccount } from '../api/client';
 
 export default function UsersPage() {
   const { message } = AntApp.useApp();
@@ -29,6 +29,11 @@ export default function UsersPage() {
     },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng tên)'),
   });
+  const remove = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['users'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -53,6 +58,10 @@ export default function UsersPage() {
             title: 'Trạng thái', dataIndex: 'isActive', width: 120,
             render: (a: boolean) => <Tag color={a ? 'green' : 'default'}>{a ? 'Hoạt động' : 'Ngưng'}</Tag>,
           },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
 

@@ -103,8 +103,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
 - ✅ **Edit + delete** on Org Units and Indicators (modal edit + Popconfirm delete)
-- ✅ **Delete** on all Sector Data pages (clusters, petrol stations, commerce locations, e-commerce,
-  violations) — EF ExecuteDelete, audited; remaining lists still create+list only
+- ✅ **Delete on every list page** (Sector Data ×5, Users, Roles, Catalog master data ×3) —
+  EF ExecuteDelete, audited
+- 🟡 Edit modals: done for Org Units & Indicators; pending for the Sector entities
 - ✅ Catalog (grouped nav): Indicators, **Indicator Sets, Report Templates, Reporting Periods**
 - ✅ Pages: Org Units, Users, Roles, Industrial Clusters, Observations, Market Violations,
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)

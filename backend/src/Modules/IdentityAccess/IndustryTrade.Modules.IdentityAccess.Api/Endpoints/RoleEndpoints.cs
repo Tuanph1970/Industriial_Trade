@@ -23,6 +23,9 @@ internal static class RoleEndpoints
             ApiResults.Match(
                 await sender.Send(new CreateRoleCommand(body.Code, body.Name, body.Permissions ?? [])),
                 id => Results.Created($"/api/identity/roles/{id}", new { id })));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteRoleCommand(id))));
     }
 }
 

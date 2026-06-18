@@ -20,6 +20,7 @@ public interface IUserRepository
     Task<IReadOnlyList<UserAccount>> ListAsync(Specification<UserAccount> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<UserAccount> spec, CancellationToken ct);
     Task AddAsync(UserAccount user, CancellationToken ct);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
 

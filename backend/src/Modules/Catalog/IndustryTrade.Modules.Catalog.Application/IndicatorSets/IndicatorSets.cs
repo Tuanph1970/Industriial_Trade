@@ -20,6 +20,7 @@ public interface IIndicatorSetRepository
     Task<IReadOnlyList<IndicatorSet>> ListAsync(Specification<IndicatorSet> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<IndicatorSet> spec, CancellationToken ct);
     Task AddAsync(IndicatorSet set, CancellationToken ct);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
 
@@ -86,4 +87,15 @@ public sealed class GetIndicatorSetsHandler(IIndicatorSetRepository repository)
         return new PagedResult<IndicatorSetDto>(items.Select(IndicatorSetDto.FromEntity).ToList(), total,
             page.NormalizedPage, page.NormalizedPageSize);
     }
+}
+
+public sealed record DeleteIndicatorSetCommand(Guid Id) : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => CatalogPermissions.MasterDataManage;
+}
+
+public sealed class DeleteIndicatorSetHandler(IIndicatorSetRepository repository) : ICommandHandler<DeleteIndicatorSetCommand>
+{
+    public async Task<Result> Handle(DeleteIndicatorSetCommand command, CancellationToken ct) =>
+        await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("Indicator set"));
 }

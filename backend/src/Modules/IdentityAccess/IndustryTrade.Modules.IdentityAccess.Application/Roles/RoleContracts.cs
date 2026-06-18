@@ -15,6 +15,7 @@ public interface IRoleRepository
     Task<IReadOnlyList<Role>> ListAsync(Specification<Role> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<Role> spec, CancellationToken ct);
     Task AddAsync(Role role, CancellationToken ct);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
 
