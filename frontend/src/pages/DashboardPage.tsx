@@ -1,12 +1,15 @@
-import { Card, Col, Row, Space, Statistic, Table, Tag, Typography } from 'antd';
+import { Card, Col, Empty, Row, Space, Statistic, Typography } from 'antd';
 import { useQuery } from '@tanstack/react-query';
-import { getDashboard, getReportingSummary, getViolationsSummary, StateCount, ViolationSummaryRow } from '../api/client';
+import {
+  Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
+} from 'recharts';
+import { getDashboard, getReportingSummary, getViolationsSummary } from '../api/client';
 
 const reportStateLabels: Record<number, string> = {
-  1: 'Nháp', 2: 'Đã gửi', 3: 'Đang thẩm định', 4: 'Chờ phê duyệt', 5: 'Đã duyệt', 6: 'Bị từ chối',
+  1: 'Nháp', 2: 'Đã gửi', 3: 'Thẩm định', 4: 'Chờ duyệt', 5: 'Đã duyệt', 6: 'Từ chối',
 };
-const violationGroupLabels: Record<number, string> = { 1: 'Hàng cấm/giả/nhái', 2: 'An toàn thực phẩm' };
 const violationStatusLabels: Record<number, string> = { 1: 'Đã ghi nhận', 2: 'Đang xử lý', 3: 'Đã xử lý' };
+const PALETTE = ['#1677ff', '#52c41a', '#fa8c16', '#eb2f96', '#722ed1', '#13c2c2', '#faad14', '#f5222d'];
 
 export default function DashboardPage() {
   const { data: d } = useQuery({ queryKey: ['dashboard'], queryFn: getDashboard });
@@ -18,6 +21,24 @@ export default function DashboardPage() {
       <Card><Statistic title={title} value={value ?? 0} /></Card>
     </Col>
   );
+
+  const entityData = d ? [
+    { name: 'Cụm CN', value: d.clusters },
+    { name: 'Xăng dầu', value: d.petrolStations },
+    { name: 'Thương mại', value: d.commerceLocations },
+    { name: 'TMĐT', value: d.ecommerceParticipants },
+    { name: 'Vi phạm', value: d.violations },
+    { name: 'Số liệu', value: d.observations },
+  ] : [];
+
+  const reportingData = (reporting ?? []).map((r) => ({ name: reportStateLabels[r.state] ?? `#${r.state}`, value: r.count }));
+
+  const violationByStatus = Object.entries(
+    (violations ?? []).reduce<Record<number, number>>((acc, v) => {
+      acc[v.status] = (acc[v.status] ?? 0) + v.count;
+      return acc;
+    }, {}),
+  ).map(([status, count]) => ({ name: violationStatusLabels[Number(status)] ?? status, value: count }));
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="large">
@@ -37,29 +58,47 @@ export default function DashboardPage() {
       </Row>
 
       <Row gutter={[16, 16]}>
-        <Col xs={24} md={12}>
-          <Card title="Báo cáo theo trạng thái">
-            <Table<StateCount>
-              rowKey="state" size="small" pagination={false} dataSource={reporting}
-              columns={[
-                { title: 'Trạng thái', dataIndex: 'state', render: (s: number) => reportStateLabels[s] ?? s },
-                { title: 'Số lượng', dataIndex: 'count', align: 'right' },
-              ]}
-            />
+        <Col xs={24} lg={12}>
+          <Card title="Phân bố đối tượng quản lý">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={entityData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip />
+                <Bar dataKey="value" name="Số lượng" radius={[4, 4, 0, 0]}>
+                  {entityData.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} />)}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
           </Card>
         </Col>
-        <Col xs={24} md={12}>
-          <Card title="Hồ sơ vi phạm theo nhóm / trạng thái">
-            <Table<ViolationSummaryRow>
-              rowKey={(r) => `${r.group}-${r.status}`} size="small" pagination={false} dataSource={violations}
-              columns={[
-                { title: 'Nhóm', dataIndex: 'group', render: (g: number) => <Tag>{violationGroupLabels[g] ?? g}</Tag> },
-                { title: 'Trạng thái', dataIndex: 'status', render: (s: number) => violationStatusLabels[s] ?? s },
-                { title: 'Số HS', dataIndex: 'count', align: 'right' },
-                { title: 'Tổng phạt (đ)', dataIndex: 'totalFine', align: 'right',
-                  render: (v: number) => v?.toLocaleString('vi-VN') },
-              ]}
-            />
+        <Col xs={24} lg={12}>
+          <Card title="Báo cáo theo trạng thái">
+            {reportingData.length ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie data={reportingData} dataKey="value" nameKey="name" outerRadius={100} label>
+                    {reportingData.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} />)}
+                  </Pie>
+                  <Legend /><Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : <Empty description="Chưa có báo cáo" />}
+          </Card>
+        </Col>
+      </Row>
+
+      <Row gutter={[16, 16]}>
+        <Col xs={24} lg={12}>
+          <Card title="Hồ sơ vi phạm theo trạng thái">
+            {violationByStatus.length ? (
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={violationByStatus}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip />
+                  <Bar dataKey="value" name="Số hồ sơ" fill="#f5222d" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : <Empty description="Chưa có hồ sơ vi phạm" />}
           </Card>
         </Col>
       </Row>

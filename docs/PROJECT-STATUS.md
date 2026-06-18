@@ -105,7 +105,8 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
 - ✅ **Campaigns** + **Submissions** (workflow action buttons per state + transition-history timeline)
 - ✅ **Notifications** page + header bell with unread badge
-- ✅ **Dashboard** (landing page): statistic cards + reporting/violation breakdown tables
+- ✅ **Dashboard** (landing page): statistic cards + **charts** (Recharts) — entity-distribution bar,
+  submissions-by-state pie, violations-by-status bar
 - ✅ **Map** (Leaflet/OpenStreetMap): toggleable layers for clusters, petrol stations, commerce locations
 - ✅ **Audit log** page (search by user/action, expandable payload)
 - ✅ **Integration** page (connection-status panel + data-sharing service registry with publish/revoke)
@@ -127,7 +128,7 @@ Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
-- UX polish: dashboard charts, Excel/XML batch import, edit/delete + detail views
+- UX polish: Excel/XML batch import, edit/delete + detail views, frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)
 - Catalog: administrative-unit + classification catalogs (the remaining master-data lists)
 
