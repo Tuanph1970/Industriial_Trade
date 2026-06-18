@@ -4,6 +4,7 @@ using IndustryTrade.BuildingBlocks.Web;
 using IndustryTrade.BuildingBlocks.Web.Security;
 using IndustryTrade.Modules.Catalog.Api;
 using IndustryTrade.Modules.Analytics.Api;
+using IndustryTrade.Modules.AuditSystem.Api;
 using IndustryTrade.Modules.IdentityAccess.Api;
 using IndustryTrade.Modules.Notifications.Api;
 using IndustryTrade.Modules.Reporting.Api;
@@ -30,6 +31,7 @@ IModule[] modules =
     new ReportingModule(),
     new NotificationsModule(),
     new AnalyticsModule(),
+    new AuditSystemModule(),
     // new IntegrationModule(),
     // new AuditSystemModule(),
 ];
@@ -44,6 +46,7 @@ builder.Services.AddKeycloakAuth(builder.Configuration);
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(LoggingBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuthorizationBehavior<,>));
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(AuditBehavior<,>)); // innermost: records command + outcome
 
 // ---- Web -----------------------------------------------------------------
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();

@@ -10,7 +10,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 | Phase | Scope | Status |
 |------|-------|--------|
 | 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~85% |
-| 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak | ✅ ~90% |
+| 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak, audit log | ✅ ~95% |
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
 | 4 — Reporting & Workflow | Campaigns, approval saga/state machine, notifications | 🟡 ~95% |
@@ -39,8 +39,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Data-scope** authz resolved from the user's assigned unit, **DB-driven** via a claims transformation
 - ✅ Keycloak OIDC (realm import, SPA login/logout, API JWT validation, demo users)
 - ✅ Dev seeder (org tree, ADMIN/SPECIALIST roles, `superadmin`/`chuyenvien`)
+- ✅ **Audit logging** (design G1): an `AuditBehavior` records every command (actor, action, JSON
+  payload, outcome) to the **AuditSystem** context (`audit` schema, jsonb payload); searchable API + UI
 - ⬜ Reset-password-to-default (Keycloak admin API) — endpoint not built
-- ⬜ Audit logging (audit behavior + AuditSystem context) — deferred to its own phase
 - ⬜ `ltree` column type + GIST index (currently `text` + prefix match); update/delete endpoints
 
 ### Phase 2 — Catalog 🟡
@@ -88,11 +89,12 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Campaigns** + **Submissions** (workflow action buttons per state + transition-history timeline)
 - ✅ **Notifications** page + header bell with unread badge
 - ✅ **Dashboard** (landing page): statistic cards + reporting/violation breakdown tables
+- ✅ **Audit log** page (search by user/action, expandable payload)
 - ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **31/31 pass** (domain + authorization + state-machine + notification handler)
+- `dotnet test` → **34/34 pass** (domain + authorization + state-machine + notification + audit behavior)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK
@@ -100,9 +102,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   geometry column + GIST index created, all endpoints reject anonymous callers (401)
 
 ## Next up
-- **AuditSystem** context — audit log of all actions (a Level-3 requirement) + an audit pipeline
-  behavior; the file/resource (MinIO) module
-- Phase 6 — **Integration** (LGSP/NDXP connectors + connection-status API)
+- Phase 6 — **Integration** (the last bounded context): LGSP/NDXP connectors + connection-status API
+  (Decree 47/2020), XML/JSON exchange
+- File/resource module (MinIO) — UC-4; security L3 control checklist + assessment readiness
 - Cross-cutting backlog: CI/CD pipeline, OpenTelemetry/metrics, per-user notification routing,
   materialized views + charts, interactive map view (GIS), Excel/XML import
 

@@ -6,8 +6,11 @@ namespace IndustryTrade.BuildingBlocks.Application.Messaging;
 // Thin CQRS abstractions over MediatR so handlers depend on our contracts, not the library directly.
 // (Lets us swap the mediator implementation without touching application code.)
 
-public interface ICommand : IRequest<Result>;
-public interface ICommand<TResponse> : IRequest<Result<TResponse>>;
+/// <summary>Marker shared by all commands so cross-cutting behaviors (e.g. audit) can target them.</summary>
+public interface IBaseCommand;
+
+public interface ICommand : IBaseCommand, IRequest<Result>;
+public interface ICommand<TResponse> : IBaseCommand, IRequest<Result<TResponse>>;
 public interface IQuery<TResponse> : IRequest<Result<TResponse>>;
 
 public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand, Result>

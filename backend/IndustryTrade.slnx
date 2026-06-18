@@ -16,6 +16,12 @@
     <Project Path="src/Modules/Analytics/IndustryTrade.Modules.Analytics.Application/IndustryTrade.Modules.Analytics.Application.csproj" />
     <Project Path="src/Modules/Analytics/IndustryTrade.Modules.Analytics.Infrastructure/IndustryTrade.Modules.Analytics.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/AuditSystem/">
+    <Project Path="src/Modules/AuditSystem/IndustryTrade.Modules.AuditSystem.Api/IndustryTrade.Modules.AuditSystem.Api.csproj" />
+    <Project Path="src/Modules/AuditSystem/IndustryTrade.Modules.AuditSystem.Application/IndustryTrade.Modules.AuditSystem.Application.csproj" />
+    <Project Path="src/Modules/AuditSystem/IndustryTrade.Modules.AuditSystem.Domain/IndustryTrade.Modules.AuditSystem.Domain.csproj" />
+    <Project Path="src/Modules/AuditSystem/IndustryTrade.Modules.AuditSystem.Infrastructure/IndustryTrade.Modules.AuditSystem.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Catalog/">
     <Project Path="src/Modules/Catalog/IndustryTrade.Modules.Catalog.Api/IndustryTrade.Modules.Catalog.Api.csproj" />
     <Project Path="src/Modules/Catalog/IndustryTrade.Modules.Catalog.Application/IndustryTrade.Modules.Catalog.Application.csproj" />

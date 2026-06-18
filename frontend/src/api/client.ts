@@ -308,3 +308,14 @@ export const getViolationsSummary = () =>
   api.get<ViolationSummaryRow[]>('/api/analytics/violations-summary').then((r) => r.data);
 export const getReportingSummary = () =>
   api.get<StateCount[]>('/api/analytics/reporting-summary').then((r) => r.data);
+
+// ---- Audit log -----------------------------------------------------------
+export interface AuditLog {
+  id: string; actor: string | null; action: string; payload: string;
+  success: boolean; error: string | null; atUtc: string;
+}
+
+export const getAuditLogs = (p: PageParams & { actor?: string; action?: string }) =>
+  api.get<PagedResult<AuditLog>>('/api/audit/logs', {
+    params: { page: p.page, pageSize: p.pageSize, actor: p.actor || undefined, action: p.action || undefined },
+  }).then((r) => r.data);

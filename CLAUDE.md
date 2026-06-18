@@ -9,9 +9,10 @@ Keycloak auth + DB-driven function/data-scope authorization), **Catalog** (versi
 indicators), and **SectorData** (generic `IndicatorObservation`; rich entities — industrial clusters, petroleum
 stations, commerce locations with PostGIS geometry, e-commerce participants, market-violation
 records), and **Reporting** (reporting campaigns + the `ReportSubmission` approval **state machine**:
-commune→specialist→leader, with full transition history), **Notifications** (consumes domain events via the outbox), and **Analytics** (read-only CQRS
-dashboards via Dapper over the operational schemas). Remaining: Integration, AuditSystem — replicate
-the module shape.
+commune→specialist→leader, with full transition history), **Notifications** (consumes domain events via the outbox), **Analytics** (read-only CQRS dashboards
+via Dapper over the operational schemas), and **AuditSystem** (an `AuditBehavior` records every
+command to the `audit` schema — design G1). Remaining: Integration (LGSP/NDXP) — replicate the
+module shape.
 
 The **transactional outbox** is live: an EF SaveChanges interceptor (`OutboxWriterInterceptor`,
 wired per context) writes raised domain events to per-context `outbox_message` tables in the same

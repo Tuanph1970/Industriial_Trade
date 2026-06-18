@@ -1,8 +1,8 @@
 import { Badge, Button, Dropdown, Layout, Menu, Result, Space, Spin, Typography } from 'antd';
 import {
   ApartmentOutlined, AuditOutlined, BarsOutlined, BellOutlined, CalendarOutlined, ClusterOutlined,
-  DashboardOutlined, FundOutlined, GoldOutlined, LogoutOutlined, SafetyCertificateOutlined, ShopOutlined,
-  ShoppingOutlined, TeamOutlined, UserOutlined, WarningOutlined,
+  DashboardOutlined, FileSearchOutlined, FundOutlined, GoldOutlined, LogoutOutlined,
+  SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined, WarningOutlined,
 } from '@ant-design/icons';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
@@ -22,6 +22,7 @@ import CampaignsPage from './pages/CampaignsPage';
 import SubmissionsPage from './pages/SubmissionsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import DashboardPage from './pages/DashboardPage';
+import AuditLogsPage from './pages/AuditLogsPage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -39,6 +40,7 @@ const navItems = [
   { key: 'violations', icon: <WarningOutlined />, label: 'Hồ sơ vi phạm' },
   { key: 'campaigns', icon: <CalendarOutlined />, label: 'Kỳ báo cáo' },
   { key: 'submissions', icon: <AuditOutlined />, label: 'Báo cáo & phê duyệt' },
+  { key: 'audit', icon: <FileSearchOutlined />, label: 'Nhật ký quản trị' },
 ];
 
 export default function App() {
@@ -121,6 +123,7 @@ export default function App() {
             <Route path="/campaigns" element={<CampaignsPage />} />
             <Route path="/submissions" element={<SubmissionsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/audit" element={<AuditLogsPage />} />
           </Routes>
         </Content>
       </Layout>
