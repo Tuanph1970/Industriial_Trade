@@ -18,6 +18,7 @@ public interface ICommerceLocationRepository
     Task<IReadOnlyList<CommerceLocation>> ListAsync(Specification<CommerceLocation> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<CommerceLocation> spec, CancellationToken ct);
     Task AddAsync(CommerceLocation location, CancellationToken ct);
+    Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
 

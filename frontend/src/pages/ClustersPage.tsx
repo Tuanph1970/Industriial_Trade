@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tag } from 'antd';
+import { App as AntApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Cluster, ClusterStatus, createCluster, getClusters, getOrgUnits } from '../api/client';
+import { Cluster, ClusterStatus, createCluster, deleteCluster, getClusters, getOrgUnits } from '../api/client';
 
 const statusLabels: Record<ClusterStatus, string> = { 1: 'Quy hoạch', 2: 'Đang hoạt động', 3: 'Tạm dừng' };
 const statusColors: Record<ClusterStatus, string> = { 1: 'blue', 2: 'green', 3: 'default' };
@@ -31,6 +31,11 @@ export default function ClustersPage() {
     },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
   });
+  const remove = useMutation({
+    mutationFn: deleteCluster,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['clusters'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -58,6 +63,10 @@ export default function ClustersPage() {
             title: 'Trạng thái', dataIndex: 'status', width: 150,
             render: (s: ClusterStatus) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag>,
           },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
 

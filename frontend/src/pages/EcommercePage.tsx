@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd';
+import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createEcommerce, EcommerceParticipant, getEcommerce, getOrgUnits } from '../api/client';
+import { createEcommerce, deleteEcommerce, EcommerceParticipant, getEcommerce, getOrgUnits } from '../api/client';
 
 export default function EcommercePage() {
   const { message } = AntApp.useApp();
@@ -27,6 +27,11 @@ export default function EcommercePage() {
     },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã số thuế)'),
   });
+  const remove = useMutation({
+    mutationFn: deleteEcommerce,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['ecommerce'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -45,6 +50,10 @@ export default function EcommercePage() {
           { title: 'Sàn TMĐT', dataIndex: 'platforms',
             render: (ps: string[]) => <>{ps.map((p) => <Tag key={p}>{p}</Tag>)}</> },
           { title: 'Mặt hàng chính', dataIndex: 'mainGoods' },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
       <Modal title="Thêm đơn vị thương mại điện tử" open={open} onCancel={() => setOpen(false)}

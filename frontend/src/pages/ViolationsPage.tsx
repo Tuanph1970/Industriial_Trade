@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { App as AntApp, Button, DatePicker, Form, Input, Modal, Select, Space, Table, Tag } from 'antd';
+import { App as AntApp, Button, DatePicker, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import {
-  createViolation, getOrgUnits, getViolations, Violation, ViolationGroup, ViolationStatus,
+  createViolation, deleteViolation, getOrgUnits, getViolations, Violation, ViolationGroup, ViolationStatus,
 } from '../api/client';
 
 const groupLabels: Record<ViolationGroup, string> = {
@@ -38,6 +38,11 @@ export default function ViolationsPage() {
     },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng số hồ sơ)'),
   });
+  const remove = useMutation({
+    mutationFn: deleteViolation,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['violations'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -63,6 +68,10 @@ export default function ViolationsPage() {
             title: 'Trạng thái', dataIndex: 'status', width: 130,
             render: (s: ViolationStatus) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag>,
           },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
 

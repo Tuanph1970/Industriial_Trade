@@ -1,5 +1,6 @@
 using IndustryTrade.BuildingBlocks.Application.Paging;
 using IndustryTrade.BuildingBlocks.Web;
+using IndustryTrade.Modules.SectorData.Application;
 using IndustryTrade.Modules.SectorData.Application.Clusters;
 using IndustryTrade.Modules.SectorData.Application.Observations;
 using IndustryTrade.Modules.SectorData.Application.Violations;
@@ -48,6 +49,9 @@ internal static class ClusterEndpoints
                 await sender.Send(new CreateClusterCommand(
                     body.Code, body.Name, body.OrgUnitId, body.AreaHa, body.Latitude, body.Longitude, body.Status)),
                 id => Results.Created($"/api/sector/clusters/{id}", new { id })));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteClusterCommand(id))));
     }
 }
 
@@ -70,6 +74,9 @@ internal static class ViolationEndpoints
                     body.CaseNo, body.Group, body.OrgUnitId, body.BusinessName,
                     body.InspectedOn, body.ViolationContent)),
                 id => Results.Created($"/api/sector/violations/{id}", new { id })));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteViolationCommand(id))));
     }
 }
 

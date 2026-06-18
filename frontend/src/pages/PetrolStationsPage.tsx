@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tag } from 'antd';
+import { App as AntApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createPetrolStation, getOrgUnits, getPetrolStations, PetrolStation, StationStatus } from '../api/client';
+import { createPetrolStation, deletePetrolStation, getOrgUnits, getPetrolStations, PetrolStation, StationStatus } from '../api/client';
 
 const statusLabels: Record<StationStatus, string> = { 1: 'Đang hoạt động', 2: 'Tạm dừng', 3: 'Đã đóng' };
 const statusColors: Record<StationStatus, string> = { 1: 'green', 2: 'gold', 3: 'default' };
@@ -30,6 +30,11 @@ export default function PetrolStationsPage() {
     },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
   });
+  const remove = useMutation({
+    mutationFn: deletePetrolStation,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['petrol'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -49,6 +54,10 @@ export default function PetrolStationsPage() {
           { title: 'Toạ độ', width: 180, render: (_, r) => (r.latitude != null ? `${r.latitude}, ${r.longitude}` : '—') },
           { title: 'Trạng thái', dataIndex: 'status', width: 150,
             render: (s: StationStatus) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag> },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
       <Modal title="Thêm cửa hàng xăng dầu" open={open} onCancel={() => setOpen(false)}

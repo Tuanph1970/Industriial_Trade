@@ -266,6 +266,12 @@ export const createEcommerce = (b: {
   taxCode: string; businessName: string; orgUnitId: string; platforms: string[]; mainGoods?: string | null;
 }) => api.post<{ id: string }>('/api/sector/ecommerce-participants', b).then((r) => r.data);
 
+export const deleteCluster = (id: string) => api.delete(`/api/sector/clusters/${id}`);
+export const deletePetrolStation = (id: string) => api.delete(`/api/sector/petrol-stations/${id}`);
+export const deleteCommerceLocation = (id: string) => api.delete(`/api/sector/commerce-locations/${id}`);
+export const deleteEcommerce = (id: string) => api.delete(`/api/sector/ecommerce-participants/${id}`);
+export const deleteViolation = (id: string) => api.delete(`/api/sector/violations/${id}`);
+
 // ---- Reporting & Workflow ------------------------------------------------
 export type CampaignStatus = 1 | 2; // Open | Closed
 

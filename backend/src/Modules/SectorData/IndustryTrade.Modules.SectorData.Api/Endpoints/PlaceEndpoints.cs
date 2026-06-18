@@ -1,5 +1,6 @@
 using IndustryTrade.BuildingBlocks.Application.Paging;
 using IndustryTrade.BuildingBlocks.Web;
+using IndustryTrade.Modules.SectorData.Application;
 using IndustryTrade.Modules.SectorData.Application.CommerceLocations;
 using IndustryTrade.Modules.SectorData.Application.Ecommerce;
 using IndustryTrade.Modules.SectorData.Application.PetroleumStations;
@@ -29,6 +30,9 @@ internal static class PetrolStationEndpoints
                     body.Code, body.Name, body.OrgUnitId, body.LicenseNo, body.Address,
                     body.Latitude, body.Longitude, body.Status)),
                 id => Results.Created($"/api/sector/petrol-stations/{id}", new { id })));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeletePetrolStationCommand(id))));
     }
 }
 
@@ -50,6 +54,9 @@ internal static class CommerceLocationEndpoints
                 await sender.Send(new CreateCommerceLocationCommand(
                     body.Code, body.Name, body.Type, body.OrgUnitId, body.Address, body.Latitude, body.Longitude)),
                 id => Results.Created($"/api/sector/commerce-locations/{id}", new { id })));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteCommerceLocationCommand(id))));
     }
 }
 
@@ -69,6 +76,9 @@ internal static class EcommerceEndpoints
                 await sender.Send(new CreateEcommerceParticipantCommand(
                     body.TaxCode, body.BusinessName, body.OrgUnitId, body.Platforms ?? [], body.MainGoods)),
                 id => Results.Created($"/api/sector/ecommerce-participants/{id}", new { id })));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteEcommerceCommand(id))));
     }
 }
 

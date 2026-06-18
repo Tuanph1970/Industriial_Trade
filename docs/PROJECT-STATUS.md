@@ -102,8 +102,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
-- ✅ **Edit + delete** wired on Org Units and Indicators (modal edit, Popconfirm delete) — the pattern
-  to replicate across the other list pages (still create+list only)
+- ✅ **Edit + delete** on Org Units and Indicators (modal edit + Popconfirm delete)
+- ✅ **Delete** on all Sector Data pages (clusters, petrol stations, commerce locations, e-commerce,
+  violations) — EF ExecuteDelete, audited; remaining lists still create+list only
 - ✅ Catalog (grouped nav): Indicators, **Indicator Sets, Report Templates, Reporting Periods**
 - ✅ Pages: Org Units, Users, Roles, Industrial Clusters, Observations, Market Violations,
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
@@ -132,8 +133,8 @@ Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
-- UX polish: extend edit/delete to remaining list pages (pattern established), Excel/XML batch import,
-  frontend code-splitting (bundle ~2 MB)
+- UX polish: edit modals for the Sector entities + delete for the remaining lists (Users/Roles/Catalog
+  master data); Excel/XML batch import; frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)
 - Catalog: administrative-unit + classification catalogs (the remaining master-data lists)
 

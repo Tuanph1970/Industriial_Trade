@@ -46,6 +46,9 @@ internal sealed class ClusterRepository(SectorDataDbContext db) : IClusterReposi
     public async Task AddAsync(IndustrialCluster cluster, CancellationToken ct) =>
         await db.Clusters.AddAsync(cluster, ct);
 
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.Clusters.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
+
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }
 
@@ -64,6 +67,9 @@ internal sealed class ViolationRepository(SectorDataDbContext db) : IViolationRe
     public async Task AddAsync(MarketViolationCase violation, CancellationToken ct) =>
         await db.Violations.AddAsync(violation, ct);
 
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.Violations.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
+
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }
 
@@ -80,6 +86,9 @@ internal sealed class PetrolStationRepository(SectorDataDbContext db) : IPetrolS
 
     public async Task AddAsync(PetroleumStation station, CancellationToken ct) =>
         await db.PetroleumStations.AddAsync(station, ct);
+
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.PetroleumStations.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
 
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }
@@ -98,6 +107,9 @@ internal sealed class CommerceLocationRepository(SectorDataDbContext db) : IComm
     public async Task AddAsync(CommerceLocation location, CancellationToken ct) =>
         await db.CommerceLocations.AddAsync(location, ct);
 
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.CommerceLocations.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
+
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }
 
@@ -114,6 +126,9 @@ internal sealed class EcommerceParticipantRepository(SectorDataDbContext db) : I
 
     public async Task AddAsync(EcommerceParticipant participant, CancellationToken ct) =>
         await db.EcommerceParticipants.AddAsync(participant, ct);
+
+    public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
+        await db.EcommerceParticipants.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
 
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }

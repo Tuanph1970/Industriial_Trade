@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, InputNumber, Modal, Select, Space, Table } from 'antd';
+import { App as AntApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CommerceLocation, CommerceLocationType, createCommerceLocation, getCommerceLocations, getOrgUnits } from '../api/client';
+import { CommerceLocation, CommerceLocationType, createCommerceLocation, deleteCommerceLocation, getCommerceLocations, getOrgUnits } from '../api/client';
 
 const typeLabels: Record<CommerceLocationType, string> = {
   1: 'Chợ', 2: 'Siêu thị', 3: 'Trung tâm thương mại', 4: 'Cửa hàng tiện lợi',
@@ -32,6 +32,11 @@ export default function CommerceLocationsPage() {
     },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
   });
+  const remove = useMutation({
+    mutationFn: deleteCommerceLocation,
+    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['commerce'] }); },
+    onError: () => message.error('Không xoá được'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -50,6 +55,10 @@ export default function CommerceLocationsPage() {
           { title: 'Loại', dataIndex: 'type', width: 200, render: (t: CommerceLocationType) => typeLabels[t] },
           { title: 'Địa chỉ', dataIndex: 'address' },
           { title: 'Toạ độ', width: 180, render: (_, r) => (r.latitude != null ? `${r.latitude}, ${r.longitude}` : '—') },
+          { title: 'Thao tác', width: 90, render: (_, r) => (
+            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+              <a style={{ color: '#cf1322' }}>Xoá</a>
+            </Popconfirm>) },
         ]}
       />
       <Modal title="Thêm địa điểm thương mại" open={open} onCancel={() => setOpen(false)}
