@@ -2,7 +2,9 @@ using IndustryTrade.BuildingBlocks.Application.Paging;
 using IndustryTrade.BuildingBlocks.Web;
 using IndustryTrade.Modules.SectorData.Application.Clusters;
 using IndustryTrade.Modules.SectorData.Application.Observations;
+using IndustryTrade.Modules.SectorData.Application.Violations;
 using IndustryTrade.Modules.SectorData.Domain.Clusters;
+using IndustryTrade.Modules.SectorData.Domain.Violations;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -49,6 +51,28 @@ internal static class ClusterEndpoints
     }
 }
 
+internal static class ViolationEndpoints
+{
+    public static void MapViolationEndpoints(this IEndpointRouteBuilder endpoints)
+    {
+        var group = endpoints.MapGroup("/api/sector/violations")
+            .WithTags("Sector Data — Market Violations")
+            .RequireAuthorization();
+
+        group.MapGet("/", async (ISender sender,
+            int page = 1, int pageSize = 10, string? keyword = null, ViolationGroup? violationGroup = null) =>
+            ApiResults.Match(await sender.Send(
+                new GetViolationsQuery(new PageRequest(page, pageSize, keyword), violationGroup))));
+
+        group.MapPost("/", async (ISender sender, CreateViolationRequest body) =>
+            ApiResults.Match(
+                await sender.Send(new CreateViolationCommand(
+                    body.CaseNo, body.Group, body.OrgUnitId, body.BusinessName,
+                    body.InspectedOn, body.ViolationContent)),
+                id => Results.Created($"/api/sector/violations/{id}", new { id })));
+    }
+}
+
 public sealed record CreateObservationRequest(
     Guid IndicatorId, Guid OrgUnitId, int PeriodYear, int? PeriodMonth,
     decimal? Value, string? ValueText, string? Source);
@@ -56,3 +80,7 @@ public sealed record CreateObservationRequest(
 public sealed record CreateClusterRequest(
     string Code, string Name, Guid OrgUnitId, decimal? AreaHa,
     double? Latitude, double? Longitude, ClusterStatus Status);
+
+public sealed record CreateViolationRequest(
+    string CaseNo, ViolationGroup Group, Guid OrgUnitId, string BusinessName,
+    DateOnly InspectedOn, string ViolationContent);

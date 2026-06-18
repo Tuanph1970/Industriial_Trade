@@ -1,5 +1,6 @@
 using IndustryTrade.Modules.SectorData.Domain.Clusters;
 using IndustryTrade.Modules.SectorData.Domain.Observations;
+using IndustryTrade.Modules.SectorData.Domain.Violations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -36,6 +37,25 @@ internal sealed class ClusterConfiguration : IEntityTypeConfiguration<Industrial
         builder.HasIndex(x => x.Code).IsUnique();
         builder.HasIndex(x => x.OrgUnitId);
         builder.HasIndex(x => x.Location).HasMethod("gist"); // PostGIS spatial index
+        builder.Ignore(x => x.DomainEvents);
+    }
+}
+
+internal sealed class ViolationConfiguration : IEntityTypeConfiguration<MarketViolationCase>
+{
+    public void Configure(EntityTypeBuilder<MarketViolationCase> builder)
+    {
+        builder.ToTable("market_violation_case");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.CaseNo).HasMaxLength(50).IsRequired();
+        builder.Property(x => x.Group).HasConversion<int>();
+        builder.Property(x => x.BusinessName).HasMaxLength(300).IsRequired();
+        builder.Property(x => x.ViolationContent).HasColumnType("text").IsRequired();
+        builder.Property(x => x.SanctionContent).HasColumnType("text");
+        builder.Property(x => x.FineAmount).HasColumnType("numeric(18,2)");
+        builder.Property(x => x.Status).HasConversion<int>();
+        builder.HasIndex(x => x.CaseNo).IsUnique();
+        builder.HasIndex(x => new { x.OrgUnitId, x.Group });
         builder.Ignore(x => x.DomainEvents);
     }
 }

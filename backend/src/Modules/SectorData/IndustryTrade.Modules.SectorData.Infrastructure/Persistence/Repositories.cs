@@ -2,8 +2,10 @@ using IndustryTrade.BuildingBlocks.Application.Specifications;
 using IndustryTrade.BuildingBlocks.Infrastructure.Persistence;
 using IndustryTrade.Modules.SectorData.Application.Clusters;
 using IndustryTrade.Modules.SectorData.Application.Observations;
+using IndustryTrade.Modules.SectorData.Application.Violations;
 using IndustryTrade.Modules.SectorData.Domain.Clusters;
 using IndustryTrade.Modules.SectorData.Domain.Observations;
+using IndustryTrade.Modules.SectorData.Domain.Violations;
 using Microsoft.EntityFrameworkCore;
 
 namespace IndustryTrade.Modules.SectorData.Infrastructure.Persistence;
@@ -37,6 +39,24 @@ internal sealed class ClusterRepository(SectorDataDbContext db) : IClusterReposi
 
     public async Task AddAsync(IndustrialCluster cluster, CancellationToken ct) =>
         await db.Clusters.AddAsync(cluster, ct);
+
+    public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
+}
+
+internal sealed class ViolationRepository(SectorDataDbContext db) : IViolationRepository
+{
+    public Task<bool> ExistsByCaseNoAsync(string caseNo, CancellationToken ct) =>
+        db.Violations.AnyAsync(x => x.CaseNo == caseNo, ct);
+
+    public async Task<IReadOnlyList<MarketViolationCase>> ListAsync(
+        Specification<MarketViolationCase> spec, CancellationToken ct) =>
+        await SpecificationEvaluator.Apply(db.Violations.AsQueryable(), spec).ToListAsync(ct);
+
+    public Task<int> CountAsync(Specification<MarketViolationCase> spec, CancellationToken ct) =>
+        SpecificationEvaluator.Apply(db.Violations.AsQueryable(), spec).CountAsync(ct);
+
+    public async Task AddAsync(MarketViolationCase violation, CancellationToken ct) =>
+        await db.Violations.AddAsync(violation, ct);
 
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }

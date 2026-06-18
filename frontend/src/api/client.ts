@@ -160,3 +160,29 @@ export const createCluster = (b: {
   code: string; name: string; orgUnitId: string; areaHa?: number | null;
   latitude?: number | null; longitude?: number | null; status: ClusterStatus;
 }) => api.post<{ id: string }>('/api/sector/clusters', b).then((r) => r.data);
+
+export type ViolationGroup = 1 | 2; // ProhibitedAndCounterfeit | FoodSafety
+export type ViolationStatus = 1 | 2 | 3; // Reported | UnderHandling | Resolved
+
+export interface Violation {
+  id: string;
+  caseNo: string;
+  group: ViolationGroup;
+  orgUnitId: string;
+  businessName: string;
+  inspectedOn: string;
+  violationContent: string;
+  sanctionContent: string | null;
+  fineAmount: number | null;
+  status: ViolationStatus;
+}
+
+export const getViolations = (p: PageParams & { violationGroup?: ViolationGroup }) =>
+  api.get<PagedResult<Violation>>('/api/sector/violations', {
+    params: { ...pageParams(p), violationGroup: p.violationGroup },
+  }).then((r) => r.data);
+
+export const createViolation = (b: {
+  caseNo: string; group: ViolationGroup; orgUnitId: string; businessName: string;
+  inspectedOn: string; violationContent: string;
+}) => api.post<{ id: string }>('/api/sector/violations', b).then((r) => r.data);

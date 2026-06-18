@@ -3,6 +3,7 @@ using System;
 using IndustryTrade.Modules.SectorData.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NetTopologySuite.Geometries;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace IndustryTrade.Modules.SectorData.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(SectorDataDbContext))]
-    partial class SectorDataDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260618031452_AddMarketViolations")]
+    partial class AddMarketViolations
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

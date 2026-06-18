@@ -1,5 +1,6 @@
 using IndustryTrade.Modules.SectorData.Application.Clusters;
 using IndustryTrade.Modules.SectorData.Application.Observations;
+using IndustryTrade.Modules.SectorData.Application.Violations;
 using IndustryTrade.Modules.SectorData.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +25,7 @@ public static class SectorDataInfrastructure
 
         services.AddScoped<IObservationRepository, ObservationRepository>();
         services.AddScoped<IClusterRepository, ClusterRepository>();
+        services.AddScoped<IViolationRepository, ViolationRepository>();
         return services;
     }
 }

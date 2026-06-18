@@ -30,6 +30,7 @@ public sealed class SectorDataModule : IModule
     {
         endpoints.MapObservationEndpoints();
         endpoints.MapClusterEndpoints();
+        endpoints.MapViolationEndpoints();
     }
 
     public async Task ApplyMigrationsAsync(IServiceProvider services)
