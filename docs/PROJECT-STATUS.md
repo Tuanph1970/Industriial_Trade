@@ -13,7 +13,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 | 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak | ✅ ~90% |
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
-| 4 — Reporting & Workflow | Campaigns, approval saga/state machine | ⬜ |
+| 4 — Reporting & Workflow | Campaigns, approval saga/state machine | 🟡 ~80% |
 | 5 — Analytics & Dashboards | Read models, aggregate reports | ⬜ |
 | 6 — Integration, Security L3, Go-live | LGSP/NDXP, hardening, data migration | ⬜ |
 
@@ -56,24 +56,38 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   create/list endpoints; registered in host
 - ⬜ Excel/XML batch import; observation submit/approve workflow hooks; map view in UI
 
+### Phase 4 — Reporting & Workflow 🟡
+- ✅ `ReportingCampaign` (kỳ báo cáo) — create/list
+- ✅ `ReportSubmission` **state machine**: Draft → Submitted → UnderReview → PendingApproval →
+  Approved, with Return/Reject/Reopen; every transition guarded + recorded in owned history
+- ✅ One action endpoint for all transitions; per-action permission (commune `submit`, specialist
+  `review`, leader `approve`) enforced by the pipeline; data-scoped by unit
+- ✅ `Reporting` module on its own `reporting` schema (campaign, report_submission, report_transition);
+  domain events raised for each transition (`ReportStateChanged`)
+- ⬜ Notification saga: dispatch `ReportStateChanged` via outbox/RabbitMQ to notify the next actor
+- ⬜ Bind report content to Catalog templates / SectorData observations (auto-extract)
+
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
 - ✅ Pages: Org Units, Users, Roles, Indicators, Industrial Clusters, Observations, Market Violations,
-  **Petroleum Stations, Commerce Locations, E-commerce Participants** (list / search / create)
+  Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
+- ✅ **Campaigns** + **Submissions** (workflow action buttons per state + transition-history timeline)
 - ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **25/25 pass** (domain + authorization behavior across 3 modules)
+- `dotnet test` → **30/30 pass** (domain + authorization + state-machine across 4 modules)
 - `npm run build` (frontend) → OK
 - Runtime smoke test → `identity` + `catalog` + `sector` schemas migrate, dev seed applies, PostGIS
   geometry column + GIST index created, all endpoints reject anonymous callers (401)
 
 ## Next up
-- Phase 3 finish: petroleum stations, commerce locations, e-commerce, **market-violation cases**;
-  Excel/XML import; UI map view
-- Phase 4 — **Reporting & Workflow**: campaigns + the commune→specialist→leader approval
-  state machine / saga (consumes Catalog + SectorData)
+- Phase 4 finish: **notification saga** (dispatch `ReportStateChanged` via the outbox/Worker to the
+  next actor) + bind report content to templates/observations
+- Phase 5 — **Analytics & Dashboards**: CQRS read models / materialized views, aggregate reports
+  (consumes SectorData + Reporting)
+- Cross-cutting backlog: real **outbox dispatcher** in the Worker, CI/CD pipeline, audit logging,
+  interactive map view (GIS), Excel/XML import
 
 ## Commits so far (this branch)
 - `e1544f2` docs: design baseline

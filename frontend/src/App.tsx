@@ -1,7 +1,8 @@
 import { Button, Dropdown, Layout, Menu, Result, Spin, Typography } from 'antd';
 import {
-  ApartmentOutlined, BarsOutlined, ClusterOutlined, FundOutlined, GoldOutlined, LogoutOutlined,
-  SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined, WarningOutlined,
+  ApartmentOutlined, AuditOutlined, BarsOutlined, CalendarOutlined, ClusterOutlined, FundOutlined,
+  GoldOutlined, LogoutOutlined, SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined,
+  TeamOutlined, UserOutlined, WarningOutlined,
 } from '@ant-design/icons';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
@@ -15,6 +16,8 @@ import ViolationsPage from './pages/ViolationsPage';
 import PetrolStationsPage from './pages/PetrolStationsPage';
 import CommerceLocationsPage from './pages/CommerceLocationsPage';
 import EcommercePage from './pages/EcommercePage';
+import CampaignsPage from './pages/CampaignsPage';
+import SubmissionsPage from './pages/SubmissionsPage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -29,6 +32,8 @@ const navItems = [
   { key: 'commerce-locations', icon: <ShopOutlined />, label: 'Địa điểm thương mại' },
   { key: 'ecommerce', icon: <ShoppingOutlined />, label: 'Thương mại điện tử' },
   { key: 'violations', icon: <WarningOutlined />, label: 'Hồ sơ vi phạm' },
+  { key: 'campaigns', icon: <CalendarOutlined />, label: 'Kỳ báo cáo' },
+  { key: 'submissions', icon: <AuditOutlined />, label: 'Báo cáo & phê duyệt' },
 ];
 
 export default function App() {
@@ -95,6 +100,8 @@ export default function App() {
             <Route path="/commerce-locations" element={<CommerceLocationsPage />} />
             <Route path="/ecommerce" element={<EcommercePage />} />
             <Route path="/violations" element={<ViolationsPage />} />
+            <Route path="/campaigns" element={<CampaignsPage />} />
+            <Route path="/submissions" element={<SubmissionsPage />} />
           </Routes>
         </Content>
       </Layout>

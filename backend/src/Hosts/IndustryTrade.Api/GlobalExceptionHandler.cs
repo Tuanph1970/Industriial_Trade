@@ -1,5 +1,6 @@
 using FluentValidation;
 using IndustryTrade.BuildingBlocks.Application.Security;
+using IndustryTrade.BuildingBlocks.Domain;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,6 +33,14 @@ internal sealed class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> log
                     Status = StatusCodes.Status403Forbidden,
                     Title = "Forbidden",
                     Detail = forbidden.Message
+                };
+                break;
+            case BusinessRuleException rule:
+                problem = new ProblemDetails
+                {
+                    Status = StatusCodes.Status409Conflict,
+                    Title = "Business rule violation",
+                    Detail = rule.Message
                 };
                 break;
             default:

@@ -231,3 +231,48 @@ export const getEcommerce = (p: PageParams) =>
 export const createEcommerce = (b: {
   taxCode: string; businessName: string; orgUnitId: string; platforms: string[]; mainGoods?: string | null;
 }) => api.post<{ id: string }>('/api/sector/ecommerce-participants', b).then((r) => r.data);
+
+// ---- Reporting & Workflow ------------------------------------------------
+export type CampaignStatus = 1 | 2; // Open | Closed
+
+export interface Campaign {
+  id: string; code: string; name: string;
+  periodYear: number; periodMonth: number | null; deadline: string | null; status: CampaignStatus;
+}
+
+export const getCampaigns = (p: PageParams) =>
+  api.get<PagedResult<Campaign>>('/api/reporting/campaigns', { params: pageParams(p) }).then((r) => r.data);
+
+export const createCampaign = (b: {
+  code: string; name: string; periodYear: number; periodMonth?: number | null; deadline?: string | null;
+}) => api.post<{ id: string }>('/api/reporting/campaigns', b).then((r) => r.data);
+
+// Matches the C# ReportState (Draft=1 … Rejected=6).
+export type ReportState = 1 | 2 | 3 | 4 | 5 | 6;
+// Matches the C# ReportAction enum order (Submit=0 … Reopen=6); sent as a number.
+export const ReportAction = {
+  Submit: 0, AcceptForReview: 1, Return: 2, ForwardForApproval: 3, Approve: 4, Reject: 5, Reopen: 6,
+} as const;
+export type ReportActionValue = (typeof ReportAction)[keyof typeof ReportAction];
+
+export interface Submission {
+  id: string; campaignId: string; orgUnitId: string; title: string; state: ReportState; createdAtUtc: string;
+}
+export interface Transition {
+  fromState: ReportState; toState: ReportState; action: string; actorName: string | null; atUtc: string; note: string | null;
+}
+export interface SubmissionDetail extends Submission { history: Transition[]; }
+
+export const getSubmissions = (p: PageParams & { state?: ReportState; campaignId?: string }) =>
+  api.get<PagedResult<Submission>>('/api/reporting/submissions', {
+    params: { page: p.page, pageSize: p.pageSize, state: p.state, campaignId: p.campaignId },
+  }).then((r) => r.data);
+
+export const getSubmissionDetail = (id: string) =>
+  api.get<SubmissionDetail>(`/api/reporting/submissions/${id}`).then((r) => r.data);
+
+export const createSubmission = (b: { campaignId: string; orgUnitId: string; title: string }) =>
+  api.post<{ id: string }>('/api/reporting/submissions', b).then((r) => r.data);
+
+export const submissionAction = (id: string, action: ReportActionValue, note?: string) =>
+  api.post(`/api/reporting/submissions/${id}/actions`, { action, note });

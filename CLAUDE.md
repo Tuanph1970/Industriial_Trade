@@ -8,8 +8,9 @@ Three bounded contexts are built (DB → API → UI): **IdentityAccess** (org un
 Keycloak auth + DB-driven function/data-scope authorization), **Catalog** (versioned statistical
 indicators), and **SectorData** (generic `IndicatorObservation`; rich entities — industrial clusters, petroleum
 stations, commerce locations with PostGIS geometry, e-commerce participants, market-violation
-records). Remaining: Reporting, Analytics, Integration, AuditSystem — replicate the existing module
-shape. The frontend uses an explicit **light theme**
+records), and **Reporting** (reporting campaigns + the `ReportSubmission` approval **state machine**:
+commune→specialist→leader, with full transition history). Remaining: Analytics, Integration,
+AuditSystem — replicate the existing module shape. The frontend uses an explicit **light theme**
 (`theme.defaultAlgorithm`) as the default for all pages.
 
 Data-scope has two forms on `ICurrentUser`: `DataScopePaths` (org-unit tree prefix match) and

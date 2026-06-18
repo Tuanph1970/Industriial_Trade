@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\IndustryTrade.Modules.Reporting.Domain\IndustryTrade.Modules.Reporting.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\IndustryTrade.BuildingBlocks.Application\IndustryTrade.BuildingBlocks.Application.csproj" />
+  </ItemGroup>
+</Project>

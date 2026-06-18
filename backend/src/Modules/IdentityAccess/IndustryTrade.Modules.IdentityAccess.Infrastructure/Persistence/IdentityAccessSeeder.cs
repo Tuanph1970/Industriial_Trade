@@ -28,7 +28,10 @@ public static class IdentityAccessSeeder
                 "sector.violations.read", "sector.violations.manage",
                 "sector.petrol.read", "sector.petrol.manage",
                 "sector.commerce.read", "sector.commerce.manage",
-                "sector.ecommerce.read", "sector.ecommerce.manage"
+                "sector.ecommerce.read", "sector.ecommerce.manage",
+                // Full reporting workflow so the demo specialist can drive every step end-to-end.
+                "reporting.read", "reporting.campaigns.manage",
+                "reporting.submit", "reporting.review", "reporting.approve"
             ]);
         db.Roles.AddRange(adminRole, specialistRole);
 
