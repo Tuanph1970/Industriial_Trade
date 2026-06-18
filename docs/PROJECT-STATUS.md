@@ -9,7 +9,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 | Phase | Scope | Status |
 |------|-------|--------|
-| 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~90% |
+| 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~95% |
 | 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak, audit log | ✅ ~95% |
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
@@ -31,8 +31,10 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`) — builds + tests the backend on .NET 10
   and builds the frontend on every push/PR to main
 - ✅ **Integration tests** via Testcontainers (real PostgreSQL): outbox interceptor + data-scope spec
-- ⬜ OpenTelemetry traces + Prometheus/Grafana metrics + Seq/Loki logs — not yet
-- ⬜ Redis/MinIO not yet used in code; RabbitMQ delivery (Worker) is the future cross-service path
+- ✅ **Observability**: OpenTelemetry traces (ASP.NET Core + Npgsql, OTLP export when configured) +
+  metrics at `/metrics` (Prometheus); health split (`/health/live`, `/health/ready` with a DB check)
+- ⬜ Seq/Loki log aggregation + Grafana dashboards (needs a collector); Redis/MinIO not yet used in
+  code; RabbitMQ delivery (Worker) is the future cross-service path
 
 ### Phase 1 — Identity, Org & Access ✅
 - ✅ Org-unit tree (multi-level, create/list/search) — path stored as text
@@ -114,10 +116,11 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   geometry column + GIST index created, all endpoints reject anonymous callers (401)
 
 ## Next up
-All 7 designed bounded contexts are built. Remaining work is hardening, real integrations, and polish:
+All 7 designed bounded contexts are built; CI/CD, integration tests, and observability are in place.
+Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
-- OpenTelemetry/metrics; per-user notification routing; broaden integration-test coverage
+- Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
 - UX polish: dashboard charts, interactive **GIS map**, Excel/XML batch import, edit/delete + detail views
 - Catalog completion (indicator sets, report templates, reporting periods)
 

@@ -65,6 +65,10 @@ cp .env.example .env && docker compose up -d --build   # api :8080, frontend :80
 To add a bounded context, copy the IdentityAccess four-project shape and register it in
 `Program.cs` — full steps in `backend/README.md`.
 
+Observability (API host): OpenTelemetry traces (ASP.NET Core + Npgsql; OTLP export only when
+`OpenTelemetry:OtlpEndpoint` is set) and metrics at **`/metrics`** (Prometheus). Health is split:
+`/health/live` (liveness) and `/health/ready` (readiness, includes a DB check) — both unauthenticated.
+
 CI: `.github/workflows/ci.yml` builds + tests the backend (.NET 10) and builds the frontend on every
 push/PR to `main`. Integration tests (`tests/IndustryTrade.IntegrationTests`) use Testcontainers to
 spin up real PostgreSQL, so they require Docker; tag them `[Trait("Category","Integration")]`.

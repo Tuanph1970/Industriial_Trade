@@ -2,10 +2,12 @@ using IndustryTrade.Api;
 using IndustryTrade.BuildingBlocks.Application.Behaviors;
 using IndustryTrade.BuildingBlocks.Web;
 using IndustryTrade.BuildingBlocks.Web.Security;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using IndustryTrade.Modules.Catalog.Api;
 using IndustryTrade.Modules.Analytics.Api;
 using IndustryTrade.Modules.AuditSystem.Api;
 using IndustryTrade.Modules.IdentityAccess.Api;
+using IndustryTrade.Modules.IdentityAccess.Infrastructure.Persistence;
 using IndustryTrade.Modules.Integration.Api;
 using IndustryTrade.Modules.Notifications.Api;
 using IndustryTrade.Modules.Reporting.Api;
@@ -21,6 +23,9 @@ builder.Host.UseSerilog((ctx, cfg) => cfg
     .ReadFrom.Configuration(ctx.Configuration)
     .Enrich.FromLogContext()
     .WriteTo.Console());
+
+// ---- Observability (OpenTelemetry traces + Prometheus metrics) -----------
+builder.AddObservability();
 
 // ---- Modules (bounded contexts) ------------------------------------------
 // Register every context here. The host composes them; modules stay decoupled.
@@ -65,7 +70,8 @@ builder.Services.AddSwaggerGen(options =>
     options.AddSecurityDefinition("Bearer", scheme);
     options.AddSecurityRequirement(new OpenApiSecurityRequirement { [scheme] = [] });
 });
-builder.Services.AddHealthChecks();
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<IdentityAccessDbContext>("database", tags: ["ready"]);
 builder.Services.AddCors(o => o.AddDefaultPolicy(p =>
     p.WithOrigins(builder.Configuration["Cors:Origins"]?.Split(',') ?? ["http://localhost:5173"])
      .AllowAnyHeader().AllowAnyMethod()));
@@ -89,7 +95,13 @@ if (app.Environment.IsDevelopment())
         await module.ApplyMigrationsAsync(app.Services);
 }
 
+// Health: liveness (process up) vs readiness (dependencies, e.g. database); plus the aggregate /health.
 app.MapHealthChecks("/health");
+app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check => check.Tags.Contains("ready") });
+
+// Prometheus scrape endpoint (/metrics).
+app.MapPrometheusScrapingEndpoint();
 
 foreach (var module in modules)
     module.MapEndpoints(app);
