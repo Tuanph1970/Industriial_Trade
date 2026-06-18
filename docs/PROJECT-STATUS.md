@@ -15,7 +15,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
 | 4 — Reporting & Workflow | Campaigns, approval saga/state machine, notifications | 🟡 ~95% |
 | 5 — Analytics & Dashboards | Read models, aggregate reports | 🟡 ~75% |
-| 6 — Integration, Security L3, Go-live | LGSP/NDXP, hardening, data migration | ⬜ |
+| 6 — Integration, Security L3, Go-live | LGSP/NDXP, hardening, data migration | 🟡 ~55% |
 
 ## What is built (detail)
 
@@ -82,6 +82,14 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ⬜ Materialized views refreshed on events (currently live queries); charts; more aggregate reports
   (industry/commerce per Circular-34 templates); export
 
+### Phase 6 — Integration, Security, Go-live 🟡
+- ✅ **Integration** context (`integration` schema): data-sharing **service registry** with
+  Registered→Published→Revoked lifecycle (Decree 47/2020); **connection-status** API (level-1 DB probe
+  + level-2 published services) with history (retained ≥ 3 months)
+- ✅ **AuditSystem** + audit behavior (see Phase 1) — a Level-3 control
+- ⬜ Real LGSP/NDXP connectors + XML/JSON data-exchange feeds (registry + ACL scaffolding in place)
+- ⬜ Security Level-3 hardening checklist + assessment; **legacy data migration** (Doc 04 §7); go-live
+
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
 - ✅ Pages: Org Units, Users, Roles, Indicators, Industrial Clusters, Observations, Market Violations,
@@ -90,11 +98,12 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Notifications** page + header bell with unread badge
 - ✅ **Dashboard** (landing page): statistic cards + reporting/violation breakdown tables
 - ✅ **Audit log** page (search by user/action, expandable payload)
+- ✅ **Integration** page (connection-status panel + data-sharing service registry with publish/revoke)
 - ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **34/34 pass** (domain + authorization + state-machine + notification + audit behavior)
+- `dotnet test` → **38/38 pass** (domain + authorization + state-machine + notification + audit + service lifecycle)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK
@@ -102,11 +111,12 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   geometry column + GIST index created, all endpoints reject anonymous callers (401)
 
 ## Next up
-- Phase 6 — **Integration** (the last bounded context): LGSP/NDXP connectors + connection-status API
-  (Decree 47/2020), XML/JSON exchange
-- File/resource module (MinIO) — UC-4; security L3 control checklist + assessment readiness
-- Cross-cutting backlog: CI/CD pipeline, OpenTelemetry/metrics, per-user notification routing,
-  materialized views + charts, interactive map view (GIS), Excel/XML import
+All 7 designed bounded contexts are built. Remaining work is hardening, real integrations, and polish:
+- Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
+- Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
+- **CI/CD** pipeline, OpenTelemetry/metrics; per-user notification routing
+- UX polish: dashboard charts, interactive **GIS map**, Excel/XML batch import, edit/delete + detail views
+- Catalog completion (indicator sets, report templates, reporting periods)
 
 ## Commits so far (this branch)
 - `e1544f2` docs: design baseline

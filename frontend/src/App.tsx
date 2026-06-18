@@ -1,7 +1,7 @@
 import { Badge, Button, Dropdown, Layout, Menu, Result, Space, Spin, Typography } from 'antd';
 import {
   ApartmentOutlined, AuditOutlined, BarsOutlined, BellOutlined, CalendarOutlined, ClusterOutlined,
-  DashboardOutlined, FileSearchOutlined, FundOutlined, GoldOutlined, LogoutOutlined,
+  ApiOutlined, DashboardOutlined, FileSearchOutlined, FundOutlined, GoldOutlined, LogoutOutlined,
   SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined, TeamOutlined, UserOutlined, WarningOutlined,
 } from '@ant-design/icons';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
@@ -23,6 +23,7 @@ import SubmissionsPage from './pages/SubmissionsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import DashboardPage from './pages/DashboardPage';
 import AuditLogsPage from './pages/AuditLogsPage';
+import IntegrationPage from './pages/IntegrationPage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -41,6 +42,7 @@ const navItems = [
   { key: 'campaigns', icon: <CalendarOutlined />, label: 'Kỳ báo cáo' },
   { key: 'submissions', icon: <AuditOutlined />, label: 'Báo cáo & phê duyệt' },
   { key: 'audit', icon: <FileSearchOutlined />, label: 'Nhật ký quản trị' },
+  { key: 'integration', icon: <ApiOutlined />, label: 'Liên thông & chia sẻ' },
 ];
 
 export default function App() {
@@ -124,6 +126,7 @@ export default function App() {
             <Route path="/submissions" element={<SubmissionsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/audit" element={<AuditLogsPage />} />
+            <Route path="/integration" element={<IntegrationPage />} />
           </Routes>
         </Content>
       </Layout>

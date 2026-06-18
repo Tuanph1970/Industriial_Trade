@@ -319,3 +319,30 @@ export const getAuditLogs = (p: PageParams & { actor?: string; action?: string }
   api.get<PagedResult<AuditLog>>('/api/audit/logs', {
     params: { page: p.page, pageSize: p.pageSize, actor: p.actor || undefined, action: p.action || undefined },
   }).then((r) => r.data);
+
+// ---- Integration (LGSP/NDXP) ---------------------------------------------
+export type ServiceDirection = 1 | 2; // Provide | Consume
+export type ServiceStatus = 1 | 2 | 3; // Registered | Published | Revoked
+export const ServiceLifecycleAction = { Publish: 0, Revoke: 1 } as const;
+export type ServiceLifecycleActionValue = (typeof ServiceLifecycleAction)[keyof typeof ServiceLifecycleAction];
+
+export interface DataSharingService {
+  id: string; code: string; name: string; direction: ServiceDirection;
+  endpointUrl: string | null; description: string | null; status: ServiceStatus;
+}
+
+export const getServices = (p: PageParams) =>
+  api.get<PagedResult<DataSharingService>>('/api/integration/services', { params: pageParams(p) }).then((r) => r.data);
+
+export const createService = (b: {
+  code: string; name: string; direction: ServiceDirection; endpointUrl?: string | null; description?: string | null;
+}) => api.post<{ id: string }>('/api/integration/services', b).then((r) => r.data);
+
+export const changeServiceStatus = (id: string, action: ServiceLifecycleActionValue) =>
+  api.post(`/api/integration/services/${id}/status`, { action });
+
+export interface ComponentStatus { component: string; level: number; healthy: boolean; detail: string | null; }
+export interface ConnectionStatus { healthy: boolean; components: ComponentStatus[]; }
+
+export const getConnectionStatus = () =>
+  api.get<ConnectionStatus>('/api/integration/connection-status').then((r) => r.data);

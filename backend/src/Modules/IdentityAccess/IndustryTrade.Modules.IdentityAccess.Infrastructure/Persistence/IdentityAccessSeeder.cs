@@ -32,7 +32,8 @@ public static class IdentityAccessSeeder
                 // Full reporting workflow so the demo specialist can drive every step end-to-end.
                 "reporting.read", "reporting.campaigns.manage",
                 "reporting.submit", "reporting.review", "reporting.approve",
-                "notifications.read", "analytics.read", "audit.read"
+                "notifications.read", "analytics.read", "audit.read",
+                "integration.read", "integration.manage"
             ]);
         db.Roles.AddRange(adminRole, specialistRole);
 

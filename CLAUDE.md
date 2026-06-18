@@ -10,9 +10,11 @@ indicators), and **SectorData** (generic `IndicatorObservation`; rich entities �
 stations, commerce locations with PostGIS geometry, e-commerce participants, market-violation
 records), and **Reporting** (reporting campaigns + the `ReportSubmission` approval **state machine**:
 commune→specialist→leader, with full transition history), **Notifications** (consumes domain events via the outbox), **Analytics** (read-only CQRS dashboards
-via Dapper over the operational schemas), and **AuditSystem** (an `AuditBehavior` records every
-command to the `audit` schema — design G1). Remaining: Integration (LGSP/NDXP) — replicate the
-module shape.
+via Dapper over the operational schemas), **AuditSystem** (an `AuditBehavior` records every command
+to the `audit` schema — design G1), and **Integration** (data-sharing service registry +
+connection-status API, Decree 47/2020). **All 7 designed bounded contexts are now implemented**
+(+ Notifications); remaining work is hardening, real LGSP/NDXP connectors, data migration, and polish
+— see `docs/PROJECT-STATUS.md`.
 
 The **transactional outbox** is live: an EF SaveChanges interceptor (`OutboxWriterInterceptor`,
 wired per context) writes raised domain events to per-context `outbox_message` tables in the same
