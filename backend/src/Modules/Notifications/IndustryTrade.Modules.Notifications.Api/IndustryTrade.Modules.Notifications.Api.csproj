@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\IndustryTrade.Modules.Notifications.Application\IndustryTrade.Modules.Notifications.Application.csproj" />
+    <ProjectReference Include="..\IndustryTrade.Modules.Notifications.Infrastructure\IndustryTrade.Modules.Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\IndustryTrade.BuildingBlocks.Web\IndustryTrade.BuildingBlocks.Web.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" />
+  </ItemGroup>
+</Project>

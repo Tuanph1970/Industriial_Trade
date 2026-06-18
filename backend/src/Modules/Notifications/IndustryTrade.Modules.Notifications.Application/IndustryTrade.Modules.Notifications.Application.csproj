@@ -1,0 +1,8 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\IndustryTrade.Modules.Notifications.Domain\IndustryTrade.Modules.Notifications.Domain.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\IndustryTrade.BuildingBlocks.Application\IndustryTrade.BuildingBlocks.Application.csproj" />
+    <!-- Downstream consumer of Reporting's published domain event (contract dependency). -->
+    <ProjectReference Include="..\..\Reporting\IndustryTrade.Modules.Reporting.Domain\IndustryTrade.Modules.Reporting.Domain.csproj" />
+  </ItemGroup>
+</Project>

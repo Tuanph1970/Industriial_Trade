@@ -9,8 +9,14 @@ Keycloak auth + DB-driven function/data-scope authorization), **Catalog** (versi
 indicators), and **SectorData** (generic `IndicatorObservation`; rich entities — industrial clusters, petroleum
 stations, commerce locations with PostGIS geometry, e-commerce participants, market-violation
 records), and **Reporting** (reporting campaigns + the `ReportSubmission` approval **state machine**:
-commune→specialist→leader, with full transition history). Remaining: Analytics, Integration,
-AuditSystem — replicate the existing module shape. The frontend uses an explicit **light theme**
+commune→specialist→leader, with full transition history), and **Notifications** (consumes domain
+events via the outbox). Remaining: Analytics, Integration, AuditSystem — replicate the module shape.
+
+The **transactional outbox** is live: an EF SaveChanges interceptor (`OutboxWriterInterceptor`,
+wired per context) writes raised domain events to per-context `outbox_message` tables in the same
+transaction; an `OutboxProcessor<TContext>` background service drains them and re-publishes in-process
+via MediatR (`DomainEventNotification<TEvent>`) to `INotificationHandler<>`s. Add the interceptor +
+`AddOutboxProcessor<TContext>()` in a context's infra registration when it raises events. The frontend uses an explicit **light theme**
 (`theme.defaultAlgorithm`) as the default for all pages.
 
 Data-scope has two forms on `ICurrentUser`: `DataScopePaths` (org-unit tree prefix match) and

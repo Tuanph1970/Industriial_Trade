@@ -276,3 +276,20 @@ export const createSubmission = (b: { campaignId: string; orgUnitId: string; tit
 
 export const submissionAction = (id: string, action: ReportActionValue, note?: string) =>
   api.post(`/api/reporting/submissions/${id}/actions`, { action, note });
+
+// ---- Notifications -------------------------------------------------------
+export interface Notification {
+  id: string; title: string; message: string; category: string; refId: string | null;
+  isRead: boolean; createdAtUtc: string;
+}
+
+export const getNotifications = (p: PageParams & { unreadOnly?: boolean }) =>
+  api.get<PagedResult<Notification>>('/api/notifications', {
+    params: { page: p.page, pageSize: p.pageSize, unreadOnly: p.unreadOnly },
+  }).then((r) => r.data);
+
+export const getUnreadCount = () =>
+  api.get<number>('/api/notifications/unread-count').then((r) => r.data);
+
+export const markNotificationRead = (id: string) => api.post(`/api/notifications/${id}/read`);
+export const markAllNotificationsRead = () => api.post('/api/notifications/read-all');

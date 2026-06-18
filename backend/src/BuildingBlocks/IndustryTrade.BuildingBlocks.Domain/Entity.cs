@@ -1,7 +1,14 @@
 namespace IndustryTrade.BuildingBlocks.Domain;
 
+/// <summary>Non-generic access to an entity's domain events (used by the outbox interceptor).</summary>
+public interface IHasDomainEvents
+{
+    IReadOnlyCollection<IDomainEvent> DomainEvents { get; }
+    void ClearDomainEvents();
+}
+
 /// <summary>Base entity with identity and a domain-event buffer.</summary>
-public abstract class Entity<TId>
+public abstract class Entity<TId> : IHasDomainEvents
     where TId : notnull
 {
     private readonly List<IDomainEvent> _domainEvents = new();

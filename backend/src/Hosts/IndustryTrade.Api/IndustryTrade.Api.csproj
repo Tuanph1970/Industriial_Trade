@@ -7,6 +7,7 @@
     <ProjectReference Include="..\..\Modules\Catalog\IndustryTrade.Modules.Catalog.Api\IndustryTrade.Modules.Catalog.Api.csproj" />
     <ProjectReference Include="..\..\Modules\SectorData\IndustryTrade.Modules.SectorData.Api\IndustryTrade.Modules.SectorData.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Reporting\IndustryTrade.Modules.Reporting.Api\IndustryTrade.Modules.Reporting.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Notifications\IndustryTrade.Modules.Notifications.Api\IndustryTrade.Modules.Notifications.Api.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" />

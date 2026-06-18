@@ -9,11 +9,11 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 | Phase | Scope | Status |
 |------|-------|--------|
-| 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~80% |
+| 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~85% |
 | 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak | ✅ ~90% |
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
-| 4 — Reporting & Workflow | Campaigns, approval saga/state machine | 🟡 ~80% |
+| 4 — Reporting & Workflow | Campaigns, approval saga/state machine, notifications | 🟡 ~95% |
 | 5 — Analytics & Dashboards | Read models, aggregate reports | ⬜ |
 | 6 — Integration, Security L3, Go-live | LGSP/NDXP, hardening, data migration | ⬜ |
 
@@ -25,9 +25,12 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ API host (module composition, Swagger+bearer, ProblemDetails) + Worker host
 - ✅ Docker Compose: Postgres/PostGIS, Redis, RabbitMQ, MinIO, Keycloak, api, worker, frontend(Nginx)
 - ✅ EF Core migrations + dev auto-migrate; Serilog console logging
+- ✅ **Transactional outbox**: SaveChanges interceptor writes domain events to per-context outbox
+  tables; an `OutboxProcessor<TContext>` background service drains them and publishes in-process via
+  MediatR (verified: seeded `OrgUnitCreated` events written + processed)
 - ⬜ CI/CD pipeline (GitHub Actions) — not yet
 - ⬜ OpenTelemetry traces + Prometheus/Grafana metrics + Seq/Loki logs — not yet
-- ⬜ Real outbox dispatcher (Worker has a placeholder); Redis/MinIO not yet used in code
+- ⬜ Redis/MinIO not yet used in code; RabbitMQ delivery (Worker) is the future cross-service path
 
 ### Phase 1 — Identity, Org & Access ✅
 - ✅ Org-unit tree (multi-level, create/list/search) — path stored as text
@@ -64,7 +67,10 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   `review`, leader `approve`) enforced by the pipeline; data-scoped by unit
 - ✅ `Reporting` module on its own `reporting` schema (campaign, report_submission, report_transition);
   domain events raised for each transition (`ReportStateChanged`)
-- ⬜ Notification saga: dispatch `ReportStateChanged` via outbox/RabbitMQ to notify the next actor
+- ✅ **Notification saga**: `ReportStateChanged` flows through the outbox to a **Notifications**
+  context (own `notifications` schema) that records a notification; exposed via API + a header bell
+  (unread badge) and notifications page
+- ⬜ Per-user notification routing (currently a shared activity feed); RabbitMQ cross-service delivery
 - ⬜ Bind report content to Catalog templates / SectorData observations (auto-extract)
 
 ### Frontend
@@ -72,21 +78,23 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ Pages: Org Units, Users, Roles, Indicators, Industrial Clusters, Observations, Market Violations,
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
 - ✅ **Campaigns** + **Submissions** (workflow action buttons per state + transition-history timeline)
+- ✅ **Notifications** page + header bell with unread badge
 - ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **30/30 pass** (domain + authorization + state-machine across 4 modules)
+- `dotnet test` → **31/31 pass** (domain + authorization + state-machine + notification handler)
+- Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
+  drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK
 - Runtime smoke test → `identity` + `catalog` + `sector` schemas migrate, dev seed applies, PostGIS
   geometry column + GIST index created, all endpoints reject anonymous callers (401)
 
 ## Next up
-- Phase 4 finish: **notification saga** (dispatch `ReportStateChanged` via the outbox/Worker to the
-  next actor) + bind report content to templates/observations
 - Phase 5 — **Analytics & Dashboards**: CQRS read models / materialized views, aggregate reports
-  (consumes SectorData + Reporting)
-- Cross-cutting backlog: real **outbox dispatcher** in the Worker, CI/CD pipeline, audit logging,
+  for leadership (consumes SectorData + Reporting)
+- Phase 6 — **Integration** (LGSP/NDXP) + **AuditSystem** (audit-log context) + security L3 hardening
+- Cross-cutting backlog: CI/CD pipeline, OpenTelemetry/metrics, per-user notification routing,
   interactive map view (GIS), Excel/XML import
 
 ## Commits so far (this branch)

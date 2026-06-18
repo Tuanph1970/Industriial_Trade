@@ -4,6 +4,7 @@ using IndustryTrade.BuildingBlocks.Web;
 using IndustryTrade.BuildingBlocks.Web.Security;
 using IndustryTrade.Modules.Catalog.Api;
 using IndustryTrade.Modules.IdentityAccess.Api;
+using IndustryTrade.Modules.Notifications.Api;
 using IndustryTrade.Modules.Reporting.Api;
 using IndustryTrade.Modules.SectorData.Api;
 using MediatR;
@@ -26,6 +27,7 @@ IModule[] modules =
     new CatalogModule(),
     new SectorDataModule(),
     new ReportingModule(),
+    new NotificationsModule(),
     // new AnalyticsModule(),
     // new IntegrationModule(),
     // new AuditSystemModule(),

@@ -1,3 +1,4 @@
+using IndustryTrade.BuildingBlocks.Infrastructure.Outbox;
 using IndustryTrade.Modules.IdentityAccess.Application.Organizations;
 using IndustryTrade.Modules.IdentityAccess.Application.Roles;
 using IndustryTrade.Modules.IdentityAccess.Application.Users;
@@ -18,11 +19,15 @@ public static class IdentityAccessInfrastructure
             ?? throw new InvalidOperationException("Missing ConnectionStrings:Postgres.");
 
         services.AddDbContext<IdentityAccessDbContext>(options =>
+        {
             options.UseNpgsql(connectionString, npgsql =>
             {
                 npgsql.MigrationsHistoryTable("__ef_migrations_history", IdentityAccessDbContext.Schema);
                 npgsql.UseNetTopologySuite();
-            }));
+            });
+            options.AddInterceptors(new OutboxWriterInterceptor());
+        });
+        services.AddOutboxProcessor<IdentityAccessDbContext>();
 
         services.AddScoped<IOrgUnitRepository, OrgUnitRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();

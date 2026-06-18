@@ -23,6 +23,12 @@
     <Project Path="src/Modules/IdentityAccess/IndustryTrade.Modules.IdentityAccess.Domain/IndustryTrade.Modules.IdentityAccess.Domain.csproj" />
     <Project Path="src/Modules/IdentityAccess/IndustryTrade.Modules.IdentityAccess.Infrastructure/IndustryTrade.Modules.IdentityAccess.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Notifications/">
+    <Project Path="src/Modules/Notifications/IndustryTrade.Modules.Notifications.Api/IndustryTrade.Modules.Notifications.Api.csproj" />
+    <Project Path="src/Modules/Notifications/IndustryTrade.Modules.Notifications.Application/IndustryTrade.Modules.Notifications.Application.csproj" />
+    <Project Path="src/Modules/Notifications/IndustryTrade.Modules.Notifications.Domain/IndustryTrade.Modules.Notifications.Domain.csproj" />
+    <Project Path="src/Modules/Notifications/IndustryTrade.Modules.Notifications.Infrastructure/IndustryTrade.Modules.Notifications.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Reporting/">
     <Project Path="src/Modules/Reporting/IndustryTrade.Modules.Reporting.Api/IndustryTrade.Modules.Reporting.Api.csproj" />
     <Project Path="src/Modules/Reporting/IndustryTrade.Modules.Reporting.Application/IndustryTrade.Modules.Reporting.Application.csproj" />
@@ -38,6 +44,7 @@
   <Folder Name="/tests/">
     <Project Path="tests/IndustryTrade.Modules.Catalog.Tests/IndustryTrade.Modules.Catalog.Tests.csproj" />
     <Project Path="tests/IndustryTrade.Modules.IdentityAccess.Tests/IndustryTrade.Modules.IdentityAccess.Tests.csproj" />
+    <Project Path="tests/IndustryTrade.Modules.Notifications.Tests/IndustryTrade.Modules.Notifications.Tests.csproj" />
     <Project Path="tests/IndustryTrade.Modules.Reporting.Tests/IndustryTrade.Modules.Reporting.Tests.csproj" />
     <Project Path="tests/IndustryTrade.Modules.SectorData.Tests/IndustryTrade.Modules.SectorData.Tests.csproj" />
   </Folder>

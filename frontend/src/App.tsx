@@ -1,11 +1,13 @@
-import { Button, Dropdown, Layout, Menu, Result, Spin, Typography } from 'antd';
+import { Badge, Button, Dropdown, Layout, Menu, Result, Space, Spin, Typography } from 'antd';
 import {
-  ApartmentOutlined, AuditOutlined, BarsOutlined, CalendarOutlined, ClusterOutlined, FundOutlined,
-  GoldOutlined, LogoutOutlined, SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined,
+  ApartmentOutlined, AuditOutlined, BarsOutlined, BellOutlined, CalendarOutlined, ClusterOutlined,
+  FundOutlined, GoldOutlined, LogoutOutlined, SafetyCertificateOutlined, ShopOutlined, ShoppingOutlined,
   TeamOutlined, UserOutlined, WarningOutlined,
 } from '@ant-design/icons';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
+import { useQuery } from '@tanstack/react-query';
+import { getUnreadCount } from './api/client';
 import OrgUnitsPage from './pages/OrgUnitsPage';
 import UsersPage from './pages/UsersPage';
 import RolesPage from './pages/RolesPage';
@@ -18,6 +20,7 @@ import CommerceLocationsPage from './pages/CommerceLocationsPage';
 import EcommercePage from './pages/EcommercePage';
 import CampaignsPage from './pages/CampaignsPage';
 import SubmissionsPage from './pages/SubmissionsPage';
+import NotificationsPage from './pages/NotificationsPage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -40,6 +43,13 @@ export default function App() {
   const navigate = useNavigate();
   const location = useLocation();
   const auth = useAuth();
+
+  const { data: unreadCount } = useQuery({
+    queryKey: ['notifications-unread'],
+    queryFn: getUnreadCount,
+    enabled: auth.isAuthenticated,
+    refetchInterval: 30_000,
+  });
 
   if (auth.isLoading) return <Spin fullscreen tip="Đang tải..." />;
 
@@ -68,14 +78,19 @@ export default function App() {
         <Typography.Title level={4} style={{ margin: 0, color: '#1677ff' }}>
           CSDL ngành Công Thương — Hưng Yên
         </Typography.Title>
-        <Dropdown
-          menu={{
-            items: [{ key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất' }],
-            onClick: () => void auth.signoutRedirect(),
-          }}
-        >
-          <Button type="text" icon={<UserOutlined />}>{userName}</Button>
-        </Dropdown>
+        <Space size="middle">
+          <Badge count={unreadCount ?? 0} size="small">
+            <Button type="text" icon={<BellOutlined />} onClick={() => navigate('/notifications')} />
+          </Badge>
+          <Dropdown
+            menu={{
+              items: [{ key: 'logout', icon: <LogoutOutlined />, label: 'Đăng xuất' }],
+              onClick: () => void auth.signoutRedirect(),
+            }}
+          >
+            <Button type="text" icon={<UserOutlined />}>{userName}</Button>
+          </Dropdown>
+        </Space>
       </Header>
       <Layout>
         <Sider width={240} theme="light">
@@ -102,6 +117,7 @@ export default function App() {
             <Route path="/violations" element={<ViolationsPage />} />
             <Route path="/campaigns" element={<CampaignsPage />} />
             <Route path="/submissions" element={<SubmissionsPage />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
           </Routes>
         </Content>
       </Layout>

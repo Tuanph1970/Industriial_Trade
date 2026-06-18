@@ -31,7 +31,8 @@ public static class IdentityAccessSeeder
                 "sector.ecommerce.read", "sector.ecommerce.manage",
                 // Full reporting workflow so the demo specialist can drive every step end-to-end.
                 "reporting.read", "reporting.campaigns.manage",
-                "reporting.submit", "reporting.review", "reporting.approve"
+                "reporting.submit", "reporting.review", "reporting.approve",
+                "notifications.read"
             ]);
         db.Roles.AddRange(adminRole, specialistRole);
 
