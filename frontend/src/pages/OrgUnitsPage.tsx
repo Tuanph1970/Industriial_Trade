@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { App as AntApp, Button, Form, Input, Modal, Select, Space, Table, Tag } from 'antd';
+import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Switch, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createOrgUnit, getOrgUnits, OrgUnit, OrgUnitType } from '../api/client';
+import {
+  createOrgUnit, deleteOrgUnit, getOrgUnits, OrgUnit, OrgUnitType, updateOrgUnit,
+} from '../api/client';
 
 const typeLabels: Record<OrgUnitType, string> = { 1: 'Sở', 2: 'Phòng', 3: 'Xã/Phường' };
 
@@ -12,6 +14,7 @@ export default function OrgUnitsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<OrgUnit | null>(null);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -19,76 +22,83 @@ export default function OrgUnitsPage() {
     queryFn: () => getOrgUnits({ page, pageSize, keyword }),
   });
 
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['org-units'] });
+  const onError = () => message.error('Thao tác thất bại (kiểm tra quyền hoặc ràng buộc dữ liệu)');
+
   const create = useMutation({
     mutationFn: createOrgUnit,
-    onSuccess: () => {
-      message.success('Đã tạo cơ quan, đơn vị');
-      setOpen(false);
-      form.resetFields();
-      qc.invalidateQueries({ queryKey: ['org-units'] });
-    },
-    onError: () => message.error('Tạo thất bại'),
+    onSuccess: () => { message.success('Đã tạo'); close(); invalidate(); }, onError,
   });
+  const update = useMutation({
+    mutationFn: (v: { id: string; name: string; isActive: boolean }) => updateOrgUnit(v.id, v),
+    onSuccess: () => { message.success('Đã cập nhật'); close(); invalidate(); }, onError,
+  });
+  const remove = useMutation({
+    mutationFn: deleteOrgUnit,
+    onSuccess: () => { message.success('Đã xoá'); invalidate(); },
+    onError: () => message.error('Không xoá được (đơn vị có thể có đơn vị con)'),
+  });
+
+  function close() { setOpen(false); setEditing(null); form.resetFields(); }
+  function openCreate() { setEditing(null); form.resetFields(); setOpen(true); }
+  function openEdit(r: OrgUnit) {
+    setEditing(r);
+    form.setFieldsValue({ code: r.code, name: r.name, type: r.type, isActive: r.isActive });
+    setOpen(true);
+  }
+  function submit(v: { code: string; name: string; type: OrgUnitType; isActive: boolean }) {
+    if (editing) update.mutate({ id: editing.id, name: v.name, isActive: v.isActive });
+    else create.mutate({ code: v.code, name: v.name, type: v.type });
+  }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Space>
-        <Input.Search
-          placeholder="Tìm theo mã hoặc tên"
-          allowClear
-          onSearch={(v) => { setKeyword(v); setPage(1); }}
-          style={{ width: 320 }}
-        />
-        <Button type="primary" onClick={() => setOpen(true)}>Thêm mới</Button>
+        <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
+          onSearch={(v) => { setKeyword(v); setPage(1); }} />
+        <Button type="primary" onClick={openCreate}>Thêm mới</Button>
       </Space>
 
       <Table<OrgUnit>
-        rowKey="id"
-        loading={isLoading}
-        dataSource={data?.items}
-        pagination={{
-          current: page,
-          pageSize,
-          total: data?.totalCount,
-          showSizeChanger: true,
-          pageSizeOptions: [10, 20, 50],
-          onChange: (p, ps) => { setPage(p); setPageSize(ps); },
-        }}
+        rowKey="id" loading={isLoading} dataSource={data?.items}
+        pagination={{ current: page, pageSize, total: data?.totalCount, showSizeChanger: true,
+          pageSizeOptions: [10, 20, 50], onChange: (p, ps) => { setPage(p); setPageSize(ps); } }}
         columns={[
           { title: 'Mã', dataIndex: 'code', width: 140 },
           { title: 'Tên', dataIndex: 'name' },
           { title: 'Loại', dataIndex: 'type', width: 120, render: (t: OrgUnitType) => typeLabels[t] },
-          { title: 'Đường dẫn', dataIndex: 'path', width: 220 },
+          { title: 'Đường dẫn', dataIndex: 'path', width: 200 },
+          { title: 'Trạng thái', dataIndex: 'isActive', width: 110,
+            render: (a: boolean) => <Tag color={a ? 'green' : 'default'}>{a ? 'Hoạt động' : 'Ngưng'}</Tag> },
           {
-            title: 'Trạng thái', dataIndex: 'isActive', width: 120,
-            render: (a: boolean) => <Tag color={a ? 'green' : 'default'}>{a ? 'Hoạt động' : 'Ngưng'}</Tag>,
+            title: 'Thao tác', width: 140,
+            render: (_, r) => (
+              <Space>
+                <a onClick={() => openEdit(r)}>Sửa</a>
+                <Popconfirm title="Xoá đơn vị này?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+                  <a style={{ color: '#cf1322' }}>Xoá</a>
+                </Popconfirm>
+              </Space>
+            ),
           },
         ]}
       />
 
-      <Modal
-        title="Thêm cơ quan, đơn vị"
-        open={open}
-        onCancel={() => setOpen(false)}
-        onOk={() => form.submit()}
-        confirmLoading={create.isPending}
-      >
-        <Form form={form} layout="vertical" onFinish={(v) => create.mutate(v)}>
+      <Modal title={editing ? 'Sửa cơ quan, đơn vị' : 'Thêm cơ quan, đơn vị'} open={open}
+        onCancel={close} onOk={() => form.submit()} confirmLoading={create.isPending || update.isPending}>
+        <Form form={form} layout="vertical" onFinish={submit}>
           <Form.Item name="code" label="Mã" rules={[{ required: true }]}>
-            <Input maxLength={50} />
+            <Input maxLength={50} disabled={!!editing} />
           </Form.Item>
-          <Form.Item name="name" label="Tên" rules={[{ required: true }]}>
-            <Input maxLength={250} />
-          </Form.Item>
+          <Form.Item name="name" label="Tên" rules={[{ required: true }]}><Input maxLength={250} /></Form.Item>
           <Form.Item name="type" label="Loại" rules={[{ required: true }]}>
-            <Select
-              options={[
-                { value: 1, label: 'Sở' },
-                { value: 2, label: 'Phòng' },
-                { value: 3, label: 'Xã/Phường' },
-              ]}
-            />
+            <Select disabled={!!editing} options={[
+              { value: 1, label: 'Sở' }, { value: 2, label: 'Phòng' }, { value: 3, label: 'Xã/Phường' },
+            ]} />
           </Form.Item>
+          {editing && (
+            <Form.Item name="isActive" label="Hoạt động" valuePropName="checked"><Switch /></Form.Item>
+          )}
         </Form>
       </Modal>
     </Space>

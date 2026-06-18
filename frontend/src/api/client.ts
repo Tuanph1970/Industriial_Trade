@@ -48,6 +48,10 @@ export const getOrgUnits = (p: PageParams) =>
 export const createOrgUnit = (b: { code: string; name: string; type: OrgUnitType; parentId?: string | null }) =>
   api.post<{ id: string }>('/api/identity/org-units', b).then((r) => r.data);
 
+export const updateOrgUnit = (id: string, b: { name: string; isActive: boolean }) =>
+  api.put(`/api/identity/org-units/${id}`, b);
+export const deleteOrgUnit = (id: string) => api.delete(`/api/identity/org-units/${id}`);
+
 // ---- Roles ---------------------------------------------------------------
 export interface Role {
   id: string;
@@ -114,6 +118,11 @@ export const createIndicator = (b: {
   code: string; name: string; unit: string;
   dataType: IndicatorDataType; sector: IndustrySector; effectiveFrom: string;
 }) => api.post<{ id: string }>('/api/catalog/indicators', b).then((r) => r.data);
+
+export const updateIndicator = (id: string, b: {
+  name: string; unit: string; dataType: IndicatorDataType; sector: IndustrySector;
+}) => api.put(`/api/catalog/indicators/${id}`, b);
+export const deleteIndicator = (id: string) => api.delete(`/api/catalog/indicators/${id}`);
 
 // Catalog master data: indicator sets, report templates, reporting periods.
 export interface IndicatorSet {

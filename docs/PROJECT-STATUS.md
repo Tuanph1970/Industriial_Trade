@@ -45,8 +45,10 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ Dev seeder (org tree, ADMIN/SPECIALIST roles, `superadmin`/`chuyenvien`)
 - ✅ **Audit logging** (design G1): an `AuditBehavior` records every command (actor, action, JSON
   payload, outcome) to the **AuditSystem** context (`audit` schema, jsonb payload); searchable API + UI
+- ✅ **OrgUnit update / delete / detail** endpoints (delete blocked if the unit has children; all
+  audited) — the reusable edit/delete/detail pattern, also applied to Catalog Indicator
 - ⬜ Reset-password-to-default (Keycloak admin API) — endpoint not built
-- ⬜ `ltree` column type + GIST index (currently `text` + prefix match); update/delete endpoints
+- ⬜ `ltree` column type + GIST index (currently `text` + prefix match)
 
 ### Phase 2 — Catalog ✅
 - ✅ Versioned `Indicator` aggregate (Circular 33/2022) — create/list/search on `catalog` schema
@@ -100,6 +102,8 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
+- ✅ **Edit + delete** wired on Org Units and Indicators (modal edit, Popconfirm delete) — the pattern
+  to replicate across the other list pages (still create+list only)
 - ✅ Catalog (grouped nav): Indicators, **Indicator Sets, Report Templates, Reporting Periods**
 - ✅ Pages: Org Units, Users, Roles, Industrial Clusters, Observations, Market Violations,
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
@@ -114,7 +118,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **43/43 pass** — 41 unit + **2 integration** (Testcontainers PostgreSQL: outbox
+- `dotnet test` → **46/46 pass** — 44 unit + **2 integration** (Testcontainers PostgreSQL: outbox
   interceptor, data-scope specification)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
@@ -128,7 +132,8 @@ Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
-- UX polish: Excel/XML batch import, edit/delete + detail views, frontend code-splitting (bundle ~2 MB)
+- UX polish: extend edit/delete to remaining list pages (pattern established), Excel/XML batch import,
+  frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)
 - Catalog: administrative-unit + classification catalogs (the remaining master-data lists)
 

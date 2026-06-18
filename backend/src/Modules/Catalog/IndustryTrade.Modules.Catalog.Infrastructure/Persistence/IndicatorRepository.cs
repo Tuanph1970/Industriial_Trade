@@ -21,5 +21,6 @@ internal sealed class IndicatorRepository(CatalogDbContext db) : IIndicatorRepos
         SpecificationEvaluator.Apply(db.Indicators.AsQueryable(), spec).CountAsync(ct);
 
     public async Task AddAsync(Indicator indicator, CancellationToken ct) => await db.Indicators.AddAsync(indicator, ct);
+    public void Remove(Indicator indicator) => db.Indicators.Remove(indicator);
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }

@@ -7,8 +7,10 @@ namespace IndustryTrade.Modules.IdentityAccess.Application.Organizations;
 public interface IOrgUnitRepository
 {
     Task<OrgUnit?> GetByIdAsync(Guid id, CancellationToken ct);
+    Task<bool> HasChildrenAsync(Guid id, CancellationToken ct);
     Task<IReadOnlyList<OrgUnit>> ListAsync(Specification<OrgUnit> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<OrgUnit> spec, CancellationToken ct);
     Task AddAsync(OrgUnit unit, CancellationToken ct);
+    void Remove(OrgUnit unit);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }

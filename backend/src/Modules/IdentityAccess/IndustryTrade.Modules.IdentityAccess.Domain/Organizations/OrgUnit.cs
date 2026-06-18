@@ -69,6 +69,12 @@ public sealed partial class OrgUnit : AggregateRoot<Guid>, IAuditable
         Touch();
     }
 
+    public void Update(string name, bool isActive)
+    {
+        Rename(name);
+        IsActive = isActive;
+    }
+
     public void Deactivate()
     {
         IsActive = false;

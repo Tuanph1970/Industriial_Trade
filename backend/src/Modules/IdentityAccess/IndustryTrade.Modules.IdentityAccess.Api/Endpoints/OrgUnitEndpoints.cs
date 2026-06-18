@@ -31,7 +31,17 @@ internal static class OrgUnitEndpoints
             return ApiResults.Match(result, id => Results.Created($"/api/identity/org-units/{id}", new { id }));
         })
         .WithName("CreateOrgUnit");
+
+        group.MapGet("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new GetOrgUnitByIdQuery(id))));
+
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateOrgUnitRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateOrgUnitCommand(id, body.Name, body.IsActive))));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteOrgUnitCommand(id))));
     }
 }
 
 public sealed record CreateOrgUnitRequest(string Code, string Name, OrgUnitType Type, Guid? ParentId);
+public sealed record UpdateOrgUnitRequest(string Name, bool IsActive);

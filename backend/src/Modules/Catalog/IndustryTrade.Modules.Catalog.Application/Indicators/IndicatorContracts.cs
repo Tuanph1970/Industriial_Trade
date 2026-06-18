@@ -29,6 +29,7 @@ public interface IIndicatorRepository
     Task<IReadOnlyList<Indicator>> ListAsync(Specification<Indicator> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<Indicator> spec, CancellationToken ct);
     Task AddAsync(Indicator indicator, CancellationToken ct);
+    void Remove(Indicator indicator);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
 

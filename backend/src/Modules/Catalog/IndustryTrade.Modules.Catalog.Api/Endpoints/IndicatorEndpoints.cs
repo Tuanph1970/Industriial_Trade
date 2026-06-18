@@ -27,9 +27,22 @@ internal static class IndicatorEndpoints
                 await sender.Send(new CreateIndicatorCommand(
                     body.Code, body.Name, body.Unit, body.DataType, body.Sector, body.EffectiveFrom)),
                 id => Results.Created($"/api/catalog/indicators/{id}", new { id })));
+
+        group.MapGet("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new GetIndicatorByIdQuery(id))));
+
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateIndicatorRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateIndicatorCommand(
+                id, body.Name, body.Unit, body.DataType, body.Sector))));
+
+        group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new DeleteIndicatorCommand(id))));
     }
 }
 
 public sealed record CreateIndicatorRequest(
     string Code, string Name, string Unit,
     IndicatorDataType DataType, IndustrySector Sector, DateOnly EffectiveFrom);
+
+public sealed record UpdateIndicatorRequest(
+    string Name, string Unit, IndicatorDataType DataType, IndustrySector Sector);

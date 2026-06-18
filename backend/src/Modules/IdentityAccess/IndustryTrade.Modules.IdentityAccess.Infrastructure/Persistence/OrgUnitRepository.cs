@@ -11,6 +11,11 @@ internal sealed class OrgUnitRepository(IdentityAccessDbContext db) : IOrgUnitRe
     public Task<OrgUnit?> GetByIdAsync(Guid id, CancellationToken ct) =>
         db.OrgUnits.FirstOrDefaultAsync(x => x.Id == id, ct);
 
+    public Task<bool> HasChildrenAsync(Guid id, CancellationToken ct) =>
+        db.OrgUnits.AnyAsync(x => x.ParentId == id, ct);
+
+    public void Remove(OrgUnit unit) => db.OrgUnits.Remove(unit);
+
     public async Task<IReadOnlyList<OrgUnit>> ListAsync(Specification<OrgUnit> spec, CancellationToken ct) =>
         await SpecificationEvaluator.Apply(db.OrgUnits.AsQueryable(), spec).ToListAsync(ct);
 
