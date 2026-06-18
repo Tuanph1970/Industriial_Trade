@@ -1,0 +1,41 @@
+using IndustryTrade.Modules.SectorData.Domain.Clusters;
+using IndustryTrade.Modules.SectorData.Domain.Observations;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+namespace IndustryTrade.Modules.SectorData.Infrastructure.Persistence;
+
+internal sealed class ObservationConfiguration : IEntityTypeConfiguration<IndicatorObservation>
+{
+    public void Configure(EntityTypeBuilder<IndicatorObservation> builder)
+    {
+        builder.ToTable("indicator_observation");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Value).HasColumnType("numeric(18,4)");
+        builder.Property(x => x.ValueText).HasMaxLength(1000);
+        builder.Property(x => x.Source).HasMaxLength(250);
+        builder.Property(x => x.Status).HasConversion<int>();
+        // Lookup + data-scope (by org unit) + period filtering.
+        builder.HasIndex(x => new { x.IndicatorId, x.OrgUnitId, x.PeriodYear });
+        builder.HasIndex(x => x.OrgUnitId);
+        builder.Ignore(x => x.DomainEvents);
+    }
+}
+
+internal sealed class ClusterConfiguration : IEntityTypeConfiguration<IndustrialCluster>
+{
+    public void Configure(EntityTypeBuilder<IndustrialCluster> builder)
+    {
+        builder.ToTable("industrial_cluster");
+        builder.HasKey(x => x.Id);
+        builder.Property(x => x.Code).HasMaxLength(50).IsRequired();
+        builder.Property(x => x.Name).HasMaxLength(250).IsRequired();
+        builder.Property(x => x.AreaHa).HasColumnType("numeric(12,2)");
+        builder.Property(x => x.Status).HasConversion<int>();
+        builder.Property(x => x.Location).HasColumnType("geometry (Point, 4326)");
+        builder.HasIndex(x => x.Code).IsUnique();
+        builder.HasIndex(x => x.OrgUnitId);
+        builder.HasIndex(x => x.Location).HasMethod("gist"); // PostGIS spatial index
+        builder.Ignore(x => x.DomainEvents);
+    }
+}

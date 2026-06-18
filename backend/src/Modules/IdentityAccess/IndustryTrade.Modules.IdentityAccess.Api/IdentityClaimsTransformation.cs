@@ -28,6 +28,7 @@ internal sealed class IdentityClaimsTransformation(IUserAuthorizationProvider pr
 
         AddMissing(identity, CurrentUser.PermissionClaim, auth.Permissions);
         AddMissing(identity, CurrentUser.ScopePathClaim, auth.DataScopePaths);
+        AddMissing(identity, CurrentUser.ScopeUnitClaim, auth.DataScopeUnitIds.Select(id => id.ToString()));
         return principal;
     }
 

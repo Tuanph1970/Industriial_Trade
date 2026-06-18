@@ -4,6 +4,7 @@ using IndustryTrade.BuildingBlocks.Web;
 using IndustryTrade.BuildingBlocks.Web.Security;
 using IndustryTrade.Modules.Catalog.Api;
 using IndustryTrade.Modules.IdentityAccess.Api;
+using IndustryTrade.Modules.SectorData.Api;
 using MediatR;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -22,7 +23,7 @@ IModule[] modules =
 [
     new IdentityAccessModule(),
     new CatalogModule(),
-    // new SectorDataModule(),
+    new SectorDataModule(),
     // new ReportingModule(),
     // new AnalyticsModule(),
     // new IntegrationModule(),

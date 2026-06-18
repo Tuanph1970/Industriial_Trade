@@ -4,7 +4,8 @@ namespace IndustryTrade.Modules.IdentityAccess.Application.Users;
 public sealed record UserAuthorization(
     bool Found,
     IReadOnlyCollection<string> Permissions,
-    IReadOnlyCollection<string> DataScopePaths);
+    IReadOnlyCollection<string> DataScopePaths,
+    IReadOnlyCollection<Guid> DataScopeUnitIds);
 
 /// <summary>
 /// Resolves a user's function-scope permissions (from their roles) and data-scope paths (from their

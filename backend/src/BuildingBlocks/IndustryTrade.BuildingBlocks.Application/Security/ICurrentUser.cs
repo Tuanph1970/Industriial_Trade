@@ -21,5 +21,9 @@ public interface ICurrentUser
     /// <summary>Data-scope: accessible org-unit path prefixes (a unit and all its descendants).</summary>
     IReadOnlyCollection<string> DataScopePaths { get; }
 
+    /// <summary>Data-scope as concrete org-unit ids (the user's unit + descendants), for contexts
+    /// that reference units by id rather than by path (e.g. Sector Data).</summary>
+    IReadOnlyCollection<Guid> DataScopeUnitIds { get; }
+
     bool HasPermission(string permission);
 }

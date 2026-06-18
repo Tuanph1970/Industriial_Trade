@@ -114,3 +114,49 @@ export const createIndicator = (b: {
   code: string; name: string; unit: string;
   dataType: IndicatorDataType; sector: IndustrySector; effectiveFrom: string;
 }) => api.post<{ id: string }>('/api/catalog/indicators', b).then((r) => r.data);
+
+// ---- Sector Data ---------------------------------------------------------
+export type ObservationStatus = 1 | 2 | 3; // Draft | Submitted | Approved
+
+export interface Observation {
+  id: string;
+  indicatorId: string;
+  orgUnitId: string;
+  periodYear: number;
+  periodMonth: number | null;
+  value: number | null;
+  valueText: string | null;
+  source: string | null;
+  status: ObservationStatus;
+}
+
+export const getObservations = (p: PageParams & { periodYear?: number }) =>
+  api.get<PagedResult<Observation>>('/api/sector/observations', {
+    params: { page: p.page, pageSize: p.pageSize, periodYear: p.periodYear },
+  }).then((r) => r.data);
+
+export const createObservation = (b: {
+  indicatorId: string; orgUnitId: string; periodYear: number; periodMonth?: number | null;
+  value?: number | null; valueText?: string | null; source?: string | null;
+}) => api.post<{ id: string }>('/api/sector/observations', b).then((r) => r.data);
+
+export type ClusterStatus = 1 | 2 | 3; // Planned | Operating | Suspended
+
+export interface Cluster {
+  id: string;
+  code: string;
+  name: string;
+  orgUnitId: string;
+  areaHa: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  status: ClusterStatus;
+}
+
+export const getClusters = (p: PageParams) =>
+  api.get<PagedResult<Cluster>>('/api/sector/clusters', { params: pageParams(p) }).then((r) => r.data);
+
+export const createCluster = (b: {
+  code: string; name: string; orgUnitId: string; areaHa?: number | null;
+  latitude?: number | null; longitude?: number | null; status: ClusterStatus;
+}) => api.post<{ id: string }>('/api/sector/clusters', b).then((r) => r.data);

@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <ProjectReference Include="..\IndustryTrade.Modules.SectorData.Application\IndustryTrade.Modules.SectorData.Application.csproj" />
+    <ProjectReference Include="..\IndustryTrade.Modules.SectorData.Infrastructure\IndustryTrade.Modules.SectorData.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\..\BuildingBlocks\IndustryTrade.BuildingBlocks.Web\IndustryTrade.BuildingBlocks.Web.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
+  </ItemGroup>
+</Project>

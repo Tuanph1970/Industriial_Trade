@@ -11,7 +11,7 @@ internal sealed class UserAuthorizationProvider(IdentityAccessDbContext db) : IU
             .FirstOrDefaultAsync(u => u.UserName == userName && u.IsActive, ct);
 
         if (user is null)
-            return new UserAuthorization(false, [], []);
+            return new UserAuthorization(false, [], [], []);
 
         // Function-scope: union of permissions across the user's roles.
         var rolePermissionSets = await db.Roles.AsNoTracking()
@@ -20,18 +20,26 @@ internal sealed class UserAuthorizationProvider(IdentityAccessDbContext db) : IU
             .ToListAsync(ct);
         var permissions = rolePermissionSets.SelectMany(p => p).Distinct().ToArray();
 
-        // Data-scope: the path of the user's assigned org unit (subtree match happens in the spec).
+        // Data-scope: the user's assigned org unit and all its descendants (the unit's subtree).
         var scopePaths = new List<string>();
+        var scopeUnitIds = new List<Guid>();
         if (user.OrgUnitId is { } unitId)
         {
             var path = await db.OrgUnits.AsNoTracking()
                 .Where(o => o.Id == unitId)
                 .Select(o => o.Path)
                 .FirstOrDefaultAsync(ct);
+
             if (path is not null)
+            {
                 scopePaths.Add(path);
+                scopeUnitIds = await db.OrgUnits.AsNoTracking()
+                    .Where(o => o.Path == path || o.Path.StartsWith(path + "."))
+                    .Select(o => o.Id)
+                    .ToListAsync(ct);
+            }
         }
 
-        return new UserAuthorization(true, permissions, scopePaths);
+        return new UserAuthorization(true, permissions, scopePaths, scopeUnitIds);
     }
 }

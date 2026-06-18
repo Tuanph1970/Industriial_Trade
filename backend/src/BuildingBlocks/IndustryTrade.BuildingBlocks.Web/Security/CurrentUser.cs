@@ -15,6 +15,7 @@ public sealed class CurrentUser(IHttpContextAccessor accessor) : ICurrentUser
 {
     public const string PermissionClaim = "permission";
     public const string ScopePathClaim = "scope_path";
+    public const string ScopeUnitClaim = "scope_unit";
     public const string SuperAdminPermission = "super-admin";
 
     private ClaimsPrincipal? Principal => accessor.HttpContext?.User;
@@ -30,6 +31,11 @@ public sealed class CurrentUser(IHttpContextAccessor accessor) : ICurrentUser
 
     public IReadOnlyCollection<string> DataScopePaths =>
         Principal?.FindAll(ScopePathClaim).Select(c => c.Value).ToArray() ?? [];
+
+    public IReadOnlyCollection<Guid> DataScopeUnitIds =>
+        Principal?.FindAll(ScopeUnitClaim)
+            .Select(c => Guid.TryParse(c.Value, out var id) ? id : (Guid?)null)
+            .Where(id => id.HasValue).Select(id => id!.Value).ToArray() ?? [];
 
     public bool HasPermission(string permission) =>
         IsSuperAdmin || Permissions.Contains(permission);

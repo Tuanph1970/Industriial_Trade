@@ -4,11 +4,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status: walking skeleton scaffolded
 
-Two bounded contexts are built end-to-end (DB → API → UI): **IdentityAccess** (org units, users,
-roles, Keycloak auth + DB-driven function/data-scope authorization) and **Catalog** (versioned
-statistical indicators). Five contexts remain (SectorData, Reporting, Analytics, Integration,
-AuditSystem) — replicate the IdentityAccess/Catalog shape. The frontend uses an explicit **light
-theme** (`theme.defaultAlgorithm`) as the default for all pages.
+Three bounded contexts are built (DB → API → UI): **IdentityAccess** (org units, users, roles,
+Keycloak auth + DB-driven function/data-scope authorization), **Catalog** (versioned statistical
+indicators), and **SectorData** (generic `IndicatorObservation` + `IndustrialCluster` with PostGIS
+geometry; more rich entities pending). Remaining: Reporting, Analytics, Integration, AuditSystem —
+replicate the existing module shape. The frontend uses an explicit **light theme**
+(`theme.defaultAlgorithm`) as the default for all pages.
+
+Data-scope has two forms on `ICurrentUser`: `DataScopePaths` (org-unit tree prefix match) and
+`DataScopeUnitIds` (concrete unit ids, for contexts like SectorData that reference units by id).
+Both are resolved from the DB by the IdentityAccess claims transformation.
 
 Authorization note: function-scope permissions and data-scope org-unit paths are resolved from the
 **IdentityAccess database** (a user's roles + assigned unit) via a claims transformation after

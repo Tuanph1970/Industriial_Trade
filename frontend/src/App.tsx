@@ -1,6 +1,7 @@
 import { Button, Dropdown, Layout, Menu, Result, Spin, Typography } from 'antd';
 import {
-  ApartmentOutlined, BarsOutlined, LogoutOutlined, SafetyCertificateOutlined, TeamOutlined, UserOutlined,
+  ApartmentOutlined, BarsOutlined, ClusterOutlined, FundOutlined, LogoutOutlined,
+  SafetyCertificateOutlined, TeamOutlined, UserOutlined,
 } from '@ant-design/icons';
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from 'react-oidc-context';
@@ -8,6 +9,8 @@ import OrgUnitsPage from './pages/OrgUnitsPage';
 import UsersPage from './pages/UsersPage';
 import RolesPage from './pages/RolesPage';
 import IndicatorsPage from './pages/IndicatorsPage';
+import ClustersPage from './pages/ClustersPage';
+import ObservationsPage from './pages/ObservationsPage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -16,6 +19,8 @@ const navItems = [
   { key: 'users', icon: <TeamOutlined />, label: 'Người dùng' },
   { key: 'roles', icon: <SafetyCertificateOutlined />, label: 'Vai trò' },
   { key: 'indicators', icon: <BarsOutlined />, label: 'Chỉ tiêu thống kê' },
+  { key: 'clusters', icon: <ClusterOutlined />, label: 'Cụm công nghiệp' },
+  { key: 'observations', icon: <FundOutlined />, label: 'Số liệu chỉ tiêu' },
 ];
 
 export default function App() {
@@ -76,6 +81,8 @@ export default function App() {
             <Route path="/users" element={<UsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/indicators" element={<IndicatorsPage />} />
+            <Route path="/clusters" element={<ClustersPage />} />
+            <Route path="/observations" element={<ObservationsPage />} />
           </Routes>
         </Content>
       </Layout>

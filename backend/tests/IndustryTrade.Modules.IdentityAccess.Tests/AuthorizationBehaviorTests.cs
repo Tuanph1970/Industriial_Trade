@@ -55,6 +55,7 @@ public class AuthorizationBehaviorTests
         public bool IsSuperAdmin => superAdmin;
         public IReadOnlySet<string> Permissions => perms.ToHashSet();
         public IReadOnlyCollection<string> DataScopePaths => [];
+        public IReadOnlyCollection<Guid> DataScopeUnitIds => [];
         public bool HasPermission(string permission) => superAdmin || perms.Contains(permission);
     }
 }

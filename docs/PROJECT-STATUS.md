@@ -1,6 +1,6 @@
 # Project Status
 
-**Updated:** 2026-06-17 · **Branch:** `feat/scaffold-walking-skeleton`
+**Updated:** 2026-06-18 · **Branch:** `feat/scaffold-walking-skeleton`
 
 Status of the build against the phased plan in [design/05-implementation-plan.md](./design/05-implementation-plan.md).
 Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
@@ -12,7 +12,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 | 0 — Foundations / walking skeleton | Solution, BuildingBlocks, infra, CI/CD, observability | 🟡 ~80% |
 | 1 — Identity, Org & Access | Org tree, users, roles, 2-D authz, Keycloak | ✅ ~90% |
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | 🟡 ~25% |
-| 3 — Sector Data | Observations + rich entities (clusters, petrol, violations) | ⬜ **next (tomorrow)** |
+| 3 — Sector Data | Observations + rich entities (clusters, petrol, violations) | 🟡 ~40% |
 | 4 — Reporting & Workflow | Campaigns, approval saga/state machine | ⬜ |
 | 5 — Analytics & Dashboards | Read models, aggregate reports | ⬜ |
 | 6 — Integration, Security L3, Go-live | LGSP/NDXP, hardening, data migration | ⬜ |
@@ -44,24 +44,31 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ Versioned `Indicator` aggregate (Circular 33/2022) — create/list/search on `catalog` schema
 - ⬜ Indicator sets (bộ chỉ tiêu), report templates, reporting periods, administrative-unit catalog, classification catalogs, batch import
 
+### Phase 3 — Sector Data 🟡
+- ✅ Generic `IndicatorObservation` aggregate (numeric stats by indicator + unit + period), data-scoped by unit
+- ✅ `IndustrialCluster` rich entity with **PostGIS** Point geometry (SRID 4326) + GIST spatial index
+- ✅ Data-scope by **org-unit id** (user's unit + descendants) — provider/claims now emit `scope_unit`
+- ✅ `SectorData` module on its own `sector` schema + migration; create/list endpoints; registered in host
+- ⬜ Remaining rich entities: petroleum stations, commerce locations, e-commerce, **market-violation cases**
+- ⬜ Excel/XML batch import; observation submit/approve workflow hooks; map view in UI
+
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
-- ✅ Pages: Org Units, Users, Roles, Indicators (list / search / create)
-- ⬜ Edit & delete UI, detail views, maps (GIS), dashboards/charts
+- ✅ Pages: Org Units, Users, Roles, Indicators, **Industrial Clusters, Observations** (list / search / create)
+- ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **15/15 pass** (domain + authorization behavior)
+- `dotnet test` → **19/19 pass** (domain + authorization behavior across 3 modules)
 - `npm run build` (frontend) → OK
-- Runtime smoke test → `identity` + `catalog` schemas migrate, dev seed applies, all endpoints reject anonymous callers (401)
+- Runtime smoke test → `identity` + `catalog` + `sector` schemas migrate, dev seed applies, PostGIS
+  geometry column + GIST index created, all endpoints reject anonymous callers (401)
 
-## Next up — Phase 3 Sector Data (tomorrow)
-Planned scope (replicating the IdentityAccess/Catalog module template):
-- ⬜ Generic, partitioned `IndicatorObservation` aggregate (numeric stats keyed by indicator + unit + period) — consumes Catalog indicators
-- ⬜ Rich entities with PostGIS geometry: `IndustrialCluster`, `PetroleumStation`, `CommerceLocation`, `MarketViolationCase`
-- ⬜ Excel/XML import (Strategy pattern), validation, detail views
-- ⬜ `SectorData` module on its own `sector` schema + migration; register in host
-- ⬜ Data-scope applied to observations/entities by org unit; frontend pages + map view
+## Next up
+- Phase 3 finish: petroleum stations, commerce locations, e-commerce, **market-violation cases**;
+  Excel/XML import; UI map view
+- Phase 4 — **Reporting & Workflow**: campaigns + the commune→specialist→leader approval
+  state machine / saga (consumes Catalog + SectorData)
 
 ## Commits so far (this branch)
 - `e1544f2` docs: design baseline

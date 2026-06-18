@@ -22,7 +22,9 @@ public static class IdentityAccessSeeder
         var specialistRole = Role.Create("SPECIALIST", "Chuyên viên",
             [
                 IdentityPermissions.OrgUnitsRead, IdentityPermissions.OrgUnitsManage, IdentityPermissions.UsersRead,
-                "catalog.indicators.read", "catalog.indicators.manage"
+                "catalog.indicators.read", "catalog.indicators.manage",
+                "sector.observations.read", "sector.observations.manage",
+                "sector.clusters.read", "sector.clusters.manage"
             ]);
         db.Roles.AddRange(adminRole, specialistRole);
 
