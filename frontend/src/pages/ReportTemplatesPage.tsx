@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createReportTemplate, deleteReportTemplate, getIndicators, getReportTemplates, ReportTemplate } from '../api/client';
+import { createReportTemplate, deleteReportTemplate, getIndicators, getReportTemplates, ReportTemplate, updateReportTemplate } from '../api/client';
 
 export default function ReportTemplatesPage() {
   const { message } = AntApp.useApp();
@@ -10,6 +10,7 @@ export default function ReportTemplatesPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<ReportTemplate | null>(null);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -18,16 +19,31 @@ export default function ReportTemplatesPage() {
   });
   const { data: indicators } = useQuery({ queryKey: ['indicators', 'all'], queryFn: () => getIndicators({ page: 1, pageSize: 200 }) });
 
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['report-templates'] });
   const create = useMutation({
     mutationFn: createReportTemplate,
-    onSuccess: () => { message.success('Đã tạo biểu mẫu'); setOpen(false); form.resetFields(); qc.invalidateQueries({ queryKey: ['report-templates'] }); },
+    onSuccess: () => { message.success('Đã tạo biểu mẫu'); close(); invalidate(); },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
+  });
+  const update = useMutation({
+    mutationFn: (v: { id: string } & Parameters<typeof updateReportTemplate>[1]) => updateReportTemplate(v.id, v),
+    onSuccess: () => { message.success('Đã cập nhật'); close(); invalidate(); },
+    onError: () => message.error('Cập nhật thất bại (kiểm tra quyền)'),
   });
   const remove = useMutation({
     mutationFn: deleteReportTemplate,
-    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['report-templates'] }); },
+    onSuccess: () => { message.success('Đã xoá'); invalidate(); },
     onError: () => message.error('Không xoá được'),
   });
+
+  function close() { setOpen(false); setEditing(null); form.resetFields(); }
+  function openCreate() { setEditing(null); form.resetFields(); setOpen(true); }
+  function openEdit(r: ReportTemplate) {
+    setEditing(r);
+    form.setFieldsValue({ code: r.code, name: r.name, description: r.description,
+      indicatorIds: r.lines.map((l) => l.indicatorId) });
+    setOpen(true);
+  }
 
   // Build template lines from the chosen indicators (label = indicator name, ordered by selection).
   const onFinish = (v: { code: string; name: string; description?: string; indicatorIds: string[] }) => {
@@ -36,7 +52,8 @@ export default function ReportTemplatesPage() {
       label: indicators?.items.find((i) => i.id === id)?.name ?? id,
       rowOrder: idx + 1,
     }));
-    create.mutate({ code: v.code, name: v.name, description: v.description, lines });
+    if (editing) update.mutate({ id: editing.id, name: v.name, description: v.description, lines });
+    else create.mutate({ code: v.code, name: v.name, description: v.description, lines });
   };
 
   return (
@@ -44,7 +61,7 @@ export default function ReportTemplatesPage() {
       <Space>
         <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
-        <Button type="primary" onClick={() => setOpen(true)}>Thêm mới</Button>
+        <Button type="primary" onClick={openCreate}>Thêm mới</Button>
       </Space>
       <Table<ReportTemplate>
         rowKey="id" loading={isLoading} dataSource={data?.items}
@@ -55,16 +72,19 @@ export default function ReportTemplatesPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên biểu mẫu', dataIndex: 'name' },
           { title: 'Số dòng', dataIndex: 'lines', width: 110, render: (l: unknown[]) => l.length },
-          { title: 'Thao tác', width: 90, render: (_, r) => (
-            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
-              <a style={{ color: '#cf1322' }}>Xoá</a>
-            </Popconfirm>) },
+          { title: 'Thao tác', width: 130, render: (_, r) => (
+            <Space>
+              <a onClick={() => openEdit(r)}>Sửa</a>
+              <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+                <a style={{ color: '#cf1322' }}>Xoá</a>
+              </Popconfirm>
+            </Space>) },
         ]}
       />
-      <Modal title="Thêm biểu mẫu báo cáo" open={open} onCancel={() => setOpen(false)}
-        onOk={() => form.submit()} confirmLoading={create.isPending}>
+      <Modal title={editing ? 'Sửa biểu mẫu báo cáo' : 'Thêm biểu mẫu báo cáo'} open={open} onCancel={close}
+        onOk={() => form.submit()} confirmLoading={create.isPending || update.isPending}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
-          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} /></Form.Item>
+          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} disabled={!!editing} /></Form.Item>
           <Form.Item name="name" label="Tên" rules={[{ required: true }]}><Input maxLength={250} /></Form.Item>
           <Form.Item name="description" label="Mô tả"><Input.TextArea rows={2} /></Form.Item>
           <Form.Item name="indicatorIds" label="Các chỉ tiêu (mỗi chỉ tiêu là một dòng)" initialValue={[]}>

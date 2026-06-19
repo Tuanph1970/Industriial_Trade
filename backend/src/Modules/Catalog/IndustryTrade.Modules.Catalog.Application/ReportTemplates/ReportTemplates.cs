@@ -24,6 +24,7 @@ public interface IReportTemplateRepository
     Task<bool> ExistsByCodeAsync(string code, CancellationToken ct);
     Task<IReadOnlyList<ReportTemplate>> ListAsync(Specification<ReportTemplate> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<ReportTemplate> spec, CancellationToken ct);
+    Task<ReportTemplate?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(ReportTemplate template, CancellationToken ct);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
@@ -111,4 +112,38 @@ public sealed class DeleteReportTemplateHandler(IReportTemplateRepository reposi
 {
     public async Task<Result> Handle(DeleteReportTemplateCommand command, CancellationToken ct) =>
         await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("Report template"));
+}
+
+public sealed record UpdateReportTemplateCommand(Guid Id, string Name, string? Description, TemplateLineInput[] Lines)
+    : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => CatalogPermissions.MasterDataManage;
+}
+
+public sealed class UpdateReportTemplateValidator : AbstractValidator<UpdateReportTemplateCommand>
+{
+    public UpdateReportTemplateValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        RuleForEach(x => x.Lines).ChildRules(l =>
+        {
+            l.RuleFor(x => x.IndicatorId).NotEmpty();
+            l.RuleFor(x => x.Label).NotEmpty().MaximumLength(250);
+        });
+    }
+}
+
+public sealed class UpdateReportTemplateHandler(IReportTemplateRepository repository) : ICommandHandler<UpdateReportTemplateCommand>
+{
+    public async Task<Result> Handle(UpdateReportTemplateCommand command, CancellationToken ct)
+    {
+        var template = await repository.GetByIdAsync(command.Id, ct);
+        if (template is null) return Result.Failure(Error.NotFound("Report template"));
+
+        template.Update(command.Name, command.Description,
+            (command.Lines ?? []).Select(l => (l.IndicatorId, l.Label, l.RowOrder)));
+        await repository.SaveChangesAsync(ct);
+        return Result.Success();
+    }
 }

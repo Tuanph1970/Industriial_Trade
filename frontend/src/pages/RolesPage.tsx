@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ALL_PERMISSIONS, createRole, deleteRole, getRoles, Role } from '../api/client';
+import { ALL_PERMISSIONS, createRole, deleteRole, getRoles, Role, updateRole } from '../api/client';
 
 export default function RolesPage() {
   const { message } = AntApp.useApp();
@@ -10,6 +10,7 @@ export default function RolesPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Role | null>(null);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -17,28 +18,41 @@ export default function RolesPage() {
     queryFn: () => getRoles({ page, pageSize, keyword }),
   });
 
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['roles'] });
   const create = useMutation({
     mutationFn: createRole,
-    onSuccess: () => {
-      message.success('Đã tạo vai trò');
-      setOpen(false);
-      form.resetFields();
-      qc.invalidateQueries({ queryKey: ['roles'] });
-    },
+    onSuccess: () => { message.success('Đã tạo vai trò'); close(); invalidate(); },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
+  });
+  const update = useMutation({
+    mutationFn: (v: { id: string; name: string; permissions: string[] }) => updateRole(v.id, v),
+    onSuccess: () => { message.success('Đã cập nhật'); close(); invalidate(); },
+    onError: () => message.error('Cập nhật thất bại (kiểm tra quyền)'),
   });
   const remove = useMutation({
     mutationFn: deleteRole,
-    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['roles'] }); },
+    onSuccess: () => { message.success('Đã xoá'); invalidate(); },
     onError: () => message.error('Không xoá được'),
   });
+
+  function close() { setOpen(false); setEditing(null); form.resetFields(); }
+  function openCreate() { setEditing(null); form.resetFields(); setOpen(true); }
+  function openEdit(r: Role) {
+    setEditing(r);
+    form.setFieldsValue({ code: r.code, name: r.name, permissions: r.permissions });
+    setOpen(true);
+  }
+  function submit(v: { code: string; name: string; permissions: string[] }) {
+    if (editing) update.mutate({ id: editing.id, name: v.name, permissions: v.permissions ?? [] });
+    else create.mutate(v);
+  }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Space>
         <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
-        <Button type="primary" onClick={() => setOpen(true)}>Thêm mới</Button>
+        <Button type="primary" onClick={openCreate}>Thêm mới</Button>
       </Space>
 
       <Table<Role>
@@ -54,17 +68,20 @@ export default function RolesPage() {
             title: 'Quyền', dataIndex: 'permissions',
             render: (perms: string[]) => <>{perms.map((p) => <Tag key={p}>{p}</Tag>)}</>,
           },
-          { title: 'Thao tác', width: 90, render: (_, r) => (
-            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
-              <a style={{ color: '#cf1322' }}>Xoá</a>
-            </Popconfirm>) },
+          { title: 'Thao tác', width: 130, render: (_, r) => (
+            <Space>
+              <a onClick={() => openEdit(r)}>Sửa</a>
+              <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+                <a style={{ color: '#cf1322' }}>Xoá</a>
+              </Popconfirm>
+            </Space>) },
         ]}
       />
 
-      <Modal title="Thêm vai trò" open={open} onCancel={() => setOpen(false)}
-        onOk={() => form.submit()} confirmLoading={create.isPending}>
-        <Form form={form} layout="vertical" onFinish={(v) => create.mutate(v)}>
-          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} /></Form.Item>
+      <Modal title={editing ? 'Sửa vai trò' : 'Thêm vai trò'} open={open} onCancel={close}
+        onOk={() => form.submit()} confirmLoading={create.isPending || update.isPending}>
+        <Form form={form} layout="vertical" onFinish={submit}>
+          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} disabled={!!editing} /></Form.Item>
           <Form.Item name="name" label="Tên" rules={[{ required: true }]}><Input maxLength={150} /></Form.Item>
           <Form.Item name="permissions" label="Quyền" initialValue={[]}>
             <Select mode="multiple" allowClear options={ALL_PERMISSIONS.map((p) => ({ value: p, label: p }))} />

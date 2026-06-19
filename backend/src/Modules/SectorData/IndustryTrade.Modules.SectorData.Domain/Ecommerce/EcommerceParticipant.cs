@@ -47,4 +47,15 @@ public sealed class EcommerceParticipant : AggregateRoot<Guid>, IAuditable
             CreatedAtUtc = DateTime.UtcNow
         };
     }
+
+    public void Update(string businessName, IEnumerable<string> platforms, string? mainGoods)
+    {
+        if (string.IsNullOrWhiteSpace(businessName)) throw new ArgumentException("Business name is required.", nameof(businessName));
+
+        BusinessName = businessName.Trim();
+        Platforms = platforms
+            .Where(p => !string.IsNullOrWhiteSpace(p)).Select(p => p.Trim()).Distinct().ToArray();
+        MainGoods = mainGoods?.Trim();
+        ModifiedAtUtc = DateTime.UtcNow;
+    }
 }

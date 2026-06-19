@@ -26,6 +26,10 @@ internal static class MasterDataEndpoints
                 await sender.Send(new CreateIndicatorSetCommand(body.Code, body.Name, body.Description, body.IndicatorIds ?? [])),
                 id => Results.Created($"/api/catalog/indicator-sets/{id}", new { id })));
 
+        sets.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateIndicatorSetRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateIndicatorSetCommand(
+                id, body.Name, body.Description, body.IndicatorIds ?? []))));
+
         sets.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteIndicatorSetCommand(id))));
 
@@ -39,6 +43,10 @@ internal static class MasterDataEndpoints
             ApiResults.Match(
                 await sender.Send(new CreateReportTemplateCommand(body.Code, body.Name, body.Description, body.Lines ?? [])),
                 id => Results.Created($"/api/catalog/report-templates/{id}", new { id })));
+
+        templates.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateReportTemplateRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateReportTemplateCommand(
+                id, body.Name, body.Description, body.Lines ?? []))));
 
         templates.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteReportTemplateCommand(id))));
@@ -54,6 +62,9 @@ internal static class MasterDataEndpoints
                 await sender.Send(new CreateReportingPeriodCommand(body.Code, body.Name, body.Periodicity)),
                 id => Results.Created($"/api/catalog/reporting-periods/{id}", new { id })));
 
+        periods.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateReportingPeriodRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateReportingPeriodCommand(id, body.Name, body.Periodicity))));
+
         periods.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteReportingPeriodCommand(id))));
     }
@@ -62,3 +73,7 @@ internal static class MasterDataEndpoints
 public sealed record CreateIndicatorSetRequest(string Code, string Name, string? Description, Guid[]? IndicatorIds);
 public sealed record CreateReportTemplateRequest(string Code, string Name, string? Description, TemplateLineInput[]? Lines);
 public sealed record CreateReportingPeriodRequest(string Code, string Name, Periodicity Periodicity);
+
+public sealed record UpdateIndicatorSetRequest(string Name, string? Description, Guid[]? IndicatorIds);
+public sealed record UpdateReportTemplateRequest(string Name, string? Description, TemplateLineInput[]? Lines);
+public sealed record UpdateReportingPeriodRequest(string Name, Periodicity Periodicity);

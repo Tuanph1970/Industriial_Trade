@@ -31,6 +31,10 @@ internal static class PetrolStationEndpoints
                     body.Latitude, body.Longitude, body.Status)),
                 id => Results.Created($"/api/sector/petrol-stations/{id}", new { id })));
 
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdatePetrolStationRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdatePetrolStationCommand(
+                id, body.Name, body.LicenseNo, body.Address, body.Latitude, body.Longitude, body.Status))));
+
         group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeletePetrolStationCommand(id))));
     }
@@ -55,6 +59,10 @@ internal static class CommerceLocationEndpoints
                     body.Code, body.Name, body.Type, body.OrgUnitId, body.Address, body.Latitude, body.Longitude)),
                 id => Results.Created($"/api/sector/commerce-locations/{id}", new { id })));
 
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateCommerceLocationRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateCommerceLocationCommand(
+                id, body.Name, body.Type, body.Address, body.Latitude, body.Longitude))));
+
         group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteCommerceLocationCommand(id))));
     }
@@ -77,6 +85,10 @@ internal static class EcommerceEndpoints
                     body.TaxCode, body.BusinessName, body.OrgUnitId, body.Platforms ?? [], body.MainGoods)),
                 id => Results.Created($"/api/sector/ecommerce-participants/{id}", new { id })));
 
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateEcommerceRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateEcommerceCommand(
+                id, body.BusinessName, body.Platforms ?? [], body.MainGoods))));
+
         group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteEcommerceCommand(id))));
     }
@@ -92,3 +104,13 @@ public sealed record CreateCommerceLocationRequest(
 
 public sealed record CreateEcommerceRequest(
     string TaxCode, string BusinessName, Guid OrgUnitId, string[]? Platforms, string? MainGoods);
+
+public sealed record UpdatePetrolStationRequest(
+    string Name, string? LicenseNo, string? Address,
+    double? Latitude, double? Longitude, StationStatus Status);
+
+public sealed record UpdateCommerceLocationRequest(
+    string Name, CommerceLocationType Type, string? Address, double? Latitude, double? Longitude);
+
+public sealed record UpdateEcommerceRequest(
+    string BusinessName, string[]? Platforms, string? MainGoods);

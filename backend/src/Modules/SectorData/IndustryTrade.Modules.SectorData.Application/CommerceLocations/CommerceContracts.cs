@@ -17,6 +17,7 @@ public interface ICommerceLocationRepository
     Task<bool> ExistsByCodeAsync(string code, CancellationToken ct);
     Task<IReadOnlyList<CommerceLocation>> ListAsync(Specification<CommerceLocation> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<CommerceLocation> spec, CancellationToken ct);
+    Task<CommerceLocation?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(CommerceLocation location, CancellationToken ct);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);

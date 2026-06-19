@@ -17,6 +17,7 @@ public interface IClusterRepository
     Task<bool> ExistsByCodeAsync(string code, CancellationToken ct);
     Task<IReadOnlyList<IndustrialCluster>> ListAsync(Specification<IndustrialCluster> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<IndustrialCluster> spec, CancellationToken ct);
+    Task<IndustrialCluster?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(IndustrialCluster cluster, CancellationToken ct);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);

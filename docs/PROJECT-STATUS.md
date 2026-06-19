@@ -1,6 +1,6 @@
 # Project Status
 
-**Updated:** 2026-06-18 · **Branch:** `feat/scaffold-walking-skeleton`
+**Updated:** 2026-06-19 · **Branch:** `main`
 
 Status of the build against the phased plan in [design/05-implementation-plan.md](./design/05-implementation-plan.md).
 Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
@@ -105,7 +105,11 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Edit + delete** on Org Units and Indicators (modal edit + Popconfirm delete)
 - ✅ **Delete on every list page** (Sector Data ×5, Users, Roles, Catalog master data ×3) —
   EF ExecuteDelete, audited
-- 🟡 Edit modals: done for Org Units & Indicators; pending for the Sector entities
+- ✅ **Edit modals on every list page**: Org Units, Indicators, the 5 Sector entities (Clusters,
+  Petroleum Stations, Commerce Locations, E-commerce, Market Violations — incl. status/sanction/fine),
+  Users (incl. active toggle) & Roles, and the 3 Catalog master-data pages (Indicator Sets, Report
+  Templates, Reporting Periods). Backed by per-aggregate `Update` domain methods + PUT endpoints
+  (validated + audited); natural keys (code/tax/case no/username) are immutable on edit
 - ✅ Catalog (grouped nav): Indicators, **Indicator Sets, Report Templates, Reporting Periods**
 - ✅ Pages: Org Units, Users, Roles, Industrial Clusters, Observations, Market Violations,
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
@@ -116,7 +120,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Map** (Leaflet/OpenStreetMap): toggleable layers for clusters, petrol stations, commerce locations
 - ✅ **Audit log** page (search by user/action, expandable payload)
 - ✅ **Integration** page (connection-status panel + data-sharing service registry with publish/revoke)
-- ⬜ Edit & delete UI, detail views, interactive map (GIS), dashboards/charts
+- ⬜ Detail (read-only) views; Excel/XML batch import UI
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
@@ -134,8 +138,7 @@ Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
-- UX polish: edit modals for the Sector entities + delete for the remaining lists (Users/Roles/Catalog
-  master data); Excel/XML batch import; frontend code-splitting (bundle ~2 MB)
+- UX polish: read-only detail views; Excel/XML batch import; frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)
 - Catalog: administrative-unit + classification catalogs (the remaining master-data lists)
 

@@ -43,6 +43,9 @@ internal sealed class ClusterRepository(SectorDataDbContext db) : IClusterReposi
     public Task<int> CountAsync(Specification<IndustrialCluster> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.Clusters.AsQueryable(), spec).CountAsync(ct);
 
+    public Task<IndustrialCluster?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.Clusters.FirstOrDefaultAsync(x => x.Id == id, ct);
+
     public async Task AddAsync(IndustrialCluster cluster, CancellationToken ct) =>
         await db.Clusters.AddAsync(cluster, ct);
 
@@ -64,6 +67,9 @@ internal sealed class ViolationRepository(SectorDataDbContext db) : IViolationRe
     public Task<int> CountAsync(Specification<MarketViolationCase> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.Violations.AsQueryable(), spec).CountAsync(ct);
 
+    public Task<MarketViolationCase?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.Violations.FirstOrDefaultAsync(x => x.Id == id, ct);
+
     public async Task AddAsync(MarketViolationCase violation, CancellationToken ct) =>
         await db.Violations.AddAsync(violation, ct);
 
@@ -83,6 +89,9 @@ internal sealed class PetrolStationRepository(SectorDataDbContext db) : IPetrolS
 
     public Task<int> CountAsync(Specification<PetroleumStation> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.PetroleumStations.AsQueryable(), spec).CountAsync(ct);
+
+    public Task<PetroleumStation?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.PetroleumStations.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task AddAsync(PetroleumStation station, CancellationToken ct) =>
         await db.PetroleumStations.AddAsync(station, ct);
@@ -104,6 +113,9 @@ internal sealed class CommerceLocationRepository(SectorDataDbContext db) : IComm
     public Task<int> CountAsync(Specification<CommerceLocation> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.CommerceLocations.AsQueryable(), spec).CountAsync(ct);
 
+    public Task<CommerceLocation?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.CommerceLocations.FirstOrDefaultAsync(x => x.Id == id, ct);
+
     public async Task AddAsync(CommerceLocation location, CancellationToken ct) =>
         await db.CommerceLocations.AddAsync(location, ct);
 
@@ -123,6 +135,9 @@ internal sealed class EcommerceParticipantRepository(SectorDataDbContext db) : I
 
     public Task<int> CountAsync(Specification<EcommerceParticipant> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.EcommerceParticipants.AsQueryable(), spec).CountAsync(ct);
+
+    public Task<EcommerceParticipant?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.EcommerceParticipants.FirstOrDefaultAsync(x => x.Id == id, ct);
 
     public async Task AddAsync(EcommerceParticipant participant, CancellationToken ct) =>
         await db.EcommerceParticipants.AddAsync(participant, ct);

@@ -46,4 +46,16 @@ public sealed class CommerceLocation : AggregateRoot<Guid>, IAuditable
             CreatedAtUtc = DateTime.UtcNow
         };
     }
+
+    public void Update(string name, CommerceLocationType type, string? address,
+        double? longitude, double? latitude)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Location name is required.", nameof(name));
+
+        Name = name.Trim();
+        Type = type;
+        Address = address?.Trim();
+        Location = Geo.Point(longitude, latitude);
+        ModifiedAtUtc = DateTime.UtcNow;
+    }
 }

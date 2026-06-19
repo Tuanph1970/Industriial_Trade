@@ -17,6 +17,8 @@ internal sealed class IndicatorSetRepository(CatalogDbContext db) : IIndicatorSe
         await SpecificationEvaluator.Apply(db.IndicatorSets.AsQueryable(), spec).ToListAsync(ct);
     public Task<int> CountAsync(Specification<IndicatorSet> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.IndicatorSets.AsQueryable(), spec).CountAsync(ct);
+    public Task<IndicatorSet?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.IndicatorSets.FirstOrDefaultAsync(x => x.Id == id, ct);
     public async Task AddAsync(IndicatorSet set, CancellationToken ct) => await db.IndicatorSets.AddAsync(set, ct);
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
         await db.IndicatorSets.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
@@ -30,6 +32,8 @@ internal sealed class ReportTemplateRepository(CatalogDbContext db) : IReportTem
         await SpecificationEvaluator.Apply(db.ReportTemplates.AsQueryable(), spec).ToListAsync(ct);
     public Task<int> CountAsync(Specification<ReportTemplate> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.ReportTemplates.AsQueryable(), spec).CountAsync(ct);
+    public Task<ReportTemplate?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.ReportTemplates.FirstOrDefaultAsync(x => x.Id == id, ct);
     public async Task AddAsync(ReportTemplate template, CancellationToken ct) => await db.ReportTemplates.AddAsync(template, ct);
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
         await db.ReportTemplates.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;
@@ -43,6 +47,8 @@ internal sealed class ReportingPeriodRepository(CatalogDbContext db) : IReportin
         await SpecificationEvaluator.Apply(db.ReportingPeriods.AsQueryable(), spec).ToListAsync(ct);
     public Task<int> CountAsync(Specification<ReportingPeriodDefinition> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.ReportingPeriods.AsQueryable(), spec).CountAsync(ct);
+    public Task<ReportingPeriodDefinition?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.ReportingPeriods.FirstOrDefaultAsync(x => x.Id == id, ct);
     public async Task AddAsync(ReportingPeriodDefinition period, CancellationToken ct) => await db.ReportingPeriods.AddAsync(period, ct);
     public async Task<bool> DeleteAsync(Guid id, CancellationToken ct) =>
         await db.ReportingPeriods.Where(x => x.Id == id).ExecuteDeleteAsync(ct) > 0;

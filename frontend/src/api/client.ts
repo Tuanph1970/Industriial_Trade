@@ -74,6 +74,9 @@ export const getRoles = (p: PageParams) =>
 export const createRole = (b: { code: string; name: string; permissions: string[] }) =>
   api.post<{ id: string }>('/api/identity/roles', b).then((r) => r.data);
 
+export const updateRole = (id: string, b: { name: string; permissions: string[] }) =>
+  api.put(`/api/identity/roles/${id}`, b);
+
 export const deleteRole = (id: string) => api.delete(`/api/identity/roles/${id}`);
 
 // ---- Users ---------------------------------------------------------------
@@ -93,6 +96,11 @@ export const getUsers = (p: PageParams) =>
 export const createUser = (b: {
   userName: string; fullName?: string; email?: string; orgUnitId?: string | null; roleIds: string[];
 }) => api.post<{ id: string }>('/api/identity/users', b).then((r) => r.data);
+
+export const updateUser = (id: string, b: {
+  fullName?: string | null; email?: string | null; orgUnitId?: string | null;
+  roleIds: string[]; isActive: boolean;
+}) => api.put(`/api/identity/users/${id}`, b);
 
 export const deleteUser = (id: string) => api.delete(`/api/identity/users/${id}`);
 
@@ -152,6 +160,13 @@ export const getReportingPeriods = (p: PageParams) =>
   api.get<PagedResult<ReportingPeriod>>('/api/catalog/reporting-periods', { params: pageParams(p) }).then((r) => r.data);
 export const createReportingPeriod = (b: { code: string; name: string; periodicity: Periodicity }) =>
   api.post<{ id: string }>('/api/catalog/reporting-periods', b).then((r) => r.data);
+
+export const updateIndicatorSet = (id: string, b: { name: string; description?: string; indicatorIds: string[] }) =>
+  api.put(`/api/catalog/indicator-sets/${id}`, b);
+export const updateReportTemplate = (id: string, b: { name: string; description?: string; lines: TemplateLine[] }) =>
+  api.put(`/api/catalog/report-templates/${id}`, b);
+export const updateReportingPeriod = (id: string, b: { name: string; periodicity: Periodicity }) =>
+  api.put(`/api/catalog/reporting-periods/${id}`, b);
 
 export const deleteIndicatorSet = (id: string) => api.delete(`/api/catalog/indicator-sets/${id}`);
 export const deleteReportTemplate = (id: string) => api.delete(`/api/catalog/report-templates/${id}`);
@@ -273,6 +288,30 @@ export const getEcommerce = (p: PageParams) =>
 export const createEcommerce = (b: {
   taxCode: string; businessName: string; orgUnitId: string; platforms: string[]; mainGoods?: string | null;
 }) => api.post<{ id: string }>('/api/sector/ecommerce-participants', b).then((r) => r.data);
+
+export const updateCluster = (id: string, b: {
+  name: string; areaHa?: number | null;
+  latitude?: number | null; longitude?: number | null; status: ClusterStatus;
+}) => api.put(`/api/sector/clusters/${id}`, b);
+
+export const updatePetrolStation = (id: string, b: {
+  name: string; licenseNo?: string | null; address?: string | null;
+  latitude?: number | null; longitude?: number | null; status: StationStatus;
+}) => api.put(`/api/sector/petrol-stations/${id}`, b);
+
+export const updateCommerceLocation = (id: string, b: {
+  name: string; type: CommerceLocationType; address?: string | null;
+  latitude?: number | null; longitude?: number | null;
+}) => api.put(`/api/sector/commerce-locations/${id}`, b);
+
+export const updateEcommerce = (id: string, b: {
+  businessName: string; platforms: string[]; mainGoods?: string | null;
+}) => api.put(`/api/sector/ecommerce-participants/${id}`, b);
+
+export const updateViolation = (id: string, b: {
+  group: ViolationGroup; businessName: string; inspectedOn: string; violationContent: string;
+  sanctionContent?: string | null; fineAmount?: number | null; status: ViolationStatus;
+}) => api.put(`/api/sector/violations/${id}`, b);
 
 export const deleteCluster = (id: string) => api.delete(`/api/sector/clusters/${id}`);
 export const deletePetrolStation = (id: string) => api.delete(`/api/sector/petrol-stations/${id}`);

@@ -17,6 +17,7 @@ public interface IPetrolStationRepository
     Task<bool> ExistsByCodeAsync(string code, CancellationToken ct);
     Task<IReadOnlyList<PetroleumStation>> ListAsync(Specification<PetroleumStation> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<PetroleumStation> spec, CancellationToken ct);
+    Task<PetroleumStation?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(PetroleumStation station, CancellationToken ct);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);

@@ -19,6 +19,7 @@ public interface IViolationRepository
     Task<bool> ExistsByCaseNoAsync(string caseNo, CancellationToken ct);
     Task<IReadOnlyList<MarketViolationCase>> ListAsync(Specification<MarketViolationCase> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<MarketViolationCase> spec, CancellationToken ct);
+    Task<MarketViolationCase?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(MarketViolationCase violation, CancellationToken ct);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);

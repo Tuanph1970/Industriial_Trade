@@ -48,4 +48,17 @@ public sealed class PetroleumStation : AggregateRoot<Guid>, IAuditable
             CreatedAtUtc = DateTime.UtcNow
         };
     }
+
+    public void Update(string name, string? licenseNo, string? address,
+        double? longitude, double? latitude, StationStatus status)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Station name is required.", nameof(name));
+
+        Name = name.Trim();
+        LicenseNo = licenseNo?.Trim();
+        Address = address?.Trim();
+        Location = Geo.Point(longitude, latitude);
+        Status = status;
+        ModifiedAtUtc = DateTime.UtcNow;
+    }
 }

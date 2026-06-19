@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createIndicatorSet, deleteIndicatorSet, getIndicators, getIndicatorSets, IndicatorSet } from '../api/client';
+import { createIndicatorSet, deleteIndicatorSet, getIndicators, getIndicatorSets, IndicatorSet, updateIndicatorSet } from '../api/client';
 
 export default function IndicatorSetsPage() {
   const { message } = AntApp.useApp();
@@ -10,6 +10,7 @@ export default function IndicatorSetsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<IndicatorSet | null>(null);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -18,23 +19,41 @@ export default function IndicatorSetsPage() {
   });
   const { data: indicators } = useQuery({ queryKey: ['indicators', 'all'], queryFn: () => getIndicators({ page: 1, pageSize: 200 }) });
 
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['indicator-sets'] });
   const create = useMutation({
     mutationFn: createIndicatorSet,
-    onSuccess: () => { message.success('Đã tạo bộ chỉ tiêu'); setOpen(false); form.resetFields(); qc.invalidateQueries({ queryKey: ['indicator-sets'] }); },
+    onSuccess: () => { message.success('Đã tạo bộ chỉ tiêu'); close(); invalidate(); },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
+  });
+  const update = useMutation({
+    mutationFn: (v: { id: string; name: string; description?: string; indicatorIds: string[] }) => updateIndicatorSet(v.id, v),
+    onSuccess: () => { message.success('Đã cập nhật'); close(); invalidate(); },
+    onError: () => message.error('Cập nhật thất bại (kiểm tra quyền)'),
   });
   const remove = useMutation({
     mutationFn: deleteIndicatorSet,
-    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['indicator-sets'] }); },
+    onSuccess: () => { message.success('Đã xoá'); invalidate(); },
     onError: () => message.error('Không xoá được'),
   });
+
+  function close() { setOpen(false); setEditing(null); form.resetFields(); }
+  function openCreate() { setEditing(null); form.resetFields(); setOpen(true); }
+  function openEdit(r: IndicatorSet) {
+    setEditing(r);
+    form.setFieldsValue({ code: r.code, name: r.name, description: r.description, indicatorIds: r.indicatorIds });
+    setOpen(true);
+  }
+  function submit(v: { code: string; name: string; description?: string; indicatorIds?: string[] }) {
+    if (editing) update.mutate({ id: editing.id, name: v.name, description: v.description, indicatorIds: v.indicatorIds ?? [] });
+    else create.mutate({ ...v, indicatorIds: v.indicatorIds ?? [] });
+  }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Space>
         <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
-        <Button type="primary" onClick={() => setOpen(true)}>Thêm mới</Button>
+        <Button type="primary" onClick={openCreate}>Thêm mới</Button>
       </Space>
       <Table<IndicatorSet>
         rowKey="id" loading={isLoading} dataSource={data?.items}
@@ -44,16 +63,19 @@ export default function IndicatorSetsPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên bộ chỉ tiêu', dataIndex: 'name' },
           { title: 'Số chỉ tiêu', dataIndex: 'indicatorIds', width: 130, render: (ids: string[]) => ids.length },
-          { title: 'Thao tác', width: 90, render: (_, r) => (
-            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
-              <a style={{ color: '#cf1322' }}>Xoá</a>
-            </Popconfirm>) },
+          { title: 'Thao tác', width: 130, render: (_, r) => (
+            <Space>
+              <a onClick={() => openEdit(r)}>Sửa</a>
+              <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+                <a style={{ color: '#cf1322' }}>Xoá</a>
+              </Popconfirm>
+            </Space>) },
         ]}
       />
-      <Modal title="Thêm bộ chỉ tiêu" open={open} onCancel={() => setOpen(false)}
-        onOk={() => form.submit()} confirmLoading={create.isPending}>
-        <Form form={form} layout="vertical" onFinish={(v) => create.mutate(v)}>
-          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} /></Form.Item>
+      <Modal title={editing ? 'Sửa bộ chỉ tiêu' : 'Thêm bộ chỉ tiêu'} open={open} onCancel={close}
+        onOk={() => form.submit()} confirmLoading={create.isPending || update.isPending}>
+        <Form form={form} layout="vertical" onFinish={submit}>
+          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} disabled={!!editing} /></Form.Item>
           <Form.Item name="name" label="Tên" rules={[{ required: true }]}><Input maxLength={250} /></Form.Item>
           <Form.Item name="description" label="Mô tả"><Input.TextArea rows={2} /></Form.Item>
           <Form.Item name="indicatorIds" label="Chỉ tiêu thành viên" initialValue={[]}>

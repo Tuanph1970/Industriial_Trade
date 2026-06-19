@@ -64,6 +64,17 @@ public sealed class UserAccount : AggregateRoot<Guid>, IAuditable
         Touch();
     }
 
+    /// <summary>Edits the user's profile, unit, roles and active state in one operation.</summary>
+    public void Update(string? fullName, string? email, Guid? orgUnitId, IEnumerable<Guid> roleIds, bool isActive)
+    {
+        FullName = fullName?.Trim();
+        Email = email?.Trim();
+        OrgUnitId = orgUnitId;
+        RoleIds = roleIds.Distinct().ToArray();
+        IsActive = isActive;
+        Touch();
+    }
+
     public void LinkSubject(string subjectId)
     {
         SubjectId = subjectId;

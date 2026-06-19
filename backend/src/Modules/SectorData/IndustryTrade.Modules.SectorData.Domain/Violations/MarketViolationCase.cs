@@ -64,6 +64,24 @@ public sealed class MarketViolationCase : AggregateRoot<Guid>, IAuditable
         };
     }
 
+    /// <summary>Edits the descriptive and resolution fields of the case (admin/correction edit).</summary>
+    public void Update(ViolationGroup group, string businessName, DateOnly inspectedOn,
+        string violationContent, string? sanctionContent, decimal? fineAmount, ViolationStatus status)
+    {
+        if (string.IsNullOrWhiteSpace(businessName)) throw new ArgumentException("Business name is required.", nameof(businessName));
+        if (string.IsNullOrWhiteSpace(violationContent)) throw new ArgumentException("Violation content is required.", nameof(violationContent));
+        if (fineAmount is < 0) throw new ArgumentOutOfRangeException(nameof(fineAmount));
+
+        Group = group;
+        BusinessName = businessName.Trim();
+        InspectedOn = inspectedOn;
+        ViolationContent = violationContent.Trim();
+        SanctionContent = sanctionContent?.Trim();
+        FineAmount = fineAmount;
+        Status = status;
+        Touch();
+    }
+
     public void StartHandling()
     {
         Status = ViolationStatus.UnderHandling;

@@ -47,3 +47,32 @@ public sealed class DeleteUserHandler(IUserRepository repository) : ICommandHand
     public async Task<Result> Handle(DeleteUserCommand command, CancellationToken ct) =>
         await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("User"));
 }
+
+public sealed record UpdateUserCommand(
+    Guid Id, string? FullName, string? Email, Guid? OrgUnitId, Guid[] RoleIds, bool IsActive)
+    : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => IdentityPermissions.UsersManage;
+}
+
+public sealed class UpdateUserValidator : AbstractValidator<UpdateUserCommand>
+{
+    public UpdateUserValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Email).EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.Email));
+    }
+}
+
+public sealed class UpdateUserHandler(IUserRepository repository) : ICommandHandler<UpdateUserCommand>
+{
+    public async Task<Result> Handle(UpdateUserCommand command, CancellationToken ct)
+    {
+        var user = await repository.GetByIdAsync(command.Id, ct);
+        if (user is null) return Result.Failure(Error.NotFound("User"));
+
+        user.Update(command.FullName, command.Email, command.OrgUnitId, command.RoleIds ?? [], command.IsActive);
+        await repository.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+}

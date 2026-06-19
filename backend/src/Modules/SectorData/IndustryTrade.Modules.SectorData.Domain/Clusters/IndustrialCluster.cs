@@ -55,4 +55,17 @@ public sealed class IndustrialCluster : AggregateRoot<Guid>, IAuditable
             CreatedAtUtc = DateTime.UtcNow
         };
     }
+
+    public void Update(string name, decimal? areaHa, double? longitude, double? latitude, ClusterStatus status)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Cluster name is required.", nameof(name));
+
+        Name = name.Trim();
+        AreaHa = areaHa;
+        Location = longitude is { } lng && latitude is { } lat
+            ? GeometryFactory.CreatePoint(new Coordinate(lng, lat))
+            : null;
+        Status = status;
+        ModifiedAtUtc = DateTime.UtcNow;
+    }
 }

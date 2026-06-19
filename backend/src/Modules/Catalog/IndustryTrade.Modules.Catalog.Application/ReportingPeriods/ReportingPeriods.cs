@@ -19,6 +19,7 @@ public interface IReportingPeriodRepository
     Task<bool> ExistsByCodeAsync(string code, CancellationToken ct);
     Task<IReadOnlyList<ReportingPeriodDefinition>> ListAsync(Specification<ReportingPeriodDefinition> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<ReportingPeriodDefinition> spec, CancellationToken ct);
+    Task<ReportingPeriodDefinition?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(ReportingPeriodDefinition period, CancellationToken ct);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
@@ -99,4 +100,33 @@ public sealed class DeleteReportingPeriodHandler(IReportingPeriodRepository repo
 {
     public async Task<Result> Handle(DeleteReportingPeriodCommand command, CancellationToken ct) =>
         await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("Reporting period"));
+}
+
+public sealed record UpdateReportingPeriodCommand(Guid Id, string Name, Periodicity Periodicity)
+    : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => CatalogPermissions.MasterDataManage;
+}
+
+public sealed class UpdateReportingPeriodValidator : AbstractValidator<UpdateReportingPeriodCommand>
+{
+    public UpdateReportingPeriodValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+        RuleFor(x => x.Periodicity).IsInEnum();
+    }
+}
+
+public sealed class UpdateReportingPeriodHandler(IReportingPeriodRepository repository) : ICommandHandler<UpdateReportingPeriodCommand>
+{
+    public async Task<Result> Handle(UpdateReportingPeriodCommand command, CancellationToken ct)
+    {
+        var period = await repository.GetByIdAsync(command.Id, ct);
+        if (period is null) return Result.Failure(Error.NotFound("Reporting period"));
+
+        period.Update(command.Name, command.Periodicity);
+        await repository.SaveChangesAsync(ct);
+        return Result.Success();
+    }
 }

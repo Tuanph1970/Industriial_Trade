@@ -53,4 +53,17 @@ public sealed class ReportTemplate : AggregateRoot<Guid>, IAuditable
             template._lines.Add(new TemplateLine { IndicatorId = line.IndicatorId, Label = line.Label.Trim(), RowOrder = line.RowOrder });
         return template;
     }
+
+    public void Update(string name, string? description,
+        IEnumerable<(Guid IndicatorId, string Label, int RowOrder)> lines)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Template name is required.", nameof(name));
+
+        Name = name.Trim();
+        Description = description?.Trim();
+        _lines.Clear();
+        foreach (var line in lines)
+            _lines.Add(new TemplateLine { IndicatorId = line.IndicatorId, Label = line.Label.Trim(), RowOrder = line.RowOrder });
+        ModifiedAtUtc = DateTime.UtcNow;
+    }
 }

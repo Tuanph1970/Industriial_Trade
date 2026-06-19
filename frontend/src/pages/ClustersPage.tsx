@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Cluster, ClusterStatus, createCluster, deleteCluster, getClusters, getOrgUnits } from '../api/client';
+import { Cluster, ClusterStatus, createCluster, deleteCluster, getClusters, getOrgUnits, updateCluster } from '../api/client';
 
 const statusLabels: Record<ClusterStatus, string> = { 1: 'Quy hoạch', 2: 'Đang hoạt động', 3: 'Tạm dừng' };
 const statusColors: Record<ClusterStatus, string> = { 1: 'blue', 2: 'green', 3: 'default' };
@@ -13,6 +13,7 @@ export default function ClustersPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Cluster | null>(null);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -21,28 +22,44 @@ export default function ClustersPage() {
   });
   const { data: units } = useQuery({ queryKey: ['org-units', 'all'], queryFn: () => getOrgUnits({ page: 1, pageSize: 100 }) });
 
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['clusters'] });
   const create = useMutation({
     mutationFn: createCluster,
-    onSuccess: () => {
-      message.success('Đã tạo cụm công nghiệp');
-      setOpen(false);
-      form.resetFields();
-      qc.invalidateQueries({ queryKey: ['clusters'] });
-    },
+    onSuccess: () => { message.success('Đã tạo cụm công nghiệp'); close(); invalidate(); },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
+  });
+  const update = useMutation({
+    mutationFn: (v: { id: string } & Parameters<typeof updateCluster>[1]) => updateCluster(v.id, v),
+    onSuccess: () => { message.success('Đã cập nhật'); close(); invalidate(); },
+    onError: () => message.error('Cập nhật thất bại (kiểm tra quyền)'),
   });
   const remove = useMutation({
     mutationFn: deleteCluster,
-    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['clusters'] }); },
+    onSuccess: () => { message.success('Đã xoá'); invalidate(); },
     onError: () => message.error('Không xoá được'),
   });
+
+  function close() { setOpen(false); setEditing(null); form.resetFields(); }
+  function openCreate() { setEditing(null); form.resetFields(); setOpen(true); }
+  function openEdit(r: Cluster) {
+    setEditing(r);
+    form.setFieldsValue({ code: r.code, name: r.name, orgUnitId: r.orgUnitId, areaHa: r.areaHa,
+      latitude: r.latitude, longitude: r.longitude, status: r.status });
+    setOpen(true);
+  }
+  function submit(v: { code: string; name: string; orgUnitId: string; areaHa?: number | null;
+    latitude?: number | null; longitude?: number | null; status: ClusterStatus }) {
+    if (editing) update.mutate({ id: editing.id, name: v.name, areaHa: v.areaHa,
+      latitude: v.latitude, longitude: v.longitude, status: v.status });
+    else create.mutate(v);
+  }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Space>
         <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
-        <Button type="primary" onClick={() => setOpen(true)}>Thêm mới</Button>
+        <Button type="primary" onClick={openCreate}>Thêm mới</Button>
       </Space>
 
       <Table<Cluster>
@@ -63,20 +80,23 @@ export default function ClustersPage() {
             title: 'Trạng thái', dataIndex: 'status', width: 150,
             render: (s: ClusterStatus) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag>,
           },
-          { title: 'Thao tác', width: 90, render: (_, r) => (
-            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
-              <a style={{ color: '#cf1322' }}>Xoá</a>
-            </Popconfirm>) },
+          { title: 'Thao tác', width: 130, render: (_, r) => (
+            <Space>
+              <a onClick={() => openEdit(r)}>Sửa</a>
+              <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+                <a style={{ color: '#cf1322' }}>Xoá</a>
+              </Popconfirm>
+            </Space>) },
         ]}
       />
 
-      <Modal title="Thêm cụm công nghiệp" open={open} onCancel={() => setOpen(false)}
-        onOk={() => form.submit()} confirmLoading={create.isPending}>
-        <Form form={form} layout="vertical" onFinish={(v) => create.mutate(v)}>
-          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} /></Form.Item>
+      <Modal title={editing ? 'Sửa cụm công nghiệp' : 'Thêm cụm công nghiệp'} open={open} onCancel={close}
+        onOk={() => form.submit()} confirmLoading={create.isPending || update.isPending}>
+        <Form form={form} layout="vertical" onFinish={submit}>
+          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} disabled={!!editing} /></Form.Item>
           <Form.Item name="name" label="Tên cụm" rules={[{ required: true }]}><Input maxLength={250} /></Form.Item>
           <Form.Item name="orgUnitId" label="Đơn vị quản lý" rules={[{ required: true }]}>
-            <Select showSearch optionFilterProp="label"
+            <Select showSearch optionFilterProp="label" disabled={!!editing}
               options={units?.items.map((u) => ({ value: u.id, label: `${u.name} (${u.code})` }))} />
           </Form.Item>
           <Form.Item name="areaHa" label="Diện tích (ha)"><InputNumber min={0} style={{ width: '100%' }} /></Form.Item>

@@ -37,4 +37,13 @@ public sealed class ReportingPeriodDefinition : AggregateRoot<Guid>, IAuditable
             CreatedAtUtc = DateTime.UtcNow
         };
     }
+
+    public void Update(string name, Periodicity periodicity)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Period name is required.", nameof(name));
+
+        Name = name.Trim();
+        Periodicity = periodicity;
+        ModifiedAtUtc = DateTime.UtcNow;
+    }
 }

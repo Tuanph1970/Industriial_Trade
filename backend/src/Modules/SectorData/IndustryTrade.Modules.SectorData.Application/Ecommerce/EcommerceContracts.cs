@@ -16,6 +16,7 @@ public interface IEcommerceParticipantRepository
     Task<bool> ExistsByTaxCodeAsync(string taxCode, CancellationToken ct);
     Task<IReadOnlyList<EcommerceParticipant>> ListAsync(Specification<EcommerceParticipant> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<EcommerceParticipant> spec, CancellationToken ct);
+    Task<EcommerceParticipant?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(EcommerceParticipant participant, CancellationToken ct);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createReportingPeriod, deleteReportingPeriod, getReportingPeriods, Periodicity, ReportingPeriod } from '../api/client';
+import { createReportingPeriod, deleteReportingPeriod, getReportingPeriods, Periodicity, ReportingPeriod, updateReportingPeriod } from '../api/client';
 
 const periodicityLabels: Record<Periodicity, string> = { 1: 'Hàng tháng', 2: 'Hàng quý', 3: 'Hàng năm' };
 const options = Object.entries(periodicityLabels).map(([v, label]) => ({ value: Number(v), label }));
@@ -13,6 +13,7 @@ export default function ReportingPeriodsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<ReportingPeriod | null>(null);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -20,23 +21,41 @@ export default function ReportingPeriodsPage() {
     queryFn: () => getReportingPeriods({ page, pageSize, keyword }),
   });
 
+  const invalidate = () => qc.invalidateQueries({ queryKey: ['reporting-periods'] });
   const create = useMutation({
     mutationFn: createReportingPeriod,
-    onSuccess: () => { message.success('Đã tạo kỳ báo cáo'); setOpen(false); form.resetFields(); qc.invalidateQueries({ queryKey: ['reporting-periods'] }); },
+    onSuccess: () => { message.success('Đã tạo kỳ báo cáo'); close(); invalidate(); },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền hoặc trùng mã)'),
+  });
+  const update = useMutation({
+    mutationFn: (v: { id: string; name: string; periodicity: Periodicity }) => updateReportingPeriod(v.id, v),
+    onSuccess: () => { message.success('Đã cập nhật'); close(); invalidate(); },
+    onError: () => message.error('Cập nhật thất bại (kiểm tra quyền)'),
   });
   const remove = useMutation({
     mutationFn: deleteReportingPeriod,
-    onSuccess: () => { message.success('Đã xoá'); qc.invalidateQueries({ queryKey: ['reporting-periods'] }); },
+    onSuccess: () => { message.success('Đã xoá'); invalidate(); },
     onError: () => message.error('Không xoá được'),
   });
+
+  function close() { setOpen(false); setEditing(null); form.resetFields(); }
+  function openCreate() { setEditing(null); form.resetFields(); setOpen(true); }
+  function openEdit(r: ReportingPeriod) {
+    setEditing(r);
+    form.setFieldsValue({ code: r.code, name: r.name, periodicity: r.periodicity });
+    setOpen(true);
+  }
+  function submit(v: { code: string; name: string; periodicity: Periodicity }) {
+    if (editing) update.mutate({ id: editing.id, name: v.name, periodicity: v.periodicity });
+    else create.mutate(v);
+  }
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Space>
         <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
-        <Button type="primary" onClick={() => setOpen(true)}>Thêm mới</Button>
+        <Button type="primary" onClick={openCreate}>Thêm mới</Button>
       </Space>
       <Table<ReportingPeriod>
         rowKey="id" loading={isLoading} dataSource={data?.items}
@@ -46,16 +65,19 @@ export default function ReportingPeriodsPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên kỳ báo cáo', dataIndex: 'name' },
           { title: 'Chu kỳ', dataIndex: 'periodicity', width: 160, render: (p: Periodicity) => <Tag>{periodicityLabels[p]}</Tag> },
-          { title: 'Thao tác', width: 90, render: (_, r) => (
-            <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
-              <a style={{ color: '#cf1322' }}>Xoá</a>
-            </Popconfirm>) },
+          { title: 'Thao tác', width: 130, render: (_, r) => (
+            <Space>
+              <a onClick={() => openEdit(r)}>Sửa</a>
+              <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
+                <a style={{ color: '#cf1322' }}>Xoá</a>
+              </Popconfirm>
+            </Space>) },
         ]}
       />
-      <Modal title="Thêm kỳ báo cáo" open={open} onCancel={() => setOpen(false)}
-        onOk={() => form.submit()} confirmLoading={create.isPending}>
-        <Form form={form} layout="vertical" onFinish={(v) => create.mutate(v)}>
-          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} /></Form.Item>
+      <Modal title={editing ? 'Sửa kỳ báo cáo' : 'Thêm kỳ báo cáo'} open={open} onCancel={close}
+        onOk={() => form.submit()} confirmLoading={create.isPending || update.isPending}>
+        <Form form={form} layout="vertical" onFinish={submit}>
+          <Form.Item name="code" label="Mã" rules={[{ required: true }]}><Input maxLength={50} disabled={!!editing} /></Form.Item>
           <Form.Item name="name" label="Tên" rules={[{ required: true }]}><Input maxLength={250} /></Form.Item>
           <Form.Item name="periodicity" label="Chu kỳ" rules={[{ required: true }]} initialValue={1}>
             <Select options={options} />

@@ -25,6 +25,10 @@ internal static class UserEndpoints
                     body.UserName, body.FullName, body.Email, body.OrgUnitId, body.RoleIds ?? [])),
                 id => Results.Created($"/api/identity/users/{id}", new { id })));
 
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateUserRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateUserCommand(
+                id, body.FullName, body.Email, body.OrgUnitId, body.RoleIds ?? [], body.IsActive))));
+
         group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteUserCommand(id))));
     }
@@ -32,3 +36,6 @@ internal static class UserEndpoints
 
 public sealed record CreateUserRequest(
     string UserName, string? FullName, string? Email, Guid? OrgUnitId, Guid[]? RoleIds);
+
+public sealed record UpdateUserRequest(
+    string? FullName, string? Email, Guid? OrgUnitId, Guid[]? RoleIds, bool IsActive);

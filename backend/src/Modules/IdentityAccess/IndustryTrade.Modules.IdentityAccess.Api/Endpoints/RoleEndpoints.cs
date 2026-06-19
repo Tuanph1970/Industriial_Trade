@@ -24,9 +24,14 @@ internal static class RoleEndpoints
                 await sender.Send(new CreateRoleCommand(body.Code, body.Name, body.Permissions ?? [])),
                 id => Results.Created($"/api/identity/roles/{id}", new { id })));
 
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateRoleRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateRoleCommand(id, body.Name, body.Permissions ?? []))));
+
         group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteRoleCommand(id))));
     }
 }
 
 public sealed record CreateRoleRequest(string Code, string Name, string[]? Permissions);
+
+public sealed record UpdateRoleRequest(string Name, string[]? Permissions);

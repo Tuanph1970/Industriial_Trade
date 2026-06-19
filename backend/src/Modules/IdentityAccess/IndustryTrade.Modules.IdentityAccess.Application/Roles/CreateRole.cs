@@ -42,3 +42,31 @@ public sealed class DeleteRoleHandler(IRoleRepository repository) : ICommandHand
     public async Task<Result> Handle(DeleteRoleCommand command, CancellationToken ct) =>
         await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("Role"));
 }
+
+public sealed record UpdateRoleCommand(Guid Id, string Name, string[] Permissions)
+    : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => IdentityPermissions.RolesManage;
+}
+
+public sealed class UpdateRoleValidator : AbstractValidator<UpdateRoleCommand>
+{
+    public UpdateRoleValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(150);
+    }
+}
+
+public sealed class UpdateRoleHandler(IRoleRepository repository) : ICommandHandler<UpdateRoleCommand>
+{
+    public async Task<Result> Handle(UpdateRoleCommand command, CancellationToken ct)
+    {
+        var role = await repository.GetByIdAsync(command.Id, ct);
+        if (role is null) return Result.Failure(Error.NotFound("Role"));
+
+        role.Update(command.Name, command.Permissions ?? []);
+        await repository.SaveChangesAsync(ct);
+        return Result.Success();
+    }
+}

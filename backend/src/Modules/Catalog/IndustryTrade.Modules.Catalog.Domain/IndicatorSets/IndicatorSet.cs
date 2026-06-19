@@ -44,4 +44,14 @@ public sealed class IndicatorSet : AggregateRoot<Guid>, IAuditable
         IndicatorIds = indicatorIds.Distinct().ToArray();
         ModifiedAtUtc = DateTime.UtcNow;
     }
+
+    public void Update(string name, string? description, IEnumerable<Guid> indicatorIds)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Set name is required.", nameof(name));
+
+        Name = name.Trim();
+        Description = description?.Trim();
+        IndicatorIds = indicatorIds.Distinct().ToArray();
+        ModifiedAtUtc = DateTime.UtcNow;
+    }
 }

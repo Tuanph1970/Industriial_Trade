@@ -19,6 +19,7 @@ public interface IIndicatorSetRepository
     Task<bool> ExistsByCodeAsync(string code, CancellationToken ct);
     Task<IReadOnlyList<IndicatorSet>> ListAsync(Specification<IndicatorSet> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<IndicatorSet> spec, CancellationToken ct);
+    Task<IndicatorSet?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(IndicatorSet set, CancellationToken ct);
     Task<bool> DeleteAsync(Guid id, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
@@ -98,4 +99,32 @@ public sealed class DeleteIndicatorSetHandler(IIndicatorSetRepository repository
 {
     public async Task<Result> Handle(DeleteIndicatorSetCommand command, CancellationToken ct) =>
         await repository.DeleteAsync(command.Id, ct) ? Result.Success() : Result.Failure(Error.NotFound("Indicator set"));
+}
+
+public sealed record UpdateIndicatorSetCommand(Guid Id, string Name, string? Description, Guid[] IndicatorIds)
+    : ICommand, IPermissionAuthorized
+{
+    public string RequiredPermission => CatalogPermissions.MasterDataManage;
+}
+
+public sealed class UpdateIndicatorSetValidator : AbstractValidator<UpdateIndicatorSetCommand>
+{
+    public UpdateIndicatorSetValidator()
+    {
+        RuleFor(x => x.Id).NotEmpty();
+        RuleFor(x => x.Name).NotEmpty().MaximumLength(250);
+    }
+}
+
+public sealed class UpdateIndicatorSetHandler(IIndicatorSetRepository repository) : ICommandHandler<UpdateIndicatorSetCommand>
+{
+    public async Task<Result> Handle(UpdateIndicatorSetCommand command, CancellationToken ct)
+    {
+        var set = await repository.GetByIdAsync(command.Id, ct);
+        if (set is null) return Result.Failure(Error.NotFound("Indicator set"));
+
+        set.Update(command.Name, command.Description, command.IndicatorIds ?? []);
+        await repository.SaveChangesAsync(ct);
+        return Result.Success();
+    }
 }

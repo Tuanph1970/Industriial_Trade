@@ -50,6 +50,10 @@ internal static class ClusterEndpoints
                     body.Code, body.Name, body.OrgUnitId, body.AreaHa, body.Latitude, body.Longitude, body.Status)),
                 id => Results.Created($"/api/sector/clusters/{id}", new { id })));
 
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateClusterRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateClusterCommand(
+                id, body.Name, body.AreaHa, body.Latitude, body.Longitude, body.Status))));
+
         group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteClusterCommand(id))));
     }
@@ -75,6 +79,11 @@ internal static class ViolationEndpoints
                     body.InspectedOn, body.ViolationContent)),
                 id => Results.Created($"/api/sector/violations/{id}", new { id })));
 
+        group.MapPut("/{id:guid}", async (ISender sender, Guid id, UpdateViolationRequest body) =>
+            ApiResults.Match(await sender.Send(new UpdateViolationCommand(
+                id, body.Group, body.BusinessName, body.InspectedOn, body.ViolationContent,
+                body.SanctionContent, body.FineAmount, body.Status))));
+
         group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteViolationCommand(id))));
     }
@@ -91,3 +100,10 @@ public sealed record CreateClusterRequest(
 public sealed record CreateViolationRequest(
     string CaseNo, ViolationGroup Group, Guid OrgUnitId, string BusinessName,
     DateOnly InspectedOn, string ViolationContent);
+
+public sealed record UpdateClusterRequest(
+    string Name, decimal? AreaHa, double? Latitude, double? Longitude, ClusterStatus Status);
+
+public sealed record UpdateViolationRequest(
+    ViolationGroup Group, string BusinessName, DateOnly InspectedOn, string ViolationContent,
+    string? SanctionContent, decimal? FineAmount, ViolationStatus Status);
