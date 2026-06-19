@@ -65,4 +65,33 @@ internal sealed class AnalyticsQueries(IConfiguration configuration) : IAnalytic
         var rows = await conn.QueryAsync<StateCount>(new CommandDefinition(sql, new { units = scopeUnitIds }, cancellationToken: ct));
         return rows.ToList();
     }
+
+    public async Task<IReadOnlyList<SectorObservationRow>> GetObservationsBySectorAsync(Guid[]? scopeUnitIds, CancellationToken ct)
+    {
+        var sql = $"""
+            select i."Sector" as "Sector", count(*) as "Count", coalesce(sum(o."Value"), 0) as "TotalValue"
+            from sector.indicator_observation o
+            join catalog.indicator i on i."Id" = o."IndicatorId"
+            where {ScopeFilter}
+            group by i."Sector"
+            order by i."Sector";
+            """;
+        await using var conn = new NpgsqlConnection(_connectionString);
+        var rows = await conn.QueryAsync<SectorObservationRow>(new CommandDefinition(sql, new { units = scopeUnitIds }, cancellationToken: ct));
+        return rows.ToList();
+    }
+
+    public async Task<IReadOnlyList<CommerceTypeRow>> GetCommerceByTypeAsync(Guid[]? scopeUnitIds, CancellationToken ct)
+    {
+        var sql = $"""
+            select "Type" as "Type", count(*) as "Count"
+            from sector.commerce_location
+            where {ScopeFilter}
+            group by "Type"
+            order by "Type";
+            """;
+        await using var conn = new NpgsqlConnection(_connectionString);
+        var rows = await conn.QueryAsync<CommerceTypeRow>(new CommandDefinition(sql, new { units = scopeUnitIds }, cancellationToken: ct));
+        return rows.ToList();
+    }
 }

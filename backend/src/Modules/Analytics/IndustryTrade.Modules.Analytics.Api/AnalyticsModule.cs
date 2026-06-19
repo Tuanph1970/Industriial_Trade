@@ -35,5 +35,11 @@ public sealed class AnalyticsModule : IModule
 
         group.MapGet("/reporting-summary", async (ISender sender) =>
             ApiResults.Match(await sender.Send(new GetReportingSummaryQuery())));
+
+        group.MapGet("/observations-by-sector", async (ISender sender) =>
+            ApiResults.Match(await sender.Send(new GetObservationsBySectorQuery())));
+
+        group.MapGet("/commerce-by-type", async (ISender sender) =>
+            ApiResults.Match(await sender.Send(new GetCommerceByTypeQuery())));
     }
 }

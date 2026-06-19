@@ -12,6 +12,9 @@ public sealed record DashboardDto(
 
 public sealed record ViolationSummaryRow(int Group, int Status, long Count, decimal TotalFine);
 public sealed record StateCount(int State, long Count);
+/// <summary>Statistical roll-up of observations by indicator sector (Circular-34 aggregate).</summary>
+public sealed record SectorObservationRow(int Sector, long Count, decimal TotalValue);
+public sealed record CommerceTypeRow(int Type, long Count);
 
 /// <summary>
 /// Read-only analytics over the operational schemas (sector, reporting, catalog). This is the CQRS
@@ -23,4 +26,6 @@ public interface IAnalyticsQueries
     Task<DashboardDto> GetDashboardAsync(Guid[]? scopeUnitIds, CancellationToken ct);
     Task<IReadOnlyList<ViolationSummaryRow>> GetViolationsSummaryAsync(Guid[]? scopeUnitIds, CancellationToken ct);
     Task<IReadOnlyList<StateCount>> GetReportingSummaryAsync(Guid[]? scopeUnitIds, CancellationToken ct);
+    Task<IReadOnlyList<SectorObservationRow>> GetObservationsBySectorAsync(Guid[]? scopeUnitIds, CancellationToken ct);
+    Task<IReadOnlyList<CommerceTypeRow>> GetCommerceByTypeAsync(Guid[]? scopeUnitIds, CancellationToken ct);
 }

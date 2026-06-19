@@ -44,3 +44,27 @@ public sealed class GetReportingSummaryHandler(IAnalyticsQueries queries, ICurre
     public async Task<Result<IReadOnlyList<StateCount>>> Handle(GetReportingSummaryQuery query, CancellationToken ct) =>
         Result.Success(await queries.GetReportingSummaryAsync(Scope.For(currentUser), ct));
 }
+
+public sealed record GetObservationsBySectorQuery : IQuery<IReadOnlyList<SectorObservationRow>>, IPermissionAuthorized
+{
+    public string RequiredPermission => AnalyticsPermissions.Read;
+}
+
+public sealed class GetObservationsBySectorHandler(IAnalyticsQueries queries, ICurrentUser currentUser)
+    : IQueryHandler<GetObservationsBySectorQuery, IReadOnlyList<SectorObservationRow>>
+{
+    public async Task<Result<IReadOnlyList<SectorObservationRow>>> Handle(GetObservationsBySectorQuery query, CancellationToken ct) =>
+        Result.Success(await queries.GetObservationsBySectorAsync(Scope.For(currentUser), ct));
+}
+
+public sealed record GetCommerceByTypeQuery : IQuery<IReadOnlyList<CommerceTypeRow>>, IPermissionAuthorized
+{
+    public string RequiredPermission => AnalyticsPermissions.Read;
+}
+
+public sealed class GetCommerceByTypeHandler(IAnalyticsQueries queries, ICurrentUser currentUser)
+    : IQueryHandler<GetCommerceByTypeQuery, IReadOnlyList<CommerceTypeRow>>
+{
+    public async Task<Result<IReadOnlyList<CommerceTypeRow>>> Handle(GetCommerceByTypeQuery query, CancellationToken ct) =>
+        Result.Success(await queries.GetCommerceByTypeAsync(Scope.For(currentUser), ct));
+}

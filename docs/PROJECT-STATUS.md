@@ -14,7 +14,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 | 2 — Catalog / Master Data | Indicators, indicator sets, templates, periods | ✅ ~90% |
 | 3 — Sector Data | Observations + rich entities (clusters, violations, petrol, commerce, e-comm) | 🟡 ~85% |
 | 4 — Reporting & Workflow | Campaigns, approval saga/state machine, notifications | 🟡 ~95% |
-| 5 — Analytics & Dashboards | Read models, aggregate reports | 🟡 ~75% |
+| 5 — Analytics & Dashboards | Read models, aggregate reports | 🟡 ~90% |
 | 6 — Integration, Security L3, Go-live | LGSP/NDXP, hardening, data migration | 🟡 ~55% |
 
 ## What is built (detail)
@@ -103,8 +103,10 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   operational schemas, **data-scoped** by org unit (super-admin sees all)
 - ✅ Endpoints: leadership **dashboard** (cross-domain counts), violations summary (by group/status +
   total fines), reporting summary (submissions by state)
-- ⬜ Materialized views refreshed on events (currently live queries); charts; more aggregate reports
-  (industry/commerce per Circular-34 templates); export
+- ✅ **More aggregate reports**: observations rolled up **by sector** (Circular-34 statistical aggregate,
+  joins catalog.indicator) and commerce locations **by type** — data-scoped Dapper queries + charts
+- ✅ **CSV export** of dashboard reports (client-side, UTF-8 BOM for Excel) via per-card download buttons
+- ⬜ Materialized views refreshed on events (currently live queries — an optimization; data is low-millions)
 
 ### Phase 6 — Integration, Security, Go-live 🟡
 - ✅ **Integration** context (`integration` schema): data-sharing **service registry** with
