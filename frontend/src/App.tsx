@@ -29,6 +29,8 @@ import MapPage from './pages/MapPage';
 import IndicatorSetsPage from './pages/IndicatorSetsPage';
 import ReportTemplatesPage from './pages/ReportTemplatesPage';
 import ReportingPeriodsPage from './pages/ReportingPeriodsPage';
+import AdministrativeUnitsPage from './pages/AdministrativeUnitsPage';
+import ClassificationsPage from './pages/ClassificationsPage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -45,6 +47,8 @@ const navItems = [
       { key: 'indicator-sets', label: 'Bộ chỉ tiêu' },
       { key: 'report-templates', label: 'Biểu mẫu báo cáo' },
       { key: 'reporting-periods', label: 'Kỳ báo cáo (danh mục)' },
+      { key: 'administrative-units', label: 'Đơn vị hành chính' },
+      { key: 'classifications', label: 'Danh mục phân loại' },
     ],
   },
   { key: 'clusters', icon: <ClusterOutlined />, label: 'Cụm công nghiệp' },
@@ -135,6 +139,8 @@ export default function App() {
             <Route path="/indicator-sets" element={<IndicatorSetsPage />} />
             <Route path="/report-templates" element={<ReportTemplatesPage />} />
             <Route path="/reporting-periods" element={<ReportingPeriodsPage />} />
+            <Route path="/administrative-units" element={<AdministrativeUnitsPage />} />
+            <Route path="/classifications" element={<ClassificationsPage />} />
             <Route path="/clusters" element={<ClustersPage />} />
             <Route path="/observations" element={<ObservationsPage />} />
             <Route path="/petrol-stations" element={<PetrolStationsPage />} />

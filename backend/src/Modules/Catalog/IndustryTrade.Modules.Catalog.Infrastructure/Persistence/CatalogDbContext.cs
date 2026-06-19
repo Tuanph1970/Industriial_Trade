@@ -1,4 +1,6 @@
 using IndustryTrade.BuildingBlocks.Infrastructure.Outbox;
+using IndustryTrade.Modules.Catalog.Domain.AdministrativeUnits;
+using IndustryTrade.Modules.Catalog.Domain.Classifications;
 using IndustryTrade.Modules.Catalog.Domain.Indicators;
 using IndustryTrade.Modules.Catalog.Domain.IndicatorSets;
 using IndustryTrade.Modules.Catalog.Domain.ReportingPeriods;
@@ -16,6 +18,8 @@ public sealed class CatalogDbContext(DbContextOptions<CatalogDbContext> options)
     public DbSet<IndicatorSet> IndicatorSets => Set<IndicatorSet>();
     public DbSet<ReportTemplate> ReportTemplates => Set<ReportTemplate>();
     public DbSet<ReportingPeriodDefinition> ReportingPeriods => Set<ReportingPeriodDefinition>();
+    public DbSet<AdministrativeUnit> AdministrativeUnits => Set<AdministrativeUnit>();
+    public DbSet<Classification> Classifications => Set<Classification>();
     public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

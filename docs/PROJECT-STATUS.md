@@ -54,7 +54,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ Versioned `Indicator` aggregate (Circular 33/2022) — create/list/search on `catalog` schema
 - ✅ **Indicator sets** (bộ chỉ tiêu, member indicators), **report templates** (biểu mẫu, owned
   ordered lines bound to indicators, Circular 34), **reporting-period definitions** (kỳ báo cáo)
-- ⬜ Administrative-unit catalog + classification catalogs; batch import
+- ✅ **Administrative-unit catalog** (đơn vị hành chính: province/district/commune, optional parent)
+  and **classification catalogs** (danh mục phân loại — code-list schemes owning ordered items) on the
+  `catalog` schema; full list/search/create/edit/delete/detail. New schemes = catalog rows, not migrations
 
 ### Phase 3 — Sector Data 🟡
 - ✅ Generic `IndicatorObservation` aggregate (numeric stats by indicator + unit + period), data-scoped by unit
@@ -115,7 +117,8 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   Users (incl. active toggle) & Roles, and the 3 Catalog master-data pages (Indicator Sets, Report
   Templates, Reporting Periods). Backed by per-aggregate `Update` domain methods + PUT endpoints
   (validated + audited); natural keys (code/tax/case no/username) are immutable on edit
-- ✅ Catalog (grouped nav): Indicators, **Indicator Sets, Report Templates, Reporting Periods**
+- ✅ Catalog (grouped nav): Indicators, **Indicator Sets, Report Templates, Reporting Periods,
+  Administrative Units, Classifications**
 - ✅ Pages: Org Units, Users, Roles, Industrial Clusters, Observations, Market Violations,
   Petroleum Stations, Commerce Locations, E-commerce Participants (list / search / create)
 - ✅ **Campaigns** + **Submissions** (workflow action buttons per state + transition-history timeline)
@@ -133,8 +136,8 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **51/51 pass** — 49 unit (incl. import parsers + bulk-import handler) + **2
-  integration** (Testcontainers PostgreSQL: outbox interceptor, data-scope specification)
+- `dotnet test` → **54/54 pass** — 52 unit (incl. import parsers + bulk-import handler, admin-unit +
+  classification domain) + **2 integration** (Testcontainers PostgreSQL: outbox interceptor, data-scope spec)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK
@@ -149,7 +152,6 @@ Remaining work is hardening, real integrations, and polish:
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
 - UX polish: frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)
-- Catalog: administrative-unit + classification catalogs (the remaining master-data lists)
 
 ## Commits so far (this branch)
 - `e1544f2` docs: design baseline

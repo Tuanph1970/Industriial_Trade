@@ -172,6 +172,34 @@ export const deleteIndicatorSet = (id: string) => api.delete(`/api/catalog/indic
 export const deleteReportTemplate = (id: string) => api.delete(`/api/catalog/report-templates/${id}`);
 export const deleteReportingPeriod = (id: string) => api.delete(`/api/catalog/reporting-periods/${id}`);
 
+// ---- Administrative units (catalog reference data) -----------------------
+export type AdministrativeLevel = 1 | 2 | 3; // Province | District | Commune
+export interface AdministrativeUnit {
+  id: string; code: string; name: string; level: AdministrativeLevel; parentId: string | null; isActive: boolean;
+}
+export const getAdministrativeUnits = (p: PageParams & { level?: AdministrativeLevel }) =>
+  api.get<PagedResult<AdministrativeUnit>>('/api/catalog/administrative-units', {
+    params: { ...pageParams(p), level: p.level },
+  }).then((r) => r.data);
+export const createAdministrativeUnit = (b: { code: string; name: string; level: AdministrativeLevel; parentId?: string | null }) =>
+  api.post<{ id: string }>('/api/catalog/administrative-units', b).then((r) => r.data);
+export const updateAdministrativeUnit = (id: string, b: { name: string; level: AdministrativeLevel; parentId?: string | null; isActive: boolean }) =>
+  api.put(`/api/catalog/administrative-units/${id}`, b);
+export const deleteAdministrativeUnit = (id: string) => api.delete(`/api/catalog/administrative-units/${id}`);
+
+// ---- Classifications (catalog code lists) --------------------------------
+export interface ClassificationItem { code: string; name: string; sortOrder: number; }
+export interface Classification {
+  id: string; code: string; name: string; description: string | null; items: ClassificationItem[]; isActive: boolean;
+}
+export const getClassifications = (p: PageParams) =>
+  api.get<PagedResult<Classification>>('/api/catalog/classifications', { params: pageParams(p) }).then((r) => r.data);
+export const createClassification = (b: { code: string; name: string; description?: string; items: ClassificationItem[] }) =>
+  api.post<{ id: string }>('/api/catalog/classifications', b).then((r) => r.data);
+export const updateClassification = (id: string, b: { name: string; description?: string; items: ClassificationItem[] }) =>
+  api.put(`/api/catalog/classifications/${id}`, b);
+export const deleteClassification = (id: string) => api.delete(`/api/catalog/classifications/${id}`);
+
 // ---- Sector Data ---------------------------------------------------------
 export type ObservationStatus = 1 | 2 | 3; // Draft | Submitted | Approved
 

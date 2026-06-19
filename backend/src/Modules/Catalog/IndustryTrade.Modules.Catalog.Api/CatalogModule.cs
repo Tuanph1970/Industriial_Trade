@@ -30,6 +30,7 @@ public sealed class CatalogModule : IModule
     {
         endpoints.MapIndicatorEndpoints();
         endpoints.MapCatalogMasterDataEndpoints();
+        endpoints.MapCatalogReferenceDataEndpoints();
     }
 
     public async Task ApplyMigrationsAsync(IServiceProvider services)

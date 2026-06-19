@@ -1,3 +1,5 @@
+using IndustryTrade.Modules.Catalog.Application.AdministrativeUnits;
+using IndustryTrade.Modules.Catalog.Application.Classifications;
 using IndustryTrade.Modules.Catalog.Application.Indicators;
 using IndustryTrade.Modules.Catalog.Application.IndicatorSets;
 using IndustryTrade.Modules.Catalog.Application.ReportingPeriods;
@@ -28,6 +30,8 @@ public static class CatalogInfrastructure
         services.AddScoped<IIndicatorSetRepository, IndicatorSetRepository>();
         services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
         services.AddScoped<IReportingPeriodRepository, ReportingPeriodRepository>();
+        services.AddScoped<IAdministrativeUnitRepository, AdministrativeUnitRepository>();
+        services.AddScoped<IClassificationRepository, ClassificationRepository>();
         return services;
     }
 }
