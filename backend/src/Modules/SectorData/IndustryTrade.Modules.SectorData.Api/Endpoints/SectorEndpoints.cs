@@ -30,6 +30,9 @@ internal static class ObservationEndpoints
                     body.IndicatorId, body.OrgUnitId, body.PeriodYear, body.PeriodMonth,
                     body.Value, body.ValueText, body.Source)),
                 id => Results.Created($"/api/sector/observations/{id}", new { id })));
+
+        group.MapPost("/{id:guid}/action", async (ISender sender, Guid id, ObservationActionRequest body) =>
+            ApiResults.Match(await sender.Send(new ObservationActionCommand(id, body.Action))));
     }
 }
 
@@ -92,6 +95,8 @@ internal static class ViolationEndpoints
 public sealed record CreateObservationRequest(
     Guid IndicatorId, Guid OrgUnitId, int PeriodYear, int? PeriodMonth,
     decimal? Value, string? ValueText, string? Source);
+
+public sealed record ObservationActionRequest(ObservationAction Action);
 
 public sealed record CreateClusterRequest(
     string Code, string Name, Guid OrgUnitId, decimal? AreaHa,

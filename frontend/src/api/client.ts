@@ -225,6 +225,12 @@ export const createObservation = (b: {
   value?: number | null; valueText?: string | null; source?: string | null;
 }) => api.post<{ id: string }>('/api/sector/observations', b).then((r) => r.data);
 
+// Approval workflow: Submit (Draft→Submitted), Approve (Submitted→Approved), Return (Submitted→Draft).
+export const ObservationAction = { Submit: 0, Approve: 1, Return: 2 } as const;
+export type ObservationActionValue = (typeof ObservationAction)[keyof typeof ObservationAction];
+export const observationAction = (id: string, action: ObservationActionValue) =>
+  api.post(`/api/sector/observations/${id}/action`, { action });
+
 export type ClusterStatus = 1 | 2 | 3; // Planned | Operating | Suspended
 
 export interface Cluster {

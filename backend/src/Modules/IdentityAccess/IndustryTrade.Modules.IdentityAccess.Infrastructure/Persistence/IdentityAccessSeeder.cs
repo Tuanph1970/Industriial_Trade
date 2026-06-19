@@ -25,6 +25,7 @@ public static class IdentityAccessSeeder
                 "catalog.indicators.read", "catalog.indicators.manage",
                 "catalog.masterdata.read", "catalog.masterdata.manage",
                 "sector.observations.read", "sector.observations.manage",
+                "sector.observations.submit", "sector.observations.approve",
                 "sector.clusters.read", "sector.clusters.manage",
                 "sector.violations.read", "sector.violations.manage",
                 "sector.petrol.read", "sector.petrol.manage",

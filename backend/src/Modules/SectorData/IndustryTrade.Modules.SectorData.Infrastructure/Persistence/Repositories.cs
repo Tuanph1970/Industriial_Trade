@@ -25,6 +25,9 @@ internal sealed class ObservationRepository(SectorDataDbContext db) : IObservati
     public Task<int> CountAsync(Specification<IndicatorObservation> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.Observations.AsQueryable(), spec).CountAsync(ct);
 
+    public Task<IndicatorObservation?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.Observations.FirstOrDefaultAsync(x => x.Id == id, ct);
+
     public async Task AddAsync(IndicatorObservation observation, CancellationToken ct) =>
         await db.Observations.AddAsync(observation, ct);
 

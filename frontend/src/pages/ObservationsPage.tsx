@@ -3,7 +3,7 @@ import { App as AntApp, Button, Form, Input, InputNumber, Modal, Select, Space, 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   bulkImportObservations, createObservation, getIndicators, getObservations, getOrgUnits,
-  Observation, ObservationStatus,
+  observationAction, ObservationAction, ObservationActionValue, Observation, ObservationStatus,
 } from '../api/client';
 import ImportModal, { getCell } from '../components/ImportModal';
 import DetailDrawer from '../components/DetailDrawer';
@@ -73,6 +73,11 @@ export default function ObservationsPage() {
     },
     onError: () => message.error('Tạo thất bại (kiểm tra quyền)'),
   });
+  const act = useMutation({
+    mutationFn: (v: { id: string; action: ObservationActionValue }) => observationAction(v.id, v.action),
+    onSuccess: () => { message.success('Đã cập nhật trạng thái'); qc.invalidateQueries({ queryKey: ['observations'] }); },
+    onError: () => message.error('Thao tác thất bại (kiểm tra quyền hoặc trạng thái)'),
+  });
 
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
@@ -99,7 +104,13 @@ export default function ObservationsPage() {
             title: 'Trạng thái', dataIndex: 'status', width: 130,
             render: (s: ObservationStatus) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag>,
           },
-          { title: 'Thao tác', width: 90, render: (_, r) => <a onClick={() => setDetail(r)}>Xem</a> },
+          { title: 'Thao tác', width: 240, render: (_, r) => (
+            <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
+              {r.status === 1 && <a onClick={() => act.mutate({ id: r.id, action: ObservationAction.Submit })}>Gửi duyệt</a>}
+              {r.status === 2 && <a onClick={() => act.mutate({ id: r.id, action: ObservationAction.Approve })}>Duyệt</a>}
+              {r.status === 2 && <a style={{ color: '#cf1322' }} onClick={() => act.mutate({ id: r.id, action: ObservationAction.Return })}>Trả lại</a>}
+            </Space>) },
         ]}
       />
 

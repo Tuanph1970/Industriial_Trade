@@ -56,8 +56,30 @@ public sealed class IndicatorObservation : AggregateRoot<Guid>, IAuditable
         };
     }
 
-    public void Submit() { Status = ObservationStatus.Submitted; Touch(); }
-    public void Approve() { Status = ObservationStatus.Approved; Touch(); }
+    // Approval workflow (commune submits → specialist/leader approves or returns for correction).
+    public void Submit()
+    {
+        if (Status != ObservationStatus.Draft)
+            throw new InvalidOperationException("Only a draft observation can be submitted.");
+        Status = ObservationStatus.Submitted;
+        Touch();
+    }
+
+    public void Approve()
+    {
+        if (Status != ObservationStatus.Submitted)
+            throw new InvalidOperationException("Only a submitted observation can be approved.");
+        Status = ObservationStatus.Approved;
+        Touch();
+    }
+
+    public void ReturnToDraft()
+    {
+        if (Status != ObservationStatus.Submitted)
+            throw new InvalidOperationException("Only a submitted observation can be returned.");
+        Status = ObservationStatus.Draft;
+        Touch();
+    }
 
     private void Touch() => ModifiedAtUtc = DateTime.UtcNow;
 }

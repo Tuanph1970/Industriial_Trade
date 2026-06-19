@@ -75,7 +75,10 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   generic `/api/sector/import/parse` preview; typed per-entity **bulk-create** endpoints with
   row-level validation, in-batch dedupe, and partial-success reporting. Client resolves codes→ids
   (no cross-context coupling) via a reusable preview-then-commit `ImportModal` + CSV template download
-- ⬜ Observation submit/approve workflow hooks
+- ✅ **Observation approval workflow**: guarded `Draft → Submitted → Approved` (+ Return to draft)
+  on `IndicatorObservation`; one action endpoint with per-action permission (`observations.submit`
+  for commune, `observations.approve` for specialist/leader), data-scoped by unit + audited; UI action
+  buttons per status on the Observations page
 
 ### Phase 4 — Reporting & Workflow 🟡
 - ✅ `ReportingCampaign` (kỳ báo cáo) — create/list
@@ -136,8 +139,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **54/54 pass** — 52 unit (incl. import parsers + bulk-import handler, admin-unit +
-  classification domain) + **2 integration** (Testcontainers PostgreSQL: outbox interceptor, data-scope spec)
+- `dotnet test` → **59/59 pass** — 57 unit (incl. import parsers + bulk-import handler, admin-unit +
+  classification domain, observation workflow) + **2 integration** (Testcontainers PostgreSQL: outbox
+  interceptor, data-scope spec)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK

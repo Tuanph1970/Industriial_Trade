@@ -16,6 +16,7 @@ public interface IObservationRepository
 {
     Task<IReadOnlyList<IndicatorObservation>> ListAsync(Specification<IndicatorObservation> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<IndicatorObservation> spec, CancellationToken ct);
+    Task<IndicatorObservation?> GetByIdAsync(Guid id, CancellationToken ct);
     Task AddAsync(IndicatorObservation observation, CancellationToken ct);
     Task<int> SaveChangesAsync(CancellationToken ct);
 }
