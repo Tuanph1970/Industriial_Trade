@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createReportTemplate, deleteReportTemplate, getIndicators, getReportTemplates, ReportTemplate, updateReportTemplate } from '../api/client';
+import DetailDrawer from '../components/DetailDrawer';
 
 export default function ReportTemplatesPage() {
   const { message } = AntApp.useApp();
@@ -10,6 +11,7 @@ export default function ReportTemplatesPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<ReportTemplate | null>(null);
   const [editing, setEditing] = useState<ReportTemplate | null>(null);
   const [form] = Form.useForm();
 
@@ -72,8 +74,9 @@ export default function ReportTemplatesPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên biểu mẫu', dataIndex: 'name' },
           { title: 'Số dòng', dataIndex: 'lines', width: 110, render: (l: unknown[]) => l.length },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -93,6 +96,19 @@ export default function ReportTemplatesPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết biểu mẫu báo cáo"
+        items={detail ? [
+          { label: 'Mã', value: detail.code },
+          { label: 'Tên', value: detail.name },
+          { label: 'Mô tả', value: detail.description },
+          { label: 'Các dòng', value: detail.lines.length
+            ? <ol style={{ margin: 0, paddingLeft: 18 }}>
+                {[...detail.lines].sort((a, b) => a.rowOrder - b.rowOrder).map((l) => <li key={l.rowOrder}>{l.label}</li>)}
+              </ol>
+            : null },
+          { label: 'Trạng thái', value: detail.isActive ? 'Hoạt động' : 'Ngưng' },
+        ] : []} />
     </Space>
   );
 }

@@ -6,6 +6,7 @@ import {
   deleteCommerceLocation, getCommerceLocations, getOrgUnits, updateCommerceLocation,
 } from '../api/client';
 import ImportModal, { getCell, parseEnum } from '../components/ImportModal';
+import DetailDrawer from '../components/DetailDrawer';
 
 const typeLabels: Record<CommerceLocationType, string> = {
   1: 'Chợ', 2: 'Siêu thị', 3: 'Trung tâm thương mại', 4: 'Cửa hàng tiện lợi',
@@ -20,6 +21,7 @@ export default function CommerceLocationsPage() {
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [detail, setDetail] = useState<CommerceLocation | null>(null);
   const [editing, setEditing] = useState<CommerceLocation | null>(null);
   const [form] = Form.useForm();
 
@@ -107,8 +109,9 @@ export default function CommerceLocationsPage() {
           { title: 'Loại', dataIndex: 'type', width: 200, render: (t: CommerceLocationType) => typeLabels[t] },
           { title: 'Địa chỉ', dataIndex: 'address' },
           { title: 'Toạ độ', width: 180, render: (_, r) => (r.latitude != null ? `${r.latitude}, ${r.longitude}` : '—') },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -135,6 +138,16 @@ export default function CommerceLocationsPage() {
           </Space>
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết địa điểm thương mại"
+        items={detail ? [
+          { label: 'Mã', value: detail.code },
+          { label: 'Tên', value: detail.name },
+          { label: 'Loại', value: typeLabels[detail.type] },
+          { label: 'Đơn vị quản lý', value: units?.items.find((u) => u.id === detail.orgUnitId)?.name ?? detail.orgUnitId },
+          { label: 'Địa chỉ', value: detail.address },
+          { label: 'Toạ độ', value: detail.latitude != null ? `${detail.latitude}, ${detail.longitude}` : null },
+        ] : []} />
 
       <ImportModal
         open={importOpen} onClose={() => setImportOpen(false)}

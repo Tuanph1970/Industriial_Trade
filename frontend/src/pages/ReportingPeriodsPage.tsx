@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createReportingPeriod, deleteReportingPeriod, getReportingPeriods, Periodicity, ReportingPeriod, updateReportingPeriod } from '../api/client';
+import DetailDrawer from '../components/DetailDrawer';
 
 const periodicityLabels: Record<Periodicity, string> = { 1: 'Hàng tháng', 2: 'Hàng quý', 3: 'Hàng năm' };
 const options = Object.entries(periodicityLabels).map(([v, label]) => ({ value: Number(v), label }));
@@ -13,6 +14,7 @@ export default function ReportingPeriodsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<ReportingPeriod | null>(null);
   const [editing, setEditing] = useState<ReportingPeriod | null>(null);
   const [form] = Form.useForm();
 
@@ -65,8 +67,9 @@ export default function ReportingPeriodsPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên kỳ báo cáo', dataIndex: 'name' },
           { title: 'Chu kỳ', dataIndex: 'periodicity', width: 160, render: (p: Periodicity) => <Tag>{periodicityLabels[p]}</Tag> },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -84,6 +87,14 @@ export default function ReportingPeriodsPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết kỳ báo cáo"
+        items={detail ? [
+          { label: 'Mã', value: detail.code },
+          { label: 'Tên kỳ báo cáo', value: detail.name },
+          { label: 'Chu kỳ', value: periodicityLabels[detail.periodicity] },
+          { label: 'Trạng thái', value: detail.isActive ? 'Hoạt động' : 'Ngưng' },
+        ] : []} />
     </Space>
   );
 }

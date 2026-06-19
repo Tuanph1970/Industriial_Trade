@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Switch, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createUser, deleteUser, getOrgUnits, getRoles, getUsers, updateUser, UserAccount } from '../api/client';
+import DetailDrawer from '../components/DetailDrawer';
 
 export default function UsersPage() {
   const { message } = AntApp.useApp();
@@ -10,6 +11,7 @@ export default function UsersPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<UserAccount | null>(null);
   const [editing, setEditing] = useState<UserAccount | null>(null);
   const [form] = Form.useForm();
 
@@ -75,8 +77,9 @@ export default function UsersPage() {
             title: 'Trạng thái', dataIndex: 'isActive', width: 120,
             render: (a: boolean) => <Tag color={a ? 'green' : 'default'}>{a ? 'Hoạt động' : 'Ngưng'}</Tag>,
           },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -106,6 +109,18 @@ export default function UsersPage() {
           )}
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết người dùng"
+        items={detail ? [
+          { label: 'Tên đăng nhập', value: detail.userName },
+          { label: 'Họ tên', value: detail.fullName },
+          { label: 'Email', value: detail.email },
+          { label: 'Đơn vị', value: units?.items.find((u) => u.id === detail.orgUnitId)?.name ?? detail.orgUnitId },
+          { label: 'Vai trò', value: detail.roleIds.length
+            ? <>{detail.roleIds.map((id) => <Tag key={id}>{roles?.items.find((r) => r.id === id)?.name ?? id}</Tag>)}</>
+            : null },
+          { label: 'Trạng thái', value: <Tag color={detail.isActive ? 'green' : 'default'}>{detail.isActive ? 'Hoạt động' : 'Ngưng'}</Tag> },
+        ] : []} />
     </Space>
   );
 }

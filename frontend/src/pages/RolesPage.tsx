@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ALL_PERMISSIONS, createRole, deleteRole, getRoles, Role, updateRole } from '../api/client';
+import DetailDrawer from '../components/DetailDrawer';
 
 export default function RolesPage() {
   const { message } = AntApp.useApp();
@@ -10,6 +11,7 @@ export default function RolesPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<Role | null>(null);
   const [editing, setEditing] = useState<Role | null>(null);
   const [form] = Form.useForm();
 
@@ -68,8 +70,9 @@ export default function RolesPage() {
             title: 'Quyền', dataIndex: 'permissions',
             render: (perms: string[]) => <>{perms.map((p) => <Tag key={p}>{p}</Tag>)}</>,
           },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -88,6 +91,15 @@ export default function RolesPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết vai trò"
+        items={detail ? [
+          { label: 'Mã', value: detail.code },
+          { label: 'Tên', value: detail.name },
+          { label: 'Quyền', value: detail.permissions.length
+            ? <>{detail.permissions.map((p) => <Tag key={p}>{p}</Tag>)}</> : null },
+          { label: 'Trạng thái', value: <Tag color={detail.isActive ? 'green' : 'default'}>{detail.isActive ? 'Hoạt động' : 'Ngưng'}</Tag> },
+        ] : []} />
     </Space>
   );
 }

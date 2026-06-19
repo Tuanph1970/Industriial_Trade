@@ -6,6 +6,7 @@ import {
   Observation, ObservationStatus,
 } from '../api/client';
 import ImportModal, { getCell } from '../components/ImportModal';
+import DetailDrawer from '../components/DetailDrawer';
 
 const statusLabels: Record<ObservationStatus, string> = { 1: 'Nháp', 2: 'Đã gửi', 3: 'Đã duyệt' };
 const statusColors: Record<ObservationStatus, string> = { 1: 'default', 2: 'gold', 3: 'green' };
@@ -17,6 +18,7 @@ export default function ObservationsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [detail, setDetail] = useState<Observation | null>(null);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -97,6 +99,7 @@ export default function ObservationsPage() {
             title: 'Trạng thái', dataIndex: 'status', width: 130,
             render: (s: ObservationStatus) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag>,
           },
+          { title: 'Thao tác', width: 90, render: (_, r) => <a onClick={() => setDetail(r)}>Xem</a> },
         ]}
       />
 
@@ -121,6 +124,17 @@ export default function ObservationsPage() {
           <Form.Item name="source" label="Nguồn"><Input maxLength={250} /></Form.Item>
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết số liệu chỉ tiêu"
+        items={detail ? [
+          { label: 'Chỉ tiêu', value: indicatorName(detail.indicatorId) },
+          { label: 'Đơn vị', value: unitName(detail.orgUnitId) },
+          { label: 'Kỳ', value: detail.periodMonth ? `${detail.periodMonth}/${detail.periodYear}` : `${detail.periodYear}` },
+          { label: 'Giá trị', value: detail.value },
+          { label: 'Giá trị (văn bản)', value: detail.valueText },
+          { label: 'Nguồn', value: detail.source },
+          { label: 'Trạng thái', value: <Tag color={statusColors[detail.status]}>{statusLabels[detail.status]}</Tag> },
+        ] : []} />
 
       <ImportModal
         open={importOpen} onClose={() => setImportOpen(false)}

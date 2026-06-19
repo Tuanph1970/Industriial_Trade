@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import {
   createIndicator, deleteIndicator, getIndicators, Indicator, IndustrySector, updateIndicator,
 } from '../api/client';
+import DetailDrawer from '../components/DetailDrawer';
 
 const sectorLabels: Record<IndustrySector, string> = {
   1: 'Công nghiệp', 2: 'Năng lượng', 3: 'Thương mại', 4: 'Quản lý thị trường',
@@ -19,6 +20,7 @@ export default function IndicatorsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<Indicator | null>(null);
   const [editing, setEditing] = useState<Indicator | null>(null);
   const [form] = Form.useForm();
 
@@ -68,9 +70,10 @@ export default function IndicatorsPage() {
           { title: 'Lĩnh vực', dataIndex: 'sector', width: 150, render: (s: IndustrySector) => sectorLabels[s] },
           { title: 'Phiên bản', dataIndex: 'version', width: 90 },
           {
-            title: 'Thao tác', width: 130,
+            title: 'Thao tác', width: 180,
             render: (_, r) => (
               <Space>
+                <a onClick={() => setDetail(r)}>Xem</a>
                 <a onClick={() => openEdit(r)}>Sửa</a>
                 <Popconfirm title="Xoá chỉ tiêu này?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                   <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -100,6 +103,19 @@ export default function IndicatorsPage() {
           )}
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết chỉ tiêu"
+        items={detail ? [
+          { label: 'Mã', value: detail.code },
+          { label: 'Tên chỉ tiêu', value: detail.name },
+          { label: 'Đơn vị tính', value: detail.unit },
+          { label: 'Kiểu dữ liệu', value: dataTypeOptions.find((o) => o.value === detail.dataType)?.label },
+          { label: 'Lĩnh vực', value: sectorLabels[detail.sector] },
+          { label: 'Phiên bản', value: detail.version },
+          { label: 'Hiệu lực từ', value: detail.effectiveFrom },
+          { label: 'Ngừng hiệu lực', value: detail.retiredAt },
+          { label: 'Trạng thái', value: detail.isActive ? 'Hoạt động' : 'Ngưng' },
+        ] : []} />
     </Space>
   );
 }

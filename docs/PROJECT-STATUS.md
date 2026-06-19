@@ -127,7 +127,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Integration** page (connection-status panel + data-sharing service registry with publish/revoke)
 - ✅ **Batch-import UI**: reusable `ImportModal` (drag-drop .xlsx/.xml/.csv → validated preview table
   → commit) wired into all 6 Sector pages, with downloadable CSV templates
-- ⬜ Detail (read-only) views
+- ✅ **Read-only detail views**: reusable `DetailDrawer` (antd `Descriptions`) + a "Xem" action on
+  every main CRUD list page (6 Sector + Org Units/Users/Roles + 4 Catalog), resolving ids→names from
+  loaded lookups
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
@@ -145,7 +147,7 @@ Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
-- UX polish: read-only detail views; frontend code-splitting (bundle ~2 MB)
+- UX polish: frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)
 - Catalog: administrative-unit + classification catalogs (the remaining master-data lists)
 

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createIndicatorSet, deleteIndicatorSet, getIndicators, getIndicatorSets, IndicatorSet, updateIndicatorSet } from '../api/client';
+import DetailDrawer from '../components/DetailDrawer';
 
 export default function IndicatorSetsPage() {
   const { message } = AntApp.useApp();
@@ -10,6 +11,7 @@ export default function IndicatorSetsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<IndicatorSet | null>(null);
   const [editing, setEditing] = useState<IndicatorSet | null>(null);
   const [form] = Form.useForm();
 
@@ -63,8 +65,9 @@ export default function IndicatorSetsPage() {
           { title: 'Mã', dataIndex: 'code', width: 150 },
           { title: 'Tên bộ chỉ tiêu', dataIndex: 'name' },
           { title: 'Số chỉ tiêu', dataIndex: 'indicatorIds', width: 130, render: (ids: string[]) => ids.length },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -84,6 +87,19 @@ export default function IndicatorSetsPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết bộ chỉ tiêu"
+        items={detail ? [
+          { label: 'Mã', value: detail.code },
+          { label: 'Tên', value: detail.name },
+          { label: 'Mô tả', value: detail.description },
+          { label: 'Chỉ tiêu thành viên', value: detail.indicatorIds.length
+            ? <ol style={{ margin: 0, paddingLeft: 18 }}>
+                {detail.indicatorIds.map((id) => <li key={id}>{indicators?.items.find((i) => i.id === id)?.name ?? id}</li>)}
+              </ol>
+            : null },
+          { label: 'Trạng thái', value: detail.isActive ? 'Hoạt động' : 'Ngưng' },
+        ] : []} />
     </Space>
   );
 }

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   createOrgUnit, deleteOrgUnit, getOrgUnits, OrgUnit, OrgUnitType, updateOrgUnit,
 } from '../api/client';
+import DetailDrawer from '../components/DetailDrawer';
 
 const typeLabels: Record<OrgUnitType, string> = { 1: 'Sở', 2: 'Phòng', 3: 'Xã/Phường' };
 
@@ -14,6 +15,7 @@ export default function OrgUnitsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [detail, setDetail] = useState<OrgUnit | null>(null);
   const [editing, setEditing] = useState<OrgUnit | null>(null);
   const [form] = Form.useForm();
 
@@ -71,9 +73,10 @@ export default function OrgUnitsPage() {
           { title: 'Trạng thái', dataIndex: 'isActive', width: 110,
             render: (a: boolean) => <Tag color={a ? 'green' : 'default'}>{a ? 'Hoạt động' : 'Ngưng'}</Tag> },
           {
-            title: 'Thao tác', width: 140,
+            title: 'Thao tác', width: 180,
             render: (_, r) => (
               <Space>
+                <a onClick={() => setDetail(r)}>Xem</a>
                 <a onClick={() => openEdit(r)}>Sửa</a>
                 <Popconfirm title="Xoá đơn vị này?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                   <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -101,6 +104,15 @@ export default function OrgUnitsPage() {
           )}
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết cơ quan, đơn vị"
+        items={detail ? [
+          { label: 'Mã', value: detail.code },
+          { label: 'Tên', value: detail.name },
+          { label: 'Loại', value: typeLabels[detail.type] },
+          { label: 'Đường dẫn', value: detail.path },
+          { label: 'Trạng thái', value: <Tag color={detail.isActive ? 'green' : 'default'}>{detail.isActive ? 'Hoạt động' : 'Ngưng'}</Tag> },
+        ] : []} />
     </Space>
   );
 }

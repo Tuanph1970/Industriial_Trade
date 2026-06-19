@@ -6,6 +6,7 @@ import {
   getOrgUnits, updateEcommerce,
 } from '../api/client';
 import ImportModal, { getCell } from '../components/ImportModal';
+import DetailDrawer from '../components/DetailDrawer';
 
 export default function EcommercePage() {
   const { message } = AntApp.useApp();
@@ -15,6 +16,7 @@ export default function EcommercePage() {
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [detail, setDetail] = useState<EcommerceParticipant | null>(null);
   const [editing, setEditing] = useState<EcommerceParticipant | null>(null);
   const [form] = Form.useForm();
 
@@ -94,8 +96,9 @@ export default function EcommercePage() {
           { title: 'Sàn TMĐT', dataIndex: 'platforms',
             render: (ps: string[]) => <>{ps.map((p) => <Tag key={p}>{p}</Tag>)}</> },
           { title: 'Mặt hàng chính', dataIndex: 'mainGoods' },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -118,6 +121,15 @@ export default function EcommercePage() {
           <Form.Item name="mainGoods" label="Mặt hàng chính"><Input maxLength={1000} /></Form.Item>
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết đơn vị TMĐT"
+        items={detail ? [
+          { label: 'Mã số thuế', value: detail.taxCode },
+          { label: 'Tên doanh nghiệp', value: detail.businessName },
+          { label: 'Đơn vị quản lý', value: units?.items.find((u) => u.id === detail.orgUnitId)?.name ?? detail.orgUnitId },
+          { label: 'Sàn TMĐT', value: detail.platforms.length ? <>{detail.platforms.map((p) => <Tag key={p}>{p}</Tag>)}</> : null },
+          { label: 'Mặt hàng chính', value: detail.mainGoods },
+        ] : []} />
 
       <ImportModal
         open={importOpen} onClose={() => setImportOpen(false)}

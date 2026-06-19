@@ -6,6 +6,7 @@ import {
   PetrolStation, StationStatus, updatePetrolStation,
 } from '../api/client';
 import ImportModal, { getCell, parseEnum } from '../components/ImportModal';
+import DetailDrawer from '../components/DetailDrawer';
 
 const statusLabels: Record<StationStatus, string> = { 1: 'Đang hoạt động', 2: 'Tạm dừng', 3: 'Đã đóng' };
 const statusColors: Record<StationStatus, string> = { 1: 'green', 2: 'gold', 3: 'default' };
@@ -18,6 +19,7 @@ export default function PetrolStationsPage() {
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [detail, setDetail] = useState<PetrolStation | null>(null);
   const [editing, setEditing] = useState<PetrolStation | null>(null);
   const [form] = Form.useForm();
 
@@ -108,8 +110,9 @@ export default function PetrolStationsPage() {
           { title: 'Toạ độ', width: 180, render: (_, r) => (r.latitude != null ? `${r.latitude}, ${r.longitude}` : '—') },
           { title: 'Trạng thái', dataIndex: 'status', width: 150,
             render: (s: StationStatus) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag> },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -137,6 +140,17 @@ export default function PetrolStationsPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết cửa hàng xăng dầu"
+        items={detail ? [
+          { label: 'Mã', value: detail.code },
+          { label: 'Tên cửa hàng', value: detail.name },
+          { label: 'Đơn vị quản lý', value: units?.items.find((u) => u.id === detail.orgUnitId)?.name ?? detail.orgUnitId },
+          { label: 'Số giấy phép', value: detail.licenseNo },
+          { label: 'Địa chỉ', value: detail.address },
+          { label: 'Toạ độ', value: detail.latitude != null ? `${detail.latitude}, ${detail.longitude}` : null },
+          { label: 'Trạng thái', value: <Tag color={statusColors[detail.status]}>{statusLabels[detail.status]}</Tag> },
+        ] : []} />
 
       <ImportModal
         open={importOpen} onClose={() => setImportOpen(false)}

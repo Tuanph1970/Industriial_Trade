@@ -7,6 +7,7 @@ import {
   Violation, ViolationGroup, ViolationStatus,
 } from '../api/client';
 import ImportModal, { getCell, parseEnum } from '../components/ImportModal';
+import DetailDrawer from '../components/DetailDrawer';
 
 const parseImportDate = (s: string): string | null => {
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
@@ -32,6 +33,7 @@ export default function ViolationsPage() {
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [detail, setDetail] = useState<Violation | null>(null);
   const [editing, setEditing] = useState<Violation | null>(null);
   const [form] = Form.useForm();
 
@@ -129,8 +131,9 @@ export default function ViolationsPage() {
             title: 'Trạng thái', dataIndex: 'status', width: 130,
             render: (s: ViolationStatus) => <Tag color={statusColors[s]}>{statusLabels[s]}</Tag>,
           },
-          { title: 'Thao tác', width: 130, render: (_, r) => (
+          { title: 'Thao tác', width: 180, render: (_, r) => (
             <Space>
+              <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
@@ -174,6 +177,19 @@ export default function ViolationsPage() {
           )}
         </Form>
       </Modal>
+
+      <DetailDrawer open={!!detail} onClose={() => setDetail(null)} title="Chi tiết hồ sơ vi phạm"
+        items={detail ? [
+          { label: 'Số hồ sơ', value: detail.caseNo },
+          { label: 'Nhóm', value: groupLabels[detail.group] },
+          { label: 'Đơn vị quản lý', value: units?.items.find((u) => u.id === detail.orgUnitId)?.name ?? detail.orgUnitId },
+          { label: 'Cơ sở kinh doanh', value: detail.businessName },
+          { label: 'Ngày kiểm tra', value: detail.inspectedOn },
+          { label: 'Nội dung vi phạm', value: detail.violationContent },
+          { label: 'Nội dung xử phạt', value: detail.sanctionContent },
+          { label: 'Tiền phạt', value: detail.fineAmount != null ? detail.fineAmount.toLocaleString('vi-VN') : null },
+          { label: 'Trạng thái', value: <Tag color={statusColors[detail.status]}>{statusLabels[detail.status]}</Tag> },
+        ] : []} />
 
       <ImportModal
         open={importOpen} onClose={() => setImportOpen(false)}
