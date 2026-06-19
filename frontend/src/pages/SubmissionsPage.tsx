@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Select, Space, Table, Tag, Timeline } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  createSubmission, getCampaigns, getOrgUnits, getSubmissionDetail, getSubmissions,
+  createSubmission, extractSubmissionContent, getCampaigns, getOrgUnits, getReportTemplates,
+  getSubmissionDetail, getSubmissions,
   ReportAction, ReportActionValue, ReportState, Submission, submissionAction,
 } from '../api/client';
 
@@ -30,6 +31,7 @@ export default function SubmissionsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
   const [historyId, setHistoryId] = useState<string | null>(null);
+  const [templateId, setTemplateId] = useState<string | undefined>();
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -38,6 +40,7 @@ export default function SubmissionsPage() {
   });
   const { data: campaigns } = useQuery({ queryKey: ['campaigns', 'all'], queryFn: () => getCampaigns({ page: 1, pageSize: 100 }) });
   const { data: units } = useQuery({ queryKey: ['org-units', 'all'], queryFn: () => getOrgUnits({ page: 1, pageSize: 100 }) });
+  const { data: templates } = useQuery({ queryKey: ['report-templates', 'all'], queryFn: () => getReportTemplates({ page: 1, pageSize: 100 }) });
   const { data: detail } = useQuery({
     queryKey: ['submission', historyId],
     queryFn: () => getSubmissionDetail(historyId!),
@@ -66,6 +69,15 @@ export default function SubmissionsPage() {
     onError: () => message.error('Thao tác không hợp lệ ở trạng thái hiện tại hoặc thiếu quyền'),
   });
 
+  const extract = useMutation({
+    mutationFn: ({ id, tid }: { id: string; tid: string }) => extractSubmissionContent(id, tid),
+    onSuccess: () => {
+      message.success('Đã trích xuất nội dung từ biểu mẫu');
+      qc.invalidateQueries({ queryKey: ['submission', historyId] });
+    },
+    onError: () => message.error('Trích xuất thất bại (chỉ khi báo cáo ở trạng thái Nháp)'),
+  });
+
   return (
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Space>
@@ -92,7 +104,7 @@ export default function SubmissionsPage() {
                     {a.label}
                   </Button>
                 ))}
-                <Button size="small" type="link" onClick={() => setHistoryId(r.id)}>Lịch sử</Button>
+                <Button size="small" type="link" onClick={() => setHistoryId(r.id)}>Chi tiết</Button>
               </Space>
             ),
           },
@@ -114,7 +126,34 @@ export default function SubmissionsPage() {
         </Form>
       </Modal>
 
-      <Modal title="Lịch sử xử lý" open={!!historyId} footer={null} onCancel={() => setHistoryId(null)}>
+      <Modal title="Chi tiết báo cáo" open={!!historyId} footer={null} width={720}
+        onCancel={() => { setHistoryId(null); setTemplateId(undefined); }}>
+        {detail?.state === 1 && (
+          <Space style={{ marginBottom: 16 }} wrap>
+            <Select placeholder="Chọn biểu mẫu để trích xuất" style={{ width: 320 }}
+              value={templateId} onChange={setTemplateId} showSearch optionFilterProp="label"
+              options={templates?.items.map((t) => ({ value: t.id, label: `${t.name} (${t.code})` }))} />
+            <Button type="primary" loading={extract.isPending} disabled={!templateId}
+              onClick={() => historyId && templateId && extract.mutate({ id: historyId, tid: templateId })}>
+              Trích xuất nội dung
+            </Button>
+          </Space>
+        )}
+
+        {detail && detail.lines.length > 0 && (
+          <Table
+            size="small" rowKey="indicatorId" pagination={false} style={{ marginBottom: 16 }}
+            dataSource={detail.lines}
+            columns={[
+              { title: '#', dataIndex: 'rowOrder', width: 50 },
+              { title: 'Mã CT', dataIndex: 'indicatorCode', width: 110 },
+              { title: 'Chỉ tiêu', dataIndex: 'label' },
+              { title: 'Giá trị', width: 140,
+                render: (_, l) => (l.value ?? l.valueText ?? '—') },
+            ]}
+          />
+        )}
+
         <Timeline
           items={detail?.history.map((h) => ({
             children: (

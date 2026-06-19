@@ -53,9 +53,14 @@ internal static class SubmissionEndpoints
         // Single endpoint for every workflow transition; the command enforces the per-action permission.
         group.MapPost("/{id:guid}/actions", async (ISender sender, Guid id, ReportActionRequest body) =>
             ApiResults.Match(await sender.Send(new ReportActionCommand(id, body.Action, body.Note))));
+
+        // Auto-extract the report's content from a Catalog template + the unit's observations.
+        group.MapPost("/{id:guid}/extract", async (ISender sender, Guid id, ExtractContentRequest body) =>
+            ApiResults.Match(await sender.Send(new ExtractSubmissionContentCommand(id, body.TemplateId))));
     }
 }
 
 public sealed record CreateCampaignRequest(string Code, string Name, int PeriodYear, int? PeriodMonth, DateOnly? Deadline);
 public sealed record CreateSubmissionRequest(Guid CampaignId, Guid OrgUnitId, string Title);
 public sealed record ReportActionRequest(ReportAction Action, string? Note);
+public sealed record ExtractContentRequest(Guid TemplateId);

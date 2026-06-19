@@ -17,6 +17,7 @@ public sealed record CampaignDto(
 public interface ICampaignRepository
 {
     Task<bool> ExistsByCodeAsync(string code, CancellationToken ct);
+    Task<ReportingCampaign?> GetByIdAsync(Guid id, CancellationToken ct);
     Task<IReadOnlyList<ReportingCampaign>> ListAsync(Specification<ReportingCampaign> spec, CancellationToken ct);
     Task<int> CountAsync(Specification<ReportingCampaign> spec, CancellationToken ct);
     Task AddAsync(ReportingCampaign campaign, CancellationToken ct);

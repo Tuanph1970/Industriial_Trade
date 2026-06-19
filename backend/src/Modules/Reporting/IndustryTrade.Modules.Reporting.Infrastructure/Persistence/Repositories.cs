@@ -13,6 +13,9 @@ internal sealed class CampaignRepository(ReportingDbContext db) : ICampaignRepos
     public Task<bool> ExistsByCodeAsync(string code, CancellationToken ct) =>
         db.Campaigns.AnyAsync(x => x.Code == code, ct);
 
+    public Task<ReportingCampaign?> GetByIdAsync(Guid id, CancellationToken ct) =>
+        db.Campaigns.FirstOrDefaultAsync(x => x.Id == id, ct);
+
     public async Task<IReadOnlyList<ReportingCampaign>> ListAsync(Specification<ReportingCampaign> spec, CancellationToken ct) =>
         await SpecificationEvaluator.Apply(db.Campaigns.AsQueryable(), spec).ToListAsync(ct);
 

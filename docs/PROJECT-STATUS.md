@@ -92,7 +92,11 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   context (own `notifications` schema) that records a notification; exposed via API + a header bell
   (unread badge) and notifications page
 - ⬜ Per-user notification routing (currently a shared activity feed); RabbitMQ cross-service delivery
-- ⬜ Bind report content to Catalog templates / SectorData observations (auto-extract)
+- ✅ **Auto-extract report content**: a submission's content lines are assembled from a Catalog
+  **report template** + the unit's **observations** for the campaign's period (owned `ReportLine`
+  collection bound to the submission, editable only while Draft). Cross-context read via a read-only
+  Dapper **ACL** (`IReportContentSource`) — no compile-time coupling to Catalog/SectorData (mirrors
+  Analytics). `POST /submissions/{id}/extract`; content shown in the submission detail; UI picker on Draft
 
 ### Phase 5 — Analytics & Dashboards 🟡
 - ✅ `Analytics` context (read-only, no schema): CQRS read side via Dapper aggregate queries over the
@@ -143,9 +147,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **59/59 pass** — 57 unit (incl. import parsers + bulk-import handler, admin-unit +
-  classification domain, observation workflow) + **2 integration** (Testcontainers PostgreSQL: outbox
-  interceptor, data-scope spec)
+- `dotnet test` → **62/62 pass** — 60 unit (incl. import parsers + bulk-import handler, admin-unit +
+  classification domain, observation workflow, report auto-extract) + **2 integration** (Testcontainers
+  PostgreSQL: outbox interceptor, data-scope spec)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK

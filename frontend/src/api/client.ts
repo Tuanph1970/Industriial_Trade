@@ -409,7 +409,12 @@ export interface Submission {
 export interface Transition {
   fromState: ReportState; toState: ReportState; action: string; actorName: string | null; atUtc: string; note: string | null;
 }
-export interface SubmissionDetail extends Submission { history: Transition[]; }
+export interface ReportLine {
+  indicatorId: string; indicatorCode: string; label: string; rowOrder: number; value: number | null; valueText: string | null;
+}
+export interface SubmissionDetail extends Submission {
+  templateId: string | null; history: Transition[]; lines: ReportLine[];
+}
 
 export const getSubmissions = (p: PageParams & { state?: ReportState; campaignId?: string }) =>
   api.get<PagedResult<Submission>>('/api/reporting/submissions', {
@@ -418,6 +423,9 @@ export const getSubmissions = (p: PageParams & { state?: ReportState; campaignId
 
 export const getSubmissionDetail = (id: string) =>
   api.get<SubmissionDetail>(`/api/reporting/submissions/${id}`).then((r) => r.data);
+
+export const extractSubmissionContent = (id: string, templateId: string) =>
+  api.post(`/api/reporting/submissions/${id}/extract`, { templateId });
 
 export const createSubmission = (b: { campaignId: string; orgUnitId: string; title: string }) =>
   api.post<{ id: string }>('/api/reporting/submissions', b).then((r) => r.data);

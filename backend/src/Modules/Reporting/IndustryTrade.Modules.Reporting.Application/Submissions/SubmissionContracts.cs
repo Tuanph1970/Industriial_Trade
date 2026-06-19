@@ -13,14 +13,19 @@ public sealed record SubmissionDto(
 
 public sealed record TransitionDto(ReportState FromState, ReportState ToState, string Action, string? ActorName, DateTime AtUtc, string? Note);
 
+public sealed record ReportLineDto(Guid IndicatorId, string IndicatorCode, string Label, int RowOrder, decimal? Value, string? ValueText);
+
 public sealed record SubmissionDetailDto(
-    Guid Id, Guid CampaignId, Guid OrgUnitId, string Title, ReportState State,
-    DateTime CreatedAtUtc, IReadOnlyList<TransitionDto> History)
+    Guid Id, Guid CampaignId, Guid OrgUnitId, string Title, ReportState State, Guid? TemplateId,
+    DateTime CreatedAtUtc, IReadOnlyList<TransitionDto> History, IReadOnlyList<ReportLineDto> Lines)
 {
     public static SubmissionDetailDto FromEntity(ReportSubmission s) => new(
-        s.Id, s.CampaignId, s.OrgUnitId, s.Title, s.State, s.CreatedAtUtc,
+        s.Id, s.CampaignId, s.OrgUnitId, s.Title, s.State, s.TemplateId, s.CreatedAtUtc,
         s.History.OrderBy(h => h.AtUtc)
             .Select(h => new TransitionDto(h.FromState, h.ToState, h.Action, h.ActorName, h.AtUtc, h.Note))
+            .ToList(),
+        s.Lines.OrderBy(l => l.RowOrder)
+            .Select(l => new ReportLineDto(l.IndicatorId, l.IndicatorCode, l.Label, l.RowOrder, l.Value, l.ValueText))
             .ToList());
 }
 

@@ -46,5 +46,19 @@ internal sealed class SubmissionConfiguration : IEntityTypeConfiguration<ReportS
             h.HasIndex("SubmissionId");
         });
         builder.Navigation(x => x.History).UsePropertyAccessMode(PropertyAccessMode.Field);
+
+        // Auto-extracted report content (indicator lines + values), bound to a Catalog template.
+        builder.OwnsMany(x => x.Lines, l =>
+        {
+            l.ToTable("report_line");
+            l.WithOwner().HasForeignKey("SubmissionId");
+            l.Property<int>("Id");
+            l.HasKey("Id");
+            l.Property(line => line.IndicatorCode).HasMaxLength(50);
+            l.Property(line => line.Label).HasMaxLength(250).IsRequired();
+            l.Property(line => line.ValueText).HasColumnType("text");
+            l.HasIndex("SubmissionId");
+        });
+        builder.Navigation(x => x.Lines).UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

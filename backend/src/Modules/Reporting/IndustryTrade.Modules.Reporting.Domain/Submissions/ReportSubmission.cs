@@ -10,6 +10,7 @@ namespace IndustryTrade.Modules.Reporting.Domain.Submissions;
 public sealed class ReportSubmission : AggregateRoot<Guid>, IAuditable
 {
     private readonly List<ReportTransition> _history = new();
+    private readonly List<ReportLine> _lines = new();
 
     private ReportSubmission() { } // EF
 
@@ -25,7 +26,10 @@ public sealed class ReportSubmission : AggregateRoot<Guid>, IAuditable
     public Guid OrgUnitId { get; private set; }
     public string Title { get; private set; } = default!;
     public ReportState State { get; private set; }
+    /// <summary>The Catalog report template the content was extracted from, if any.</summary>
+    public Guid? TemplateId { get; private set; }
     public IReadOnlyCollection<ReportTransition> History => _history.AsReadOnly();
+    public IReadOnlyCollection<ReportLine> Lines => _lines.AsReadOnly();
 
     public DateTime CreatedAtUtc { get; private set; }
     public string? CreatedBy { get; private set; }
@@ -68,6 +72,18 @@ public sealed class ReportSubmission : AggregateRoot<Guid>, IAuditable
 
     public void Reopen(string? actor) =>
         Transition(ReportState.Draft, "Reopen", actor, null, ReportState.Rejected);
+
+    /// <summary>Replaces the report content (auto-extracted lines). Only while still editable (Draft).</summary>
+    public void SetContent(Guid templateId, IEnumerable<ReportLine> lines)
+    {
+        if (State != ReportState.Draft)
+            throw new BusinessRuleException("Report content can only be set while the report is in Draft.");
+
+        TemplateId = templateId;
+        _lines.Clear();
+        _lines.AddRange(lines);
+        ModifiedAtUtc = DateTime.UtcNow;
+    }
 
     private void Transition(ReportState to, string action, string? actor, string? note, params ReportState[] allowedFrom)
     {

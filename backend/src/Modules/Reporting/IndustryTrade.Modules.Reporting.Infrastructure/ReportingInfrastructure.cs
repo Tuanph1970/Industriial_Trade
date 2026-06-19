@@ -26,6 +26,7 @@ public static class ReportingInfrastructure
 
         services.AddScoped<ICampaignRepository, CampaignRepository>();
         services.AddScoped<ISubmissionRepository, SubmissionRepository>();
+        services.AddScoped<IReportContentSource, ReportContentSource>();
         return services;
     }
 }
