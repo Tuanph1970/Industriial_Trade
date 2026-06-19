@@ -11,6 +11,7 @@
     <ProjectReference Include="..\..\Modules\Analytics\IndustryTrade.Modules.Analytics.Api\IndustryTrade.Modules.Analytics.Api.csproj" />
     <ProjectReference Include="..\..\Modules\AuditSystem\IndustryTrade.Modules.AuditSystem.Api\IndustryTrade.Modules.AuditSystem.Api.csproj" />
     <ProjectReference Include="..\..\Modules\Integration\IndustryTrade.Modules.Integration.Api\IndustryTrade.Modules.Integration.Api.csproj" />
+    <ProjectReference Include="..\..\Modules\Files\IndustryTrade.Modules.Files.Api\IndustryTrade.Modules.Files.Api.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediatR" />

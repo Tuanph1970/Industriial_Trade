@@ -31,6 +31,7 @@ import ReportTemplatesPage from './pages/ReportTemplatesPage';
 import ReportingPeriodsPage from './pages/ReportingPeriodsPage';
 import AdministrativeUnitsPage from './pages/AdministrativeUnitsPage';
 import ClassificationsPage from './pages/ClassificationsPage';
+import FilesPage from './pages/FilesPage';
 
 const { Header, Sider, Content } = Layout;
 
@@ -59,6 +60,7 @@ const navItems = [
   { key: 'violations', icon: <WarningOutlined />, label: 'Hồ sơ vi phạm' },
   { key: 'campaigns', icon: <CalendarOutlined />, label: 'Kỳ báo cáo' },
   { key: 'submissions', icon: <AuditOutlined />, label: 'Báo cáo & phê duyệt' },
+  { key: 'files', icon: <FileSearchOutlined />, label: 'Tài liệu, tệp tin' },
   { key: 'audit', icon: <FileSearchOutlined />, label: 'Nhật ký quản trị' },
   { key: 'integration', icon: <ApiOutlined />, label: 'Liên thông & chia sẻ' },
 ];
@@ -150,6 +152,7 @@ export default function App() {
             <Route path="/campaigns" element={<CampaignsPage />} />
             <Route path="/submissions" element={<SubmissionsPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
+            <Route path="/files" element={<FilesPage />} />
             <Route path="/audit" element={<AuditLogsPage />} />
             <Route path="/integration" element={<IntegrationPage />} />
           </Routes>

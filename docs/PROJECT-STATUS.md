@@ -33,8 +33,8 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Integration tests** via Testcontainers (real PostgreSQL): outbox interceptor + data-scope spec
 - ✅ **Observability**: OpenTelemetry traces (ASP.NET Core + Npgsql, OTLP export when configured) +
   metrics at `/metrics` (Prometheus); health split (`/health/live`, `/health/ready` with a DB check)
-- ⬜ Seq/Loki log aggregation + Grafana dashboards (needs a collector); Redis/MinIO not yet used in
-  code; RabbitMQ delivery (Worker) is the future cross-service path
+- ✅ **MinIO** used in code (Files module, object storage); ⬜ Seq/Loki log aggregation + Grafana
+  dashboards (needs a collector); Redis not yet used; RabbitMQ delivery (Worker) is the future cross-service path
 
 ### Phase 1 — Identity, Org & Access ✅
 - ✅ Org-unit tree (multi-level, create/list/search) — path stored as text
@@ -107,6 +107,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   Registered→Published→Revoked lifecycle (Decree 47/2020); **connection-status** API (level-1 DB probe
   + level-2 published services) with history (retained ≥ 3 months)
 - ✅ **AuditSystem** + audit behavior (see Phase 1) — a Level-3 control
+- ✅ **Files & resources module** (UC-4): a `Files` context (`files` schema) storing file metadata,
+  bytes in **MinIO** via an `IObjectStorage` port (bucket auto-created); upload (multipart) / list /
+  download / delete endpoints, permission-gated (`files.read`/`files.manage`) + audited
 - ⬜ Real LGSP/NDXP connectors + XML/JSON data-exchange feeds (registry + ACL scaffolding in place)
 - ⬜ Security Level-3 hardening checklist + assessment; **legacy data migration** (Doc 04 §7); go-live
 
@@ -131,6 +134,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Map** (Leaflet/OpenStreetMap): toggleable layers for clusters, petrol stations, commerce locations
 - ✅ **Audit log** page (search by user/action, expandable payload)
 - ✅ **Integration** page (connection-status panel + data-sharing service registry with publish/revoke)
+- ✅ **Files** page (upload to MinIO, list, download, delete)
 - ✅ **Batch-import UI**: reusable `ImportModal` (drag-drop .xlsx/.xml/.csv → validated preview table
   → commit) wired into all 6 Sector pages, with downloadable CSV templates
 - ✅ **Read-only detail views**: reusable `DetailDrawer` (antd `Descriptions`) + a "Xem" action on
@@ -152,7 +156,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 All 7 designed bounded contexts are built; CI/CD, integration tests, and observability are in place.
 Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
-- Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
+- Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
 - UX polish: frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)

@@ -8,6 +8,7 @@ using IndustryTrade.Modules.Analytics.Api;
 using IndustryTrade.Modules.AuditSystem.Api;
 using IndustryTrade.Modules.IdentityAccess.Api;
 using IndustryTrade.Modules.IdentityAccess.Infrastructure.Persistence;
+using IndustryTrade.Modules.Files.Api;
 using IndustryTrade.Modules.Integration.Api;
 using IndustryTrade.Modules.Notifications.Api;
 using IndustryTrade.Modules.Reporting.Api;
@@ -39,6 +40,7 @@ IModule[] modules =
     new AnalyticsModule(),
     new AuditSystemModule(),
     new IntegrationModule(),
+    new FilesModule(),
 ];
 
 foreach (var module in modules)

@@ -425,6 +425,30 @@ export const createSubmission = (b: { campaignId: string; orgUnitId: string; tit
 export const submissionAction = (id: string, action: ReportActionValue, note?: string) =>
   api.post(`/api/reporting/submissions/${id}/actions`, { action, note });
 
+// ---- Files & resources (MinIO) -------------------------------------------
+export interface FileResource {
+  id: string; fileName: string; contentType: string; sizeBytes: number;
+  category: string | null; uploadedBy: string | null; uploadedAtUtc: string;
+}
+export const getFiles = (p: PageParams & { category?: string }) =>
+  api.get<PagedResult<FileResource>>('/api/files', {
+    params: { ...pageParams(p), category: p.category },
+  }).then((r) => r.data);
+export const uploadFile = (file: File, category?: string) => {
+  const fd = new FormData();
+  fd.append('file', file);
+  if (category) fd.append('category', category);
+  return api.post<{ id: string }>('/api/files', fd).then((r) => r.data);
+};
+export const downloadFile = async (id: string, fileName: string) => {
+  const res = await api.get(`/api/files/${id}/content`, { responseType: 'blob' });
+  const url = URL.createObjectURL(res.data as Blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName; a.click();
+  URL.revokeObjectURL(url);
+};
+export const deleteFile = (id: string) => api.delete(`/api/files/${id}`);
+
 // ---- Notifications -------------------------------------------------------
 export interface Notification {
   id: string; title: string; message: string; category: string; refId: string | null;

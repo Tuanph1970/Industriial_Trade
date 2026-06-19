@@ -40,6 +40,12 @@
     <Project Path="src/Modules/Integration/IndustryTrade.Modules.Integration.Domain/IndustryTrade.Modules.Integration.Domain.csproj" />
     <Project Path="src/Modules/Integration/IndustryTrade.Modules.Integration.Infrastructure/IndustryTrade.Modules.Integration.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Modules/Files/">
+    <Project Path="src/Modules/Files/IndustryTrade.Modules.Files.Api/IndustryTrade.Modules.Files.Api.csproj" />
+    <Project Path="src/Modules/Files/IndustryTrade.Modules.Files.Application/IndustryTrade.Modules.Files.Application.csproj" />
+    <Project Path="src/Modules/Files/IndustryTrade.Modules.Files.Domain/IndustryTrade.Modules.Files.Domain.csproj" />
+    <Project Path="src/Modules/Files/IndustryTrade.Modules.Files.Infrastructure/IndustryTrade.Modules.Files.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/src/Modules/Notifications/">
     <Project Path="src/Modules/Notifications/IndustryTrade.Modules.Notifications.Api/IndustryTrade.Modules.Notifications.Api.csproj" />
     <Project Path="src/Modules/Notifications/IndustryTrade.Modules.Notifications.Application/IndustryTrade.Modules.Notifications.Application.csproj" />

@@ -16,6 +16,9 @@
     <!-- Excel (.xlsx) parsing for batch import — ClosedXML is MIT-licensed. -->
     <PackageVersion Include="ClosedXML" Version="0.104.2" />
 
+    <!-- Object storage (MinIO / S3-compatible) for the file/resource module — Apache-2.0. -->
+    <PackageVersion Include="Minio" Version="7.0.0" />
+
     <!-- Mapping -->
     <PackageVersion Include="Mapster" Version="7.4.0" />
     <PackageVersion Include="Mapster.DependencyInjection" Version="1.0.1" />

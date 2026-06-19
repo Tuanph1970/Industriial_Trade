@@ -35,7 +35,8 @@ public static class IdentityAccessSeeder
                 "reporting.read", "reporting.campaigns.manage",
                 "reporting.submit", "reporting.review", "reporting.approve",
                 "notifications.read", "analytics.read", "audit.read",
-                "integration.read", "integration.manage"
+                "integration.read", "integration.manage",
+                "files.read", "files.manage"
             ]);
         db.Roles.AddRange(adminRole, specialistRole);
 
