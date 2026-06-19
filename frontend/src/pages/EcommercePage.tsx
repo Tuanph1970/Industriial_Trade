@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createEcommerce, deleteEcommerce, EcommerceParticipant, getEcommerce, getOrgUnits, updateEcommerce } from '../api/client';
+import {
+  bulkImportEcommerce, createEcommerce, deleteEcommerce, EcommerceParticipant, getEcommerce,
+  getOrgUnits, updateEcommerce,
+} from '../api/client';
+import ImportModal, { getCell } from '../components/ImportModal';
 
 export default function EcommercePage() {
   const { message } = AntApp.useApp();
@@ -10,6 +14,7 @@ export default function EcommercePage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<EcommerceParticipant | null>(null);
   const [form] = Form.useForm();
 
@@ -18,6 +23,26 @@ export default function EcommercePage() {
     queryFn: () => getEcommerce({ page, pageSize, keyword }),
   });
   const { data: units } = useQuery({ queryKey: ['org-units', 'all'], queryFn: () => getOrgUnits({ page: 1, pageSize: 100 }) });
+
+  const unitByCode = useMemo(() => new Map((units?.items ?? []).map((u) => [u.code, u.id])), [units]);
+  const mapRow = useCallback((cells: Record<string, string>) => {
+    const errors: string[] = [];
+    const taxCode = getCell(cells, 'Mã số thuế');
+    const businessName = getCell(cells, 'Tên doanh nghiệp');
+    const unitCode = getCell(cells, 'Mã đơn vị');
+    const orgUnitId = unitByCode.get(unitCode);
+    const platforms = getCell(cells, 'Sàn TMĐT').split(/[;,]/).map((p) => p.trim()).filter(Boolean);
+
+    if (!taxCode) errors.push('Thiếu mã số thuế');
+    if (!businessName) errors.push('Thiếu tên doanh nghiệp');
+    if (!orgUnitId) errors.push(`Không tìm thấy đơn vị '${unitCode}'`);
+
+    if (errors.length) return { errors };
+    return {
+      errors,
+      item: { taxCode, businessName, orgUnitId, platforms, mainGoods: getCell(cells, 'Mặt hàng chính') || null },
+    };
+  }, [unitByCode]);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['ecommerce'] });
   const create = useMutation({
@@ -57,6 +82,7 @@ export default function EcommercePage() {
         <Input.Search placeholder="Tìm theo MST / tên doanh nghiệp" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
         <Button type="primary" onClick={openCreate}>Thêm mới</Button>
+        <Button onClick={() => setImportOpen(true)}>Nhập Excel/XML</Button>
       </Space>
       <Table<EcommerceParticipant>
         rowKey="id" loading={isLoading} dataSource={data?.items}
@@ -92,6 +118,18 @@ export default function EcommercePage() {
           <Form.Item name="mainGoods" label="Mặt hàng chính"><Input maxLength={1000} /></Form.Item>
         </Form>
       </Modal>
+
+      <ImportModal
+        open={importOpen} onClose={() => setImportOpen(false)}
+        title="Nhập đơn vị thương mại điện tử" templateName="mau-tmdt"
+        columns={[
+          { header: 'Mã số thuế', required: true, example: '0123456789' },
+          { header: 'Tên doanh nghiệp', required: true, example: 'Công ty A' },
+          { header: 'Mã đơn vị', required: true, example: 'DV001' },
+          { header: 'Sàn TMĐT', example: 'Shopee; Lazada' },
+          { header: 'Mặt hàng chính', example: 'Đồ gia dụng' },
+        ]}
+        mapRow={mapRow} commit={bulkImportEcommerce} onDone={invalidate} />
     </Space>
   );
 }

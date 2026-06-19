@@ -68,7 +68,12 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   create/list endpoints; registered in host
 - ✅ Interactive **GIS map** (Leaflet): clusters, petrol stations, commerce locations as toggleable
   color-coded layers over OpenStreetMap tiles
-- ⬜ Excel/XML batch import; observation submit/approve workflow hooks
+- ✅ **Excel/XML/CSV batch import** for all 6 sector entities (observations + 5 rich entities):
+  server-side **Strategy** parsers (ClosedXML / `System.Xml` / CSV) behind a parser factory →
+  generic `/api/sector/import/parse` preview; typed per-entity **bulk-create** endpoints with
+  row-level validation, in-batch dedupe, and partial-success reporting. Client resolves codes→ids
+  (no cross-context coupling) via a reusable preview-then-commit `ImportModal` + CSV template download
+- ⬜ Observation submit/approve workflow hooks
 
 ### Phase 4 — Reporting & Workflow 🟡
 - ✅ `ReportingCampaign` (kỳ báo cáo) — create/list
@@ -120,12 +125,14 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Map** (Leaflet/OpenStreetMap): toggleable layers for clusters, petrol stations, commerce locations
 - ✅ **Audit log** page (search by user/action, expandable payload)
 - ✅ **Integration** page (connection-status panel + data-sharing service registry with publish/revoke)
-- ⬜ Detail (read-only) views; Excel/XML batch import UI
+- ✅ **Batch-import UI**: reusable `ImportModal` (drag-drop .xlsx/.xml/.csv → validated preview table
+  → commit) wired into all 6 Sector pages, with downloadable CSV templates
+- ⬜ Detail (read-only) views
 
 ## Verification (current)
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
-- `dotnet test` → **46/46 pass** — 44 unit + **2 integration** (Testcontainers PostgreSQL: outbox
-  interceptor, data-scope specification)
+- `dotnet test` → **51/51 pass** — 49 unit (incl. import parsers + bulk-import handler) + **2
+  integration** (Testcontainers PostgreSQL: outbox interceptor, data-scope specification)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK
@@ -138,7 +145,7 @@ Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds; file/resource module (MinIO, UC-4)
 - Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
-- UX polish: read-only detail views; Excel/XML batch import; frontend code-splitting (bundle ~2 MB)
+- UX polish: read-only detail views; frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)
 - Catalog: administrative-unit + classification catalogs (the remaining master-data lists)
 

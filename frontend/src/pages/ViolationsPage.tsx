@@ -1,11 +1,20 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { App as AntApp, Button, DatePicker, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import {
-  createViolation, deleteViolation, getOrgUnits, getViolations, updateViolation,
+  bulkImportViolations, createViolation, deleteViolation, getOrgUnits, getViolations, updateViolation,
   Violation, ViolationGroup, ViolationStatus,
 } from '../api/client';
+import ImportModal, { getCell, parseEnum } from '../components/ImportModal';
+
+const parseImportDate = (s: string): string | null => {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  const m = s.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
+  if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+  const d = dayjs(s);
+  return d.isValid() ? d.format('YYYY-MM-DD') : null;
+};
 
 const groupLabels: Record<ViolationGroup, string> = {
   1: 'Hàng cấm / giả / nhái / kém chất lượng', 2: 'Vệ sinh, an toàn thực phẩm',
@@ -22,6 +31,7 @@ export default function ViolationsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Violation | null>(null);
   const [form] = Form.useForm();
 
@@ -30,6 +40,33 @@ export default function ViolationsPage() {
     queryFn: () => getViolations({ page, pageSize, keyword }),
   });
   const { data: units } = useQuery({ queryKey: ['org-units', 'all'], queryFn: () => getOrgUnits({ page: 1, pageSize: 100 }) });
+
+  const unitByCode = useMemo(() => new Map((units?.items ?? []).map((u) => [u.code, u.id])), [units]);
+  const mapRow = useCallback((cells: Record<string, string>) => {
+    const errors: string[] = [];
+    const caseNo = getCell(cells, 'Số hồ sơ');
+    const businessName = getCell(cells, 'Cơ sở kinh doanh');
+    const unitCode = getCell(cells, 'Mã đơn vị');
+    const orgUnitId = unitByCode.get(unitCode);
+    const groupRaw = getCell(cells, 'Nhóm');
+    const group = parseEnum(groupRaw, groupLabels);
+    const dateRaw = getCell(cells, 'Ngày kiểm tra');
+    const inspectedOn = dateRaw ? parseImportDate(dateRaw) : null;
+    const violationContent = getCell(cells, 'Nội dung vi phạm');
+
+    if (!caseNo) errors.push('Thiếu số hồ sơ');
+    if (group === undefined) errors.push(`Nhóm không hợp lệ '${groupRaw}'`);
+    if (!orgUnitId) errors.push(`Không tìm thấy đơn vị '${unitCode}'`);
+    if (!businessName) errors.push('Thiếu cơ sở kinh doanh');
+    if (!inspectedOn) errors.push('Ngày kiểm tra không hợp lệ');
+    if (!violationContent) errors.push('Thiếu nội dung vi phạm');
+
+    if (errors.length) return { errors };
+    return {
+      errors,
+      item: { caseNo, group: group as ViolationGroup, orgUnitId, businessName, inspectedOn, violationContent },
+    };
+  }, [unitByCode]);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['violations'] });
   const create = useMutation({
@@ -73,6 +110,7 @@ export default function ViolationsPage() {
         <Input.Search placeholder="Tìm theo số hồ sơ / tên cơ sở" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
         <Button type="primary" onClick={openCreate}>Thêm hồ sơ</Button>
+        <Button onClick={() => setImportOpen(true)}>Nhập Excel/XML</Button>
       </Space>
 
       <Table<Violation>
@@ -136,6 +174,20 @@ export default function ViolationsPage() {
           )}
         </Form>
       </Modal>
+
+      <ImportModal
+        open={importOpen} onClose={() => setImportOpen(false)}
+        title="Nhập hồ sơ vi phạm" templateName="mau-ho-so-vi-pham"
+        columns={[
+          { header: 'Số hồ sơ', required: true, example: 'VP001' },
+          { header: 'Nhóm', required: true, example: 'Vệ sinh, an toàn thực phẩm' },
+          { header: 'Mã đơn vị', required: true, example: 'DV001' },
+          { header: 'Cơ sở kinh doanh', required: true, example: 'Hộ KD A' },
+          { header: 'Ngày kiểm tra', required: true, example: '2026-06-01' },
+          { header: 'Nội dung vi phạm', required: true, example: 'Không niêm yết giá' },
+        ]}
+        mapRow={mapRow} commit={bulkImportViolations}
+        onDone={() => qc.invalidateQueries({ queryKey: ['violations'] })} />
     </Space>
   );
 }

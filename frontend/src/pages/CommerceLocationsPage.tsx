@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { App as AntApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { CommerceLocation, CommerceLocationType, createCommerceLocation, deleteCommerceLocation, getCommerceLocations, getOrgUnits, updateCommerceLocation } from '../api/client';
+import {
+  bulkImportCommerceLocations, CommerceLocation, CommerceLocationType, createCommerceLocation,
+  deleteCommerceLocation, getCommerceLocations, getOrgUnits, updateCommerceLocation,
+} from '../api/client';
+import ImportModal, { getCell, parseEnum } from '../components/ImportModal';
 
 const typeLabels: Record<CommerceLocationType, string> = {
   1: 'Chợ', 2: 'Siêu thị', 3: 'Trung tâm thương mại', 4: 'Cửa hàng tiện lợi',
@@ -15,6 +19,7 @@ export default function CommerceLocationsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<CommerceLocation | null>(null);
   const [form] = Form.useForm();
 
@@ -23,6 +28,34 @@ export default function CommerceLocationsPage() {
     queryFn: () => getCommerceLocations({ page, pageSize, keyword }),
   });
   const { data: units } = useQuery({ queryKey: ['org-units', 'all'], queryFn: () => getOrgUnits({ page: 1, pageSize: 100 }) });
+
+  const unitByCode = useMemo(() => new Map((units?.items ?? []).map((u) => [u.code, u.id])), [units]);
+  const mapRow = useCallback((cells: Record<string, string>) => {
+    const errors: string[] = [];
+    const code = getCell(cells, 'Mã');
+    const name = getCell(cells, 'Tên');
+    const unitCode = getCell(cells, 'Mã đơn vị');
+    const orgUnitId = unitByCode.get(unitCode);
+    const typeRaw = getCell(cells, 'Loại');
+    const type = parseEnum(typeRaw, typeLabels);
+    const latRaw = getCell(cells, 'Vĩ độ');
+    const lngRaw = getCell(cells, 'Kinh độ');
+
+    if (!code) errors.push('Thiếu mã');
+    if (!name) errors.push('Thiếu tên');
+    if (type === undefined) errors.push(`Loại không hợp lệ '${typeRaw}'`);
+    if (!orgUnitId) errors.push(`Không tìm thấy đơn vị '${unitCode}'`);
+
+    if (errors.length) return { errors };
+    return {
+      errors,
+      item: {
+        code, name, type: type as CommerceLocationType, orgUnitId,
+        address: getCell(cells, 'Địa chỉ') || null,
+        latitude: latRaw ? Number(latRaw) : null, longitude: lngRaw ? Number(lngRaw) : null,
+      },
+    };
+  }, [unitByCode]);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['commerce'] });
   const create = useMutation({
@@ -62,6 +95,7 @@ export default function CommerceLocationsPage() {
         <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
         <Button type="primary" onClick={openCreate}>Thêm mới</Button>
+        <Button onClick={() => setImportOpen(true)}>Nhập Excel/XML</Button>
       </Space>
       <Table<CommerceLocation>
         rowKey="id" loading={isLoading} dataSource={data?.items}
@@ -101,6 +135,20 @@ export default function CommerceLocationsPage() {
           </Space>
         </Form>
       </Modal>
+
+      <ImportModal
+        open={importOpen} onClose={() => setImportOpen(false)}
+        title="Nhập địa điểm thương mại" templateName="mau-dia-diem-thuong-mai"
+        columns={[
+          { header: 'Mã', required: true, example: 'TM001' },
+          { header: 'Tên', required: true, example: 'Chợ trung tâm' },
+          { header: 'Loại', required: true, example: 'Chợ' },
+          { header: 'Mã đơn vị', required: true, example: 'DV001' },
+          { header: 'Địa chỉ', example: 'Số 1, đường A' },
+          { header: 'Vĩ độ', example: '20.65' },
+          { header: 'Kinh độ', example: '106.05' },
+        ]}
+        mapRow={mapRow} commit={bulkImportCommerceLocations} onDone={invalidate} />
     </Space>
   );
 }

@@ -1,7 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { App as AntApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createPetrolStation, deletePetrolStation, getOrgUnits, getPetrolStations, PetrolStation, StationStatus, updatePetrolStation } from '../api/client';
+import {
+  bulkImportPetrolStations, createPetrolStation, deletePetrolStation, getOrgUnits, getPetrolStations,
+  PetrolStation, StationStatus, updatePetrolStation,
+} from '../api/client';
+import ImportModal, { getCell, parseEnum } from '../components/ImportModal';
 
 const statusLabels: Record<StationStatus, string> = { 1: 'Đang hoạt động', 2: 'Tạm dừng', 3: 'Đã đóng' };
 const statusColors: Record<StationStatus, string> = { 1: 'green', 2: 'gold', 3: 'default' };
@@ -13,6 +17,7 @@ export default function PetrolStationsPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<PetrolStation | null>(null);
   const [form] = Form.useForm();
 
@@ -21,6 +26,36 @@ export default function PetrolStationsPage() {
     queryFn: () => getPetrolStations({ page, pageSize, keyword }),
   });
   const { data: units } = useQuery({ queryKey: ['org-units', 'all'], queryFn: () => getOrgUnits({ page: 1, pageSize: 100 }) });
+
+  const unitByCode = useMemo(() => new Map((units?.items ?? []).map((u) => [u.code, u.id])), [units]);
+  const mapRow = useCallback((cells: Record<string, string>) => {
+    const errors: string[] = [];
+    const code = getCell(cells, 'Mã');
+    const name = getCell(cells, 'Tên');
+    const unitCode = getCell(cells, 'Mã đơn vị');
+    const orgUnitId = unitByCode.get(unitCode);
+    const latRaw = getCell(cells, 'Vĩ độ');
+    const lngRaw = getCell(cells, 'Kinh độ');
+    const statusRaw = getCell(cells, 'Trạng thái');
+    const status = statusRaw ? parseEnum(statusRaw, statusLabels) : 1;
+
+    if (!code) errors.push('Thiếu mã');
+    if (!name) errors.push('Thiếu tên');
+    if (!orgUnitId) errors.push(`Không tìm thấy đơn vị '${unitCode}'`);
+    if (status === undefined) errors.push(`Trạng thái không hợp lệ '${statusRaw}'`);
+
+    if (errors.length) return { errors };
+    return {
+      errors,
+      item: {
+        code, name, orgUnitId,
+        licenseNo: getCell(cells, 'Số giấy phép') || null,
+        address: getCell(cells, 'Địa chỉ') || null,
+        latitude: latRaw ? Number(latRaw) : null, longitude: lngRaw ? Number(lngRaw) : null,
+        status: status as StationStatus,
+      },
+    };
+  }, [unitByCode]);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['petrol'] });
   const create = useMutation({
@@ -60,6 +95,7 @@ export default function PetrolStationsPage() {
         <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
         <Button type="primary" onClick={openCreate}>Thêm mới</Button>
+        <Button onClick={() => setImportOpen(true)}>Nhập Excel/XML</Button>
       </Space>
       <Table<PetrolStation>
         rowKey="id" loading={isLoading} dataSource={data?.items}
@@ -101,6 +137,21 @@ export default function PetrolStationsPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      <ImportModal
+        open={importOpen} onClose={() => setImportOpen(false)}
+        title="Nhập cửa hàng xăng dầu" templateName="mau-cua-hang-xang-dau"
+        columns={[
+          { header: 'Mã', required: true, example: 'XD001' },
+          { header: 'Tên', required: true, example: 'CHXD số 1' },
+          { header: 'Mã đơn vị', required: true, example: 'DV001' },
+          { header: 'Số giấy phép', example: 'GP-123' },
+          { header: 'Địa chỉ', example: 'Số 1, đường A' },
+          { header: 'Vĩ độ', example: '20.65' },
+          { header: 'Kinh độ', example: '106.05' },
+          { header: 'Trạng thái', example: 'Đang hoạt động' },
+        ]}
+        mapRow={mapRow} commit={bulkImportPetrolStations} onDone={invalidate} />
     </Space>
   );
 }

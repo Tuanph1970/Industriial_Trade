@@ -319,6 +319,33 @@ export const deleteCommerceLocation = (id: string) => api.delete(`/api/sector/co
 export const deleteEcommerce = (id: string) => api.delete(`/api/sector/ecommerce-participants/${id}`);
 export const deleteViolation = (id: string) => api.delete(`/api/sector/violations/${id}`);
 
+// ---- Batch import (Excel / XML / CSV) ------------------------------------
+export interface ImportParseResult {
+  columns: string[];
+  rows: { rowNumber: number; cells: Record<string, string> }[];
+}
+export interface BulkImportResult {
+  created: number;
+  failed: number;
+  errors: { index: number; message: string }[];
+}
+
+export const parseImportFile = (file: File) => {
+  const fd = new FormData();
+  fd.append('file', file);
+  return api.post<ImportParseResult>('/api/sector/import/parse', fd).then((r) => r.data);
+};
+
+const bulk = (path: string) => (items: unknown[]) =>
+  api.post<BulkImportResult>(path, { items }).then((r) => r.data);
+
+export const bulkImportObservations = bulk('/api/sector/observations/import');
+export const bulkImportClusters = bulk('/api/sector/clusters/import');
+export const bulkImportPetrolStations = bulk('/api/sector/petrol-stations/import');
+export const bulkImportCommerceLocations = bulk('/api/sector/commerce-locations/import');
+export const bulkImportEcommerce = bulk('/api/sector/ecommerce-participants/import');
+export const bulkImportViolations = bulk('/api/sector/violations/import');
+
 // ---- Reporting & Workflow ------------------------------------------------
 export type CampaignStatus = 1 | 2; // Open | Closed
 

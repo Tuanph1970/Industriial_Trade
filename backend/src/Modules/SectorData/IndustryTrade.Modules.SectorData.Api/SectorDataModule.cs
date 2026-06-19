@@ -34,6 +34,7 @@ public sealed class SectorDataModule : IModule
         endpoints.MapPetrolStationEndpoints();
         endpoints.MapCommerceLocationEndpoints();
         endpoints.MapEcommerceEndpoints();
+        endpoints.MapSectorImportEndpoints();
     }
 
     public async Task ApplyMigrationsAsync(IServiceProvider services)

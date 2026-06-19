@@ -3,7 +3,9 @@ using IndustryTrade.Modules.SectorData.Application.CommerceLocations;
 using IndustryTrade.Modules.SectorData.Application.Ecommerce;
 using IndustryTrade.Modules.SectorData.Application.Observations;
 using IndustryTrade.Modules.SectorData.Application.PetroleumStations;
+using IndustryTrade.Modules.SectorData.Application.Import;
 using IndustryTrade.Modules.SectorData.Application.Violations;
+using IndustryTrade.Modules.SectorData.Infrastructure.Import;
 using IndustryTrade.Modules.SectorData.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -32,6 +34,12 @@ public static class SectorDataInfrastructure
         services.AddScoped<IPetrolStationRepository, PetrolStationRepository>();
         services.AddScoped<ICommerceLocationRepository, CommerceLocationRepository>();
         services.AddScoped<IEcommerceParticipantRepository, EcommerceParticipantRepository>();
+
+        // Batch-import file parsers (Strategy set, selected by the factory on file extension).
+        services.AddSingleton<ITabularFileParser, ExcelFileParser>();
+        services.AddSingleton<ITabularFileParser, CsvFileParser>();
+        services.AddSingleton<ITabularFileParser, XmlFileParser>();
+        services.AddSingleton<ITabularFileParserFactory, TabularFileParserFactory>();
         return services;
     }
 }

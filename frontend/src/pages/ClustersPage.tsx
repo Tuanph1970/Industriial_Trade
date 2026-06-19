@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { App as AntApp, Button, Form, Input, InputNumber, Modal, Popconfirm, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Cluster, ClusterStatus, createCluster, deleteCluster, getClusters, getOrgUnits, updateCluster } from '../api/client';
+import {
+  bulkImportClusters, Cluster, ClusterStatus, createCluster, deleteCluster, getClusters, getOrgUnits, updateCluster,
+} from '../api/client';
+import ImportModal, { getCell, parseEnum } from '../components/ImportModal';
 
 const statusLabels: Record<ClusterStatus, string> = { 1: 'Quy hoạch', 2: 'Đang hoạt động', 3: 'Tạm dừng' };
 const statusColors: Record<ClusterStatus, string> = { 1: 'blue', 2: 'green', 3: 'default' };
@@ -13,6 +16,7 @@ export default function ClustersPage() {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [editing, setEditing] = useState<Cluster | null>(null);
   const [form] = Form.useForm();
 
@@ -21,6 +25,36 @@ export default function ClustersPage() {
     queryFn: () => getClusters({ page, pageSize, keyword }),
   });
   const { data: units } = useQuery({ queryKey: ['org-units', 'all'], queryFn: () => getOrgUnits({ page: 1, pageSize: 100 }) });
+
+  const unitByCode = useMemo(() => new Map((units?.items ?? []).map((u) => [u.code, u.id])), [units]);
+  const mapRow = useCallback((cells: Record<string, string>) => {
+    const errors: string[] = [];
+    const code = getCell(cells, 'Mã');
+    const name = getCell(cells, 'Tên');
+    const unitCode = getCell(cells, 'Mã đơn vị');
+    const orgUnitId = unitByCode.get(unitCode);
+    const areaRaw = getCell(cells, 'Diện tích (ha)');
+    const latRaw = getCell(cells, 'Vĩ độ');
+    const lngRaw = getCell(cells, 'Kinh độ');
+    const statusRaw = getCell(cells, 'Trạng thái');
+    const status = statusRaw ? parseEnum(statusRaw, statusLabels) : 2;
+
+    if (!code) errors.push('Thiếu mã');
+    if (!name) errors.push('Thiếu tên');
+    if (!orgUnitId) errors.push(`Không tìm thấy đơn vị '${unitCode}'`);
+    if (status === undefined) errors.push(`Trạng thái không hợp lệ '${statusRaw}'`);
+    if (areaRaw && Number.isNaN(Number(areaRaw))) errors.push('Diện tích không phải số');
+
+    if (errors.length) return { errors };
+    return {
+      errors,
+      item: {
+        code, name, orgUnitId, areaHa: areaRaw ? Number(areaRaw) : null,
+        latitude: latRaw ? Number(latRaw) : null, longitude: lngRaw ? Number(lngRaw) : null,
+        status: status as ClusterStatus,
+      },
+    };
+  }, [unitByCode]);
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['clusters'] });
   const create = useMutation({
@@ -60,6 +94,7 @@ export default function ClustersPage() {
         <Input.Search placeholder="Tìm theo mã hoặc tên" allowClear style={{ width: 320 }}
           onSearch={(v) => { setKeyword(v); setPage(1); }} />
         <Button type="primary" onClick={openCreate}>Thêm mới</Button>
+        <Button onClick={() => setImportOpen(true)}>Nhập Excel/XML</Button>
       </Space>
 
       <Table<Cluster>
@@ -109,6 +144,20 @@ export default function ClustersPage() {
           </Form.Item>
         </Form>
       </Modal>
+
+      <ImportModal
+        open={importOpen} onClose={() => setImportOpen(false)}
+        title="Nhập cụm công nghiệp" templateName="mau-cum-cong-nghiep"
+        columns={[
+          { header: 'Mã', required: true, example: 'CCN001' },
+          { header: 'Tên', required: true, example: 'Cụm CN A' },
+          { header: 'Mã đơn vị', required: true, example: 'DV001' },
+          { header: 'Diện tích (ha)', example: '25.5' },
+          { header: 'Vĩ độ', example: '20.65' },
+          { header: 'Kinh độ', example: '106.05' },
+          { header: 'Trạng thái', example: 'Đang hoạt động' },
+        ]}
+        mapRow={mapRow} commit={bulkImportClusters} onDone={invalidate} />
     </Space>
   );
 }

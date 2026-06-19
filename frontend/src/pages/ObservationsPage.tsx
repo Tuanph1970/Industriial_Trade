@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { App as AntApp, Button, Form, Input, InputNumber, Modal, Select, Space, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
-  createObservation, getIndicators, getObservations, getOrgUnits, Observation, ObservationStatus,
+  bulkImportObservations, createObservation, getIndicators, getObservations, getOrgUnits,
+  Observation, ObservationStatus,
 } from '../api/client';
+import ImportModal, { getCell } from '../components/ImportModal';
 
 const statusLabels: Record<ObservationStatus, string> = { 1: 'Nháp', 2: 'Đã gửi', 3: 'Đã duyệt' };
 const statusColors: Record<ObservationStatus, string> = { 1: 'default', 2: 'gold', 3: 'green' };
@@ -14,6 +16,7 @@ export default function ObservationsPage() {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [open, setOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
   const [form] = Form.useForm();
 
   const { data, isLoading } = useQuery({
@@ -25,6 +28,38 @@ export default function ObservationsPage() {
 
   const indicatorName = (id: string) => indicators?.items.find((i) => i.id === id)?.name ?? id;
   const unitName = (id: string) => units?.items.find((u) => u.id === id)?.name ?? id;
+
+  const indicatorByCode = useMemo(() => new Map((indicators?.items ?? []).map((i) => [i.code, i.id])), [indicators]);
+  const unitByCode = useMemo(() => new Map((units?.items ?? []).map((u) => [u.code, u.id])), [units]);
+
+  const mapRow = useCallback((cells: Record<string, string>) => {
+    const errors: string[] = [];
+    const indicatorCode = getCell(cells, 'Mã chỉ tiêu');
+    const unitCode = getCell(cells, 'Mã đơn vị');
+    const indicatorId = indicatorByCode.get(indicatorCode);
+    const orgUnitId = unitByCode.get(unitCode);
+    const year = Number(getCell(cells, 'Năm'));
+    const monthRaw = getCell(cells, 'Tháng');
+    const valueRaw = getCell(cells, 'Giá trị');
+
+    if (!indicatorId) errors.push(`Không tìm thấy chỉ tiêu '${indicatorCode}'`);
+    if (!orgUnitId) errors.push(`Không tìm thấy đơn vị '${unitCode}'`);
+    if (!year || year < 2000 || year > 2100) errors.push('Năm không hợp lệ');
+    if (monthRaw && (Number(monthRaw) < 1 || Number(monthRaw) > 12)) errors.push('Tháng không hợp lệ');
+    if (valueRaw && Number.isNaN(Number(valueRaw))) errors.push('Giá trị không phải số');
+
+    if (errors.length) return { errors };
+    return {
+      errors,
+      item: {
+        indicatorId, orgUnitId, periodYear: year,
+        periodMonth: monthRaw ? Number(monthRaw) : null,
+        value: valueRaw ? Number(valueRaw) : null,
+        valueText: getCell(cells, 'Giá trị (văn bản)') || null,
+        source: getCell(cells, 'Nguồn') || null,
+      },
+    };
+  }, [indicatorByCode, unitByCode]);
 
   const create = useMutation({
     mutationFn: createObservation,
@@ -41,6 +76,7 @@ export default function ObservationsPage() {
     <Space direction="vertical" style={{ width: '100%' }} size="middle">
       <Space>
         <Button type="primary" onClick={() => setOpen(true)}>Thêm số liệu</Button>
+        <Button onClick={() => setImportOpen(true)}>Nhập Excel/XML</Button>
       </Space>
 
       <Table<Observation>
@@ -85,6 +121,21 @@ export default function ObservationsPage() {
           <Form.Item name="source" label="Nguồn"><Input maxLength={250} /></Form.Item>
         </Form>
       </Modal>
+
+      <ImportModal
+        open={importOpen} onClose={() => setImportOpen(false)}
+        title="Nhập số liệu chỉ tiêu" templateName="mau-so-lieu-chi-tieu"
+        columns={[
+          { header: 'Mã chỉ tiêu', required: true, example: 'CT001' },
+          { header: 'Mã đơn vị', required: true, example: 'DV001' },
+          { header: 'Năm', required: true, example: '2026' },
+          { header: 'Tháng', example: '6' },
+          { header: 'Giá trị', example: '1234.5' },
+          { header: 'Giá trị (văn bản)' },
+          { header: 'Nguồn', example: 'Báo cáo quý' },
+        ]}
+        mapRow={mapRow} commit={bulkImportObservations}
+        onDone={() => qc.invalidateQueries({ queryKey: ['observations'] })} />
     </Space>
   );
 }
