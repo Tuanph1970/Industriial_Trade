@@ -23,5 +23,5 @@ public sealed class ReportTransition
 }
 
 /// <summary>Raised on every state change; the saga/outbox turns these into notifications.</summary>
-public sealed record ReportStateChanged(Guid SubmissionId, ReportState From, ReportState To, string Action)
+public sealed record ReportStateChanged(Guid SubmissionId, ReportState From, ReportState To, string Action, Guid OrgUnitId)
     : IndustryTrade.BuildingBlocks.Domain.DomainEvent;

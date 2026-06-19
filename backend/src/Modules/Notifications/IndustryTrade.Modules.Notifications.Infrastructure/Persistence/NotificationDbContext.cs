@@ -24,12 +24,12 @@ internal sealed class NotificationConfiguration : IEntityTypeConfiguration<Notif
     {
         builder.ToTable("notification");
         builder.HasKey(x => x.Id);
-        builder.Property(x => x.Recipient).HasMaxLength(100);
         builder.Property(x => x.Title).HasMaxLength(250).IsRequired();
         builder.Property(x => x.Message).HasColumnType("text").IsRequired();
         builder.Property(x => x.Category).HasMaxLength(50).IsRequired();
         builder.Property(x => x.RefId).HasMaxLength(100);
-        builder.HasIndex(x => new { x.Recipient, x.IsRead });
+        builder.Property(x => x.TargetPermission).HasMaxLength(100);
+        builder.HasIndex(x => new { x.TargetPermission, x.IsRead });
         builder.HasIndex(x => x.CreatedAtUtc);
         builder.Ignore(x => x.DomainEvents);
     }

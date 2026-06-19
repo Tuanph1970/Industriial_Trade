@@ -91,7 +91,11 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Notification saga**: `ReportStateChanged` flows through the outbox to a **Notifications**
   context (own `notifications` schema) that records a notification; exposed via API + a header bell
   (unread badge) and notifications page
-- ⬜ Per-user notification routing (currently a shared activity feed); RabbitMQ cross-service delivery
+- ✅ **Audience-routed notifications** (no longer a shared feed): each `ReportStateChanged` is
+  addressed by **target permission + org unit** (submit→reviewers, forward→approvers, others→submitter);
+  the bell/list/mark-read filter to the caller's audience (broadcasts + permissions they hold within
+  their data-scope) using their own claims — no cross-context user lookup
+- ⬜ RabbitMQ cross-service delivery (Worker)
 - ✅ **Auto-extract report content**: a submission's content lines are assembled from a Catalog
   **report template** + the unit's **observations** for the campaign's period (owned `ReportLine`
   collection bound to the submission, editable only while Draft). Cross-context read via a read-only
@@ -163,7 +167,7 @@ All 7 designed bounded contexts are built; CI/CD, integration tests, and observa
 Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds
-- Log aggregation (Seq/Loki) + Grafana dashboards; per-user notification routing
+- Log aggregation (Seq/Loki) + Grafana dashboards
 - UX polish: frontend code-splitting (bundle ~2 MB)
   (internal tile server for the GIS map in closed networks)
 

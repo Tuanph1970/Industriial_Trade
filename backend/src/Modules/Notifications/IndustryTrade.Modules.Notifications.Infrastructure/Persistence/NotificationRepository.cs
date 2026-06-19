@@ -17,9 +17,6 @@ internal sealed class NotificationRepository(NotificationDbContext db) : INotifi
     public Task<int> CountAsync(Specification<Notification> spec, CancellationToken ct) =>
         SpecificationEvaluator.Apply(db.Notifications.AsQueryable(), spec).CountAsync(ct);
 
-    public async Task<IReadOnlyList<Notification>> ListUnreadAsync(CancellationToken ct) =>
-        await db.Notifications.Where(x => !x.IsRead).ToListAsync(ct);
-
     public async Task AddAsync(Notification notification, CancellationToken ct) => await db.Notifications.AddAsync(notification, ct);
     public Task<int> SaveChangesAsync(CancellationToken ct) => db.SaveChangesAsync(ct);
 }

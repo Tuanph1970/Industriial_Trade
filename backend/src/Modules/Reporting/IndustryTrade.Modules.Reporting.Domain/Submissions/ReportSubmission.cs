@@ -96,7 +96,7 @@ public sealed class ReportSubmission : AggregateRoot<Guid>, IAuditable
         ModifiedAtUtc = DateTime.UtcNow;
         ModifiedBy = actor;
         Record(from, to, action, actor, note);
-        Raise(new ReportStateChanged(Id, from, to, action));
+        Raise(new ReportStateChanged(Id, from, to, action, OrgUnitId));
     }
 
     private void Record(ReportState from, ReportState to, string action, string? actor, string? note) =>

@@ -20,9 +20,20 @@ public sealed class ReportStateChangedNotificationHandler(INotificationRepositor
             title: $"Báo cáo: {e.Action}",
             message: $"Báo cáo {e.SubmissionId} chuyển trạng thái {e.From} → {e.To}.",
             category: "reporting",
-            refId: e.SubmissionId.ToString());
+            refId: e.SubmissionId.ToString(),
+            targetPermission: TargetFor(e.Action),
+            orgUnitId: e.OrgUnitId);
 
         await repository.AddAsync(notification, ct);
         await repository.SaveChangesAsync(ct);
     }
+
+    // Route each transition to the role that should act/be informed next, within the unit's data-scope.
+    // Permission codes mirror Reporting's (kept as literals to avoid coupling to that module's Application).
+    private static string TargetFor(string action) => action switch
+    {
+        "Submit" => "reporting.review",              // specialist reviews next
+        "ForwardForApproval" => "reporting.approve", // division leader approves next
+        _ => "reporting.submit",                     // back to / informs the commune submitter
+    };
 }
