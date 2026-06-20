@@ -1,0 +1,38 @@
+# HTTPS-over-Cloudflare-Tunnel overlay.
+#
+#   docker compose -f docker-compose.yml -f docker-compose.tunnel.yml up -d --build
+#   (or just run ./tunnel.sh, which wires this up automatically)
+#
+# Everything becomes single-origin behind one quick tunnel: the SPA, the /api proxy, and
+# Keycloak (under /auth) are all served from the frontend's port 8081. Set PUBLIC_ORIGIN in
+# .env to the https tunnel URL (e.g. https://abc-def.trycloudflare.com) BEFORE building — the
+# SPA bakes the OIDC authority at build time.
+services:
+  keycloak:
+    environment:
+      # Serve Keycloak under /auth so nginx can multiplex it onto the frontend origin.
+      KC_HTTP_RELATIVE_PATH: /auth
+      # Public, browser-facing base URL (https via the tunnel). Relative path adds /auth.
+      KC_HOSTNAME: ${PUBLIC_ORIGIN:-http://localhost:8081}
+      KC_HOSTNAME_STRICT: "false"
+      # Trust the X-Forwarded-* headers nginx/cloudflared set, so issued URLs are https.
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_ENABLED: "true"
+
+  api:
+    environment:
+      # Token issuer = public https Keycloak URL under /auth; metadata + admin REST stay internal.
+      Cors__Origins: "${PUBLIC_ORIGIN:-http://localhost:8081}"
+      Keycloak__Authority: "${PUBLIC_ORIGIN:-http://localhost:8081}/auth/realms/industry-trade"
+      Keycloak__MetadataAddress: "http://keycloak:8080/auth/realms/industry-trade/.well-known/openid-configuration"
+      Keycloak__AdminBaseUrl: "http://keycloak:8080/auth"
+      Keycloak__RequireHttpsMetadata: "false"
+
+  frontend:
+    build:
+      args:
+        # Browser OIDC client points at the same-origin /auth path (baked at build time).
+        VITE_KEYCLOAK_AUTHORITY: "${PUBLIC_ORIGIN:-http://localhost:8081}/auth/realms/industry-trade"
+    volumes:
+      # Swap in the nginx config that also reverse-proxies /auth → keycloak.
+      - ./nginx/frontend-tunnel.conf:/etc/nginx/conf.d/default.conf:ro
