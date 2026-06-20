@@ -35,6 +35,9 @@ public static class IdentityAccessInfrastructure
         // The real resolver, wrapped by a distributed-cache decorator (Redis) for the per-request claims transform.
         services.AddScoped<UserAuthorizationProvider>();
         services.AddScoped<IUserAuthorizationProvider, CachingUserAuthorizationProvider>();
+
+        services.AddHttpClient();
+        services.AddScoped<IIdentityProviderAdmin, KeycloakAdminClient>();
         return services;
     }
 }

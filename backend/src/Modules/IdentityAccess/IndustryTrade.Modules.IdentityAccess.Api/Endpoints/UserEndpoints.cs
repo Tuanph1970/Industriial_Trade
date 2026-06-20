@@ -31,6 +31,10 @@ internal static class UserEndpoints
 
         group.MapDelete("/{id:guid}", async (ISender sender, Guid id) =>
             ApiResults.Match(await sender.Send(new DeleteUserCommand(id))));
+
+        group.MapPost("/{id:guid}/reset-password", async (ISender sender, Guid id) =>
+            ApiResults.Match(await sender.Send(new ResetUserPasswordCommand(id)),
+                password => Results.Ok(new { password })));
     }
 }
 

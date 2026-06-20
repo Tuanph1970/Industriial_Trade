@@ -67,6 +67,11 @@ services:
       Keycloak__Authority: "http://host.docker.internal:8090/realms/industry-trade"
       Keycloak__Audience: "industry-trade-api"
       Keycloak__RequireHttpsMetadata: "false"
+      # Admin REST API (password reset) — reached over the compose network.
+      Keycloak__AdminBaseUrl: "http://keycloak:8080"
+      Keycloak__Realm: "industry-trade"
+      Keycloak__AdminUser: "${KEYCLOAK_ADMIN:-admin}"
+      Keycloak__AdminPassword: "${KEYCLOAK_ADMIN_PASSWORD:-admin}"
       Minio__Endpoint: "minio:9000"
       Minio__AccessKey: "${MINIO_ROOT_USER:-minioadmin}"
       Minio__SecretKey: "${MINIO_ROOT_PASSWORD:-minioadmin}"

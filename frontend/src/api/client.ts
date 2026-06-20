@@ -104,6 +104,9 @@ export const updateUser = (id: string, b: {
 
 export const deleteUser = (id: string) => api.delete(`/api/identity/users/${id}`);
 
+export const resetUserPassword = (id: string) =>
+  api.post<{ password: string }>(`/api/identity/users/${id}/reset-password`).then((r) => r.data);
+
 // ---- Indicators (Catalog) ------------------------------------------------
 export type IndicatorDataType = 1 | 2 | 3; // Number | Text | Enumeration
 export type IndustrySector = 1 | 2 | 3 | 4; // Industry | Energy | Commerce | MarketSurveillance

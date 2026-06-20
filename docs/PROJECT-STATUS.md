@@ -49,7 +49,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   payload, outcome) to the **AuditSystem** context (`audit` schema, jsonb payload); searchable API + UI
 - ✅ **OrgUnit update / delete / detail** endpoints (delete blocked if the unit has children; all
   audited) — the reusable edit/delete/detail pattern, also applied to Catalog Indicator
-- ⬜ Reset-password-to-default (Keycloak admin API) — endpoint not built
+- ✅ **Reset-password-to-default** via the Keycloak Admin REST API (`IIdentityProviderAdmin` →
+  `KeycloakAdminClient`): admin endpoint sets a temporary default password; UI action on the Users
+  page (returns the new password to hand over). Config under `Keycloak:*`
 - ✅ Org-unit path stored as PostgreSQL **`ltree`** with a **GIST index**; subtree/data-scope resolved
   via the `<@` descendant operator (the list query then filters by the resolved unit ids) — verified
   end-to-end against real PostgreSQL

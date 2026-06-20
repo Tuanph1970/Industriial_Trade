@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { App as AntApp, Button, Form, Input, Modal, Popconfirm, Select, Space, Switch, Table, Tag } from 'antd';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { createUser, deleteUser, getOrgUnits, getRoles, getUsers, updateUser, UserAccount } from '../api/client';
+import { createUser, deleteUser, getOrgUnits, getRoles, getUsers, resetUserPassword, updateUser, UserAccount } from '../api/client';
 import DetailDrawer from '../components/DetailDrawer';
 
 export default function UsersPage() {
-  const { message } = AntApp.useApp();
+  const { message, modal } = AntApp.useApp();
   const qc = useQueryClient();
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -37,6 +37,14 @@ export default function UsersPage() {
     mutationFn: deleteUser,
     onSuccess: () => { message.success('Đã xoá'); invalidate(); },
     onError: () => message.error('Không xoá được'),
+  });
+  const resetPwd = useMutation({
+    mutationFn: resetUserPassword,
+    onSuccess: (r) => modal.success({
+      title: 'Đã đặt lại mật khẩu',
+      content: `Mật khẩu tạm thời: ${r.password}. Người dùng phải đổi mật khẩu ở lần đăng nhập kế tiếp.`,
+    }),
+    onError: () => message.error('Không đặt lại được mật khẩu (kiểm tra quyền hoặc kết nối Keycloak)'),
   });
 
   function close() { setOpen(false); setEditing(null); form.resetFields(); }
@@ -77,10 +85,14 @@ export default function UsersPage() {
             title: 'Trạng thái', dataIndex: 'isActive', width: 120,
             render: (a: boolean) => <Tag color={a ? 'green' : 'default'}>{a ? 'Hoạt động' : 'Ngưng'}</Tag>,
           },
-          { title: 'Thao tác', width: 180, render: (_, r) => (
+          { title: 'Thao tác', width: 260, render: (_, r) => (
             <Space>
               <a onClick={() => setDetail(r)}>Xem</a>
               <a onClick={() => openEdit(r)}>Sửa</a>
+              <Popconfirm title="Đặt lại mật khẩu về mặc định?" okText="Đặt lại" cancelText="Huỷ"
+                onConfirm={() => resetPwd.mutate(r.id)}>
+                <a>Đặt lại MK</a>
+              </Popconfirm>
               <Popconfirm title="Xoá?" okText="Xoá" cancelText="Huỷ" onConfirm={() => remove.mutate(r.id)}>
                 <a style={{ color: '#cf1322' }}>Xoá</a>
               </Popconfirm>
