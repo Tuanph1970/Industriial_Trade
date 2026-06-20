@@ -17,7 +17,8 @@ set -euo pipefail
 # file and .env resolve regardless of where the script is invoked from.
 cd "$(dirname "$(readlink -f "$0")")"
 
-PROJECT="industrytrade"          # stable project name → deploy/undeploy match
+# Project name comes from the compose file (`name: industry-trade`) — don't override it with -p,
+# so this script and a bare `docker compose` always target the same project.
 COMPOSE_FILE="docker-compose.yml"
 
 # --- Resolve the compose command (v2 plugin preferred, fall back to v1) ------
@@ -29,7 +30,7 @@ else
   echo "ERROR: Docker Compose not found. Install Docker (with the compose plugin)." >&2
   exit 1
 fi
-COMPOSE+=(-p "$PROJECT" -f "$COMPOSE_FILE")
+COMPOSE+=(-f "$COMPOSE_FILE")
 
 log() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
 
