@@ -14,6 +14,9 @@
     <ProjectReference Include="..\..\Modules\Files\IndustryTrade.Modules.Files.Api\IndustryTrade.Modules.Files.Api.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="MediatR" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Swashbuckle.AspNetCore" />

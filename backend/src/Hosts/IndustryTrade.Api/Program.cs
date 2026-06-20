@@ -46,6 +46,14 @@ IModule[] modules =
 foreach (var module in modules)
     module.RegisterServices(builder.Services, builder.Configuration);
 
+// ---- Distributed cache (Redis if configured, else in-memory) -------------
+// Backs the authorization-resolution cache so the claims transformation doesn't hit the DB per request.
+var redisConnection = builder.Configuration.GetConnectionString("Redis");
+if (!string.IsNullOrWhiteSpace(redisConnection))
+    builder.Services.AddStackExchangeRedisCache(options => options.Configuration = redisConnection);
+else
+    builder.Services.AddDistributedMemoryCache();
+
 // ---- Security (Keycloak OIDC + current user) -----------------------------
 builder.Services.AddKeycloakAuth(builder.Configuration);
 

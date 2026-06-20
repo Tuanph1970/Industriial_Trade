@@ -42,6 +42,10 @@
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Abstractions" Version="10.0.0" />
+
+    <!-- Redis distributed cache (authorization resolution cache) -->
+    <PackageVersion Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.0" />
 
     <!-- Hosting cross-cutting -->
     <PackageVersion Include="Serilog.AspNetCore" Version="8.0.3" />

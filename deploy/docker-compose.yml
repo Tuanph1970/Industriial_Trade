@@ -71,6 +71,7 @@ services:
       Minio__AccessKey: "${MINIO_ROOT_USER:-minioadmin}"
       Minio__SecretKey: "${MINIO_ROOT_PASSWORD:-minioadmin}"
       Minio__Bucket: "industrytrade"
+      ConnectionStrings__Redis: "redis:6379"
     extra_hosts:
       - "host.docker.internal:host-gateway"
     ports: ["8080:8080"]
@@ -80,6 +81,8 @@ services:
       keycloak:
         condition: service_started
       minio:
+        condition: service_started
+      redis:
         condition: service_started
 
   worker:

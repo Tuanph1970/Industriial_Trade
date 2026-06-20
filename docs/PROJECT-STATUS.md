@@ -33,8 +33,10 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **Integration tests** via Testcontainers (real PostgreSQL): outbox interceptor + data-scope spec
 - ✅ **Observability**: OpenTelemetry traces (ASP.NET Core + Npgsql, OTLP export when configured) +
   metrics at `/metrics` (Prometheus); health split (`/health/live`, `/health/ready` with a DB check)
-- ✅ **MinIO** used in code (Files module, object storage); ⬜ Seq/Loki log aggregation + Grafana
-  dashboards (needs a collector); Redis not yet used; RabbitMQ delivery (Worker) is the future cross-service path
+- ✅ **MinIO** used in code (Files module, object storage); **Redis** used in code (distributed cache
+  backing the per-request authorization-resolution cache; falls back to in-memory when not configured)
+- ⬜ Seq/Loki log aggregation + Grafana dashboards (needs a collector); RabbitMQ delivery (Worker) is
+  the future cross-service path
 
 ### Phase 1 — Identity, Org & Access ✅
 - ✅ Org-unit tree (multi-level, create/list/search) — path stored as text

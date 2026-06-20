@@ -32,7 +32,9 @@ public static class IdentityAccessInfrastructure
         services.AddScoped<IOrgUnitRepository, OrgUnitRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IUserAuthorizationProvider, UserAuthorizationProvider>();
+        // The real resolver, wrapped by a distributed-cache decorator (Redis) for the per-request claims transform.
+        services.AddScoped<UserAuthorizationProvider>();
+        services.AddScoped<IUserAuthorizationProvider, CachingUserAuthorizationProvider>();
         return services;
     }
 }
