@@ -12,9 +12,10 @@ records), and **Reporting** (reporting campaigns + the `ReportSubmission` approv
 commune→specialist→leader, with full transition history), **Notifications** (consumes domain events via the outbox), **Analytics** (read-only CQRS dashboards
 via Dapper over the operational schemas), **AuditSystem** (an `AuditBehavior` records every command
 to the `audit` schema — design G1), and **Integration** (data-sharing service registry +
-connection-status API, Decree 47/2020). **All 7 designed bounded contexts are now implemented**
-(+ Notifications); remaining work is hardening, real LGSP/NDXP connectors, data migration, and polish
-— see `docs/PROJECT-STATUS.md`.
+connection-status API, Decree 47/2020), and **Files** (document/attachment storage on MinIO via an
+object-storage port). **All 7 designed bounded contexts are implemented, plus Notifications and Files
+— 9 deployed modules**; remaining work is hardening, real LGSP/NDXP connectors, data migration, and
+polish — see `docs/PROJECT-STATUS.md`.
 
 The **transactional outbox** is live: an EF SaveChanges interceptor (`OutboxWriterInterceptor`,
 wired per context) writes raised domain events to per-context `outbox_message` tables in the same
@@ -88,8 +89,9 @@ These were deliberately chosen against the original PDF's stack (3-tier SOA / .N
 SQL Server / Windows) — the client asked to ignore that and design better. Preserve these unless told
 otherwise:
 
-- **DDD modular monolith, not microservices.** Seven bounded contexts (Identity&Access, Catalog,
-  SectorData, Reporting&Workflow, Analytics, Integration, Audit&System) are separate
+- **DDD modular monolith, not microservices.** Seven *designed* bounded contexts (Identity&Access,
+  Catalog, SectorData, Reporting&Workflow, Analytics, Integration, Audit&System) — plus **Notifications**
+  and **Files**, added during build, for **9 modules** total — are separate
   modules/assemblies but deploy as **a few Docker-Compose containers** on 1–2 Linux servers — *not*
   Kubernetes. Boundaries are strict (in-process MediatR + domain events, no cross-context table
   access) so any context can be extracted into its own service later. Don't add fine-grained services
