@@ -12,8 +12,9 @@ services:
     environment:
       # Serve Keycloak under /auth so nginx can multiplex it onto the frontend origin.
       KC_HTTP_RELATIVE_PATH: /auth
-      # Public, browser-facing base URL (https via the tunnel). Relative path adds /auth.
-      KC_HOSTNAME: ${PUBLIC_ORIGIN:-http://localhost:8081}
+      # Public, browser-facing base URL — MUST include the /auth path, or the advertised
+      # frontend URLs (issuer, authorization_endpoint) drop the prefix and login breaks.
+      KC_HOSTNAME: ${PUBLIC_ORIGIN:-http://localhost:8081}/auth
       KC_HOSTNAME_STRICT: "false"
       # Trust the X-Forwarded-* headers nginx/cloudflared set, so issued URLs are https.
       KC_PROXY_HEADERS: xforwarded
