@@ -30,7 +30,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
   MediatR (verified: seeded `OrgUnitCreated` events written + processed)
 - ✅ **CI/CD**: GitHub Actions (`.github/workflows/ci.yml`) — builds + tests the backend on .NET 10
   and builds the frontend on every push/PR to main
-- ✅ **Integration tests** via Testcontainers (real PostgreSQL): outbox interceptor + data-scope spec
+- ✅ **Integration tests** via Testcontainers (real PostgreSQL): outbox interceptor + ltree subtree/data-scope
 - ✅ **Observability**: OpenTelemetry traces (ASP.NET Core + Npgsql, OTLP export when configured) +
   metrics at `/metrics` (Prometheus); health split (`/health/live`, `/health/ready` with a DB check)
 - ✅ **MinIO** used in code (Files module, object storage); **Redis** used in code (distributed cache
@@ -50,7 +50,9 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - ✅ **OrgUnit update / delete / detail** endpoints (delete blocked if the unit has children; all
   audited) — the reusable edit/delete/detail pattern, also applied to Catalog Indicator
 - ⬜ Reset-password-to-default (Keycloak admin API) — endpoint not built
-- ⬜ `ltree` column type + GIST index (currently `text` + prefix match)
+- ✅ Org-unit path stored as PostgreSQL **`ltree`** with a **GIST index**; subtree/data-scope resolved
+  via the `<@` descendant operator (the list query then filters by the resolved unit ids) — verified
+  end-to-end against real PostgreSQL
 
 ### Phase 2 — Catalog ✅
 - ✅ Versioned `Indicator` aggregate (Circular 33/2022) — create/list/search on `catalog` schema
@@ -157,7 +159,7 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 - `dotnet build` → 0 warnings / 0 errors; no known-vulnerable dependencies
 - `dotnet test` → **62/62 pass** — 60 unit (incl. import parsers + bulk-import handler, admin-unit +
   classification domain, observation workflow, report auto-extract) + **2 integration** (Testcontainers
-  PostgreSQL: outbox interceptor, data-scope spec)
+  PostgreSQL: outbox interceptor, ltree subtree/data-scope)
 - Outbox pipeline verified at runtime: seeded `OrgUnitCreated` events written to the outbox and
   drained by the processor (`total=2, processed=2`)
 - `npm run build` (frontend) → OK

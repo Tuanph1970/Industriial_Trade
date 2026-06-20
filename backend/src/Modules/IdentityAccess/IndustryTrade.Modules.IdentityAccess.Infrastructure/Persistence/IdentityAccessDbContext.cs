@@ -23,6 +23,7 @@ public sealed class IdentityAccessDbContext(DbContextOptions<IdentityAccessDbCon
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema(Schema);
+        modelBuilder.HasPostgresExtension("ltree"); // org-unit tree path type + GIST index
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(IdentityAccessDbContext).Assembly);
 
         modelBuilder.Entity<OutboxMessage>(b =>

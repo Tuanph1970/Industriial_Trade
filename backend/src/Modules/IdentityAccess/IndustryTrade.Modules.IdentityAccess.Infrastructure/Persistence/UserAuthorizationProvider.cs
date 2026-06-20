@@ -33,8 +33,9 @@ internal sealed class UserAuthorizationProvider(IdentityAccessDbContext db) : IU
             if (path is not null)
             {
                 scopePaths.Add(path);
-                scopeUnitIds = await db.OrgUnits.AsNoTracking()
-                    .Where(o => o.Path == path || o.Path.StartsWith(path + "."))
+                // Subtree (descendant-or-self) via the ltree `<@` operator — uses the GIST index.
+                scopeUnitIds = await db.OrgUnits
+                    .FromSqlInterpolated($"""SELECT * FROM identity.org_unit WHERE "Path" <@ {path}::ltree""")
                     .Select(o => o.Id)
                     .ToListAsync(ct);
             }

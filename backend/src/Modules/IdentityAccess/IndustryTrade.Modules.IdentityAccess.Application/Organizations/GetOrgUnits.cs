@@ -18,11 +18,12 @@ public sealed class GetOrgUnitsHandler(IOrgUnitRepository repository, ICurrentUs
     {
         var page = query.Page;
 
-        // Data-scope: super-admins see everything; everyone else is limited to their org-unit subtree(s).
-        var scopes = currentUser.IsSuperAdmin ? null : currentUser.DataScopePaths;
+        // Data-scope: super-admins see everything; everyone else is limited to their org-unit subtree
+        // (the unit ids were resolved from the ltree subtree query during the claims transformation).
+        var scopeUnitIds = currentUser.IsSuperAdmin ? null : currentUser.DataScopeUnitIds.ToArray();
 
-        var items = await repository.ListAsync(new OrgUnitSearchSpec(page, scopes), ct);
-        var total = await repository.CountAsync(new OrgUnitSearchSpec(page, scopes, forCount: true), ct);
+        var items = await repository.ListAsync(new OrgUnitSearchSpec(page, scopeUnitIds), ct);
+        var total = await repository.CountAsync(new OrgUnitSearchSpec(page, scopeUnitIds, forCount: true), ct);
 
         var dtos = items.Select(OrgUnitDto.FromEntity).ToList();
         return new PagedResult<OrgUnitDto>(dtos, total, page.NormalizedPage, page.NormalizedPageSize);

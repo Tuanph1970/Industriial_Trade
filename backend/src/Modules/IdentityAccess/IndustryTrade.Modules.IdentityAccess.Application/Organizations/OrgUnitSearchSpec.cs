@@ -7,15 +7,16 @@ namespace IndustryTrade.Modules.IdentityAccess.Application.Organizations;
 
 /// <summary>
 /// The reusable Specification behind the list/search/paginate use case, now also enforcing
-/// <b>data-scope</b>: when <paramref name="dataScopePaths"/> is non-null the result is limited to
-/// the given org-unit paths and their descendants. Pass null for super-admin (no restriction);
-/// pass an empty collection to deny all. <paramref name="forCount"/> drops paging for the total.
+/// <b>data-scope</b>: when <paramref name="scopeUnitIds"/> is non-null the result is limited to those
+/// org-unit ids (the caller's unit + its subtree, already resolved via the ltree <c>&lt;@</c> query).
+/// Pass null for super-admin (no restriction); an empty array denies all. <paramref name="forCount"/>
+/// drops paging for the total.
 /// </summary>
 public sealed class OrgUnitSearchSpec : Specification<OrgUnit>
 {
     public OrgUnitSearchSpec(
         PageRequest request,
-        IReadOnlyCollection<string>? dataScopePaths = null,
+        Guid[]? scopeUnitIds = null,
         bool forCount = false)
     {
         Expression<Func<OrgUnit, bool>>? predicate = null;
@@ -26,14 +27,9 @@ public sealed class OrgUnitSearchSpec : Specification<OrgUnit>
             predicate = u => u.Code.ToLower().Contains(kw) || u.Name.ToLower().Contains(kw);
         }
 
-        if (dataScopePaths is not null)
+        if (scopeUnitIds is not null)
         {
-            Expression<Func<OrgUnit, bool>> scope = _ => false;
-            foreach (var path in dataScopePaths)
-            {
-                var p = path; // capture per iteration
-                scope = scope.Or(u => u.Path == p || u.Path.StartsWith(p + "."));
-            }
+            Expression<Func<OrgUnit, bool>> scope = u => scopeUnitIds.Contains(u.Id);
             predicate = predicate is null ? scope : predicate.And(scope);
         }
 

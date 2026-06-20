@@ -32,7 +32,7 @@ public sealed class IdentityAccessIntegrationTests(PostgresFixture fixture)
     }
 
     [Fact]
-    public async Task Data_scope_specification_returns_only_the_unit_subtree()
+    public async Task Ltree_subtree_query_and_id_scoped_spec_return_only_the_unit_subtree()
     {
         await using var db = fixture.CreateContext();
 
@@ -43,9 +43,14 @@ public sealed class IdentityAccessIntegrationTests(PostgresFixture fixture)
         db.OrgUnits.Add(OrgUnit.Create("OTHERX", "Out of scope", OrgUnitType.Department, parent: null));
         await db.SaveChangesAsync();
 
-        // Data-scope = subtree of "SCOPER"; "OTHERX" must be excluded. Exercises the PredicateBuilder
-        // OR-of-StartsWith translation against real PostgreSQL.
-        var spec = new OrgUnitSearchSpec(new PageRequest(1, 100), dataScopePaths: ["SCOPER"]);
+        // The ltree `<@` (descendant-or-self) subtree query against the real ltree column + GIST index.
+        var subtreeIds = await db.OrgUnits
+            .FromSqlInterpolated($"""SELECT * FROM identity.org_unit WHERE "Path" <@ {root.Path}::ltree""")
+            .Select(o => o.Id)
+            .ToListAsync();
+
+        // The list spec then filters by those resolved ids; "OTHERX" must be excluded both ways.
+        var spec = new OrgUnitSearchSpec(new PageRequest(1, 100), scopeUnitIds: subtreeIds.ToArray());
         var results = await SpecificationEvaluator.Apply(db.OrgUnits.AsQueryable(), spec).ToListAsync();
 
         var codes = results.Select(r => r.Code).ToList();
