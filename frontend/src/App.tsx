@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Badge, Button, Dropdown, Layout, Menu, Result, Space, Spin, Typography } from 'antd';
 import {
   ApartmentOutlined, AuditOutlined, BarsOutlined, BellOutlined, CalendarOutlined, ClusterOutlined,
@@ -9,29 +10,31 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { useAuth } from 'react-oidc-context';
 import { useQuery } from '@tanstack/react-query';
 import { getUnreadCount } from './api/client';
-import OrgUnitsPage from './pages/OrgUnitsPage';
-import UsersPage from './pages/UsersPage';
-import RolesPage from './pages/RolesPage';
-import IndicatorsPage from './pages/IndicatorsPage';
-import ClustersPage from './pages/ClustersPage';
-import ObservationsPage from './pages/ObservationsPage';
-import ViolationsPage from './pages/ViolationsPage';
-import PetrolStationsPage from './pages/PetrolStationsPage';
-import CommerceLocationsPage from './pages/CommerceLocationsPage';
-import EcommercePage from './pages/EcommercePage';
-import CampaignsPage from './pages/CampaignsPage';
-import SubmissionsPage from './pages/SubmissionsPage';
-import NotificationsPage from './pages/NotificationsPage';
-import DashboardPage from './pages/DashboardPage';
-import AuditLogsPage from './pages/AuditLogsPage';
-import IntegrationPage from './pages/IntegrationPage';
-import MapPage from './pages/MapPage';
-import IndicatorSetsPage from './pages/IndicatorSetsPage';
-import ReportTemplatesPage from './pages/ReportTemplatesPage';
-import ReportingPeriodsPage from './pages/ReportingPeriodsPage';
-import AdministrativeUnitsPage from './pages/AdministrativeUnitsPage';
-import ClassificationsPage from './pages/ClassificationsPage';
-import FilesPage from './pages/FilesPage';
+// Routes are lazy-loaded so each page (and heavy libs like Recharts/Leaflet) ships as its own
+// on-demand chunk instead of one large entry bundle.
+const OrgUnitsPage = lazy(() => import('./pages/OrgUnitsPage'));
+const UsersPage = lazy(() => import('./pages/UsersPage'));
+const RolesPage = lazy(() => import('./pages/RolesPage'));
+const IndicatorsPage = lazy(() => import('./pages/IndicatorsPage'));
+const ClustersPage = lazy(() => import('./pages/ClustersPage'));
+const ObservationsPage = lazy(() => import('./pages/ObservationsPage'));
+const ViolationsPage = lazy(() => import('./pages/ViolationsPage'));
+const PetrolStationsPage = lazy(() => import('./pages/PetrolStationsPage'));
+const CommerceLocationsPage = lazy(() => import('./pages/CommerceLocationsPage'));
+const EcommercePage = lazy(() => import('./pages/EcommercePage'));
+const CampaignsPage = lazy(() => import('./pages/CampaignsPage'));
+const SubmissionsPage = lazy(() => import('./pages/SubmissionsPage'));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
+const DashboardPage = lazy(() => import('./pages/DashboardPage'));
+const AuditLogsPage = lazy(() => import('./pages/AuditLogsPage'));
+const IntegrationPage = lazy(() => import('./pages/IntegrationPage'));
+const MapPage = lazy(() => import('./pages/MapPage'));
+const IndicatorSetsPage = lazy(() => import('./pages/IndicatorSetsPage'));
+const ReportTemplatesPage = lazy(() => import('./pages/ReportTemplatesPage'));
+const ReportingPeriodsPage = lazy(() => import('./pages/ReportingPeriodsPage'));
+const AdministrativeUnitsPage = lazy(() => import('./pages/AdministrativeUnitsPage'));
+const ClassificationsPage = lazy(() => import('./pages/ClassificationsPage'));
+const FilesPage = lazy(() => import('./pages/FilesPage'));
 
 const { Header, Sider, Content } = Layout;
 
@@ -130,6 +133,7 @@ export default function App() {
           />
         </Sider>
         <Content style={{ padding: 24, background: '#fff' }}>
+          <Suspense fallback={<Spin style={{ display: 'block', margin: '80px auto' }} tip="Đang tải..." />}>
           <Routes>
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/dashboard" element={<DashboardPage />} />
@@ -156,6 +160,7 @@ export default function App() {
             <Route path="/audit" element={<AuditLogsPage />} />
             <Route path="/integration" element={<IntegrationPage />} />
           </Routes>
+          </Suspense>
         </Content>
       </Layout>
     </Layout>

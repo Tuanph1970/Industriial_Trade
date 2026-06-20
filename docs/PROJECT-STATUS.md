@@ -131,6 +131,8 @@ Legend: ✅ done & verified · 🟡 partial · ⬜ not started.
 
 ### Frontend
 - ✅ **Light theme is the default for all pages**; auth-gated; bearer-token interceptor
+- ✅ **Code-splitting**: routes are lazy-loaded (per-page chunks) + vendor chunks (react/antd/charts/map);
+  Recharts & Leaflet load only on the Dashboard/Map routes (no more single ~2 MB bundle)
 - ✅ **Edit + delete** on Org Units and Indicators (modal edit + Popconfirm delete)
 - ✅ **Delete on every list page** (Sector Data ×5, Users, Roles, Catalog master data ×3) —
   EF ExecuteDelete, audited
@@ -174,8 +176,7 @@ Remaining work is hardening, real integrations, and polish:
 - Security **Level-3 hardening** checklist + assessment readiness; **legacy data migration** (Doc 04 §7)
 - Real **LGSP/NDXP** connectors + XML/JSON data-exchange feeds
 - Log aggregation (Seq/Loki) + Grafana dashboards
-- UX polish: frontend code-splitting (bundle ~2 MB)
-  (internal tile server for the GIS map in closed networks)
+- Internal tile server for the GIS map in closed networks
 
 ## Commits so far (this branch)
 - `e1544f2` docs: design baseline
