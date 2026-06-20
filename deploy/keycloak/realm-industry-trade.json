@@ -58,6 +58,7 @@
     {
       "username": "superadmin",
       "enabled": true,
+      "email": "superadmin@industry-trade.local",
       "emailVerified": true,
       "firstName": "Super",
       "lastName": "Admin",
@@ -67,6 +68,7 @@
     {
       "username": "chuyenvien",
       "enabled": true,
+      "email": "chuyenvien@industry-trade.local",
       "emailVerified": true,
       "firstName": "Chuyen",
       "lastName": "Vien",
