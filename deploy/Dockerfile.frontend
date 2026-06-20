@@ -4,6 +4,9 @@ WORKDIR /app
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
+# Public Keycloak URL for the browser's OIDC client (Vite bakes VITE_* at build time).
+ARG VITE_KEYCLOAK_AUTHORITY
+ENV VITE_KEYCLOAK_AUTHORITY=${VITE_KEYCLOAK_AUTHORITY}
 RUN npm run build
 
 FROM nginx:1.27-alpine

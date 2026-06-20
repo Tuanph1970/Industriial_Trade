@@ -47,9 +47,12 @@ services:
       KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN:-admin}
       KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
       KC_HTTP_ENABLED: "true"
-      # Pin the issuer so it is identical for the browser and for the API's discovery fetch.
-      KC_HOSTNAME: http://localhost:8090
+      # Public, browser-facing issuer. Set PUBLIC_HOST to the server's IP/hostname for a remote demo.
+      KC_HOSTNAME: http://${PUBLIC_HOST:-localhost}:8090
       KC_HOSTNAME_STRICT: "false"
+      # Let backchannel (API → Keycloak) calls use the request's internal host, so token validation
+      # works without the API needing to reach the public URL.
+      KC_HOSTNAME_BACKCHANNEL_DYNAMIC: "true"
     ports: ["8090:8080"]
     volumes:
       - ./keycloak:/opt/keycloak/data/import:ro
@@ -62,9 +65,10 @@ services:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Postgres: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-industrytrade};Username=${POSTGRES_USER:-itrade};Password=${POSTGRES_PASSWORD:-itrade_dev_pw}"
-      Cors__Origins: "http://localhost:8081"
-      # Issuer is localhost:8090 (browser-facing); the container reaches Keycloak via the host gateway.
-      Keycloak__Authority: "http://host.docker.internal:8090/realms/industry-trade"
+      Cors__Origins: "http://${PUBLIC_HOST:-localhost}:8081"
+      # Token issuer = public Keycloak URL; metadata fetched internally over the compose network.
+      Keycloak__Authority: "http://${PUBLIC_HOST:-localhost}:8090/realms/industry-trade"
+      Keycloak__MetadataAddress: "http://keycloak:8080/realms/industry-trade/.well-known/openid-configuration"
       Keycloak__Audience: "industry-trade-api"
       Keycloak__RequireHttpsMetadata: "false"
       # Admin REST API (password reset) — reached over the compose network.
@@ -108,6 +112,9 @@ services:
     build:
       context: ..
       dockerfile: deploy/Dockerfile.frontend
+      args:
+        # Baked into the SPA at build time → points the browser's OIDC client at the public Keycloak URL.
+        VITE_KEYCLOAK_AUTHORITY: "http://${PUBLIC_HOST:-localhost}:8090/realms/industry-trade"
     ports: ["8081:80"]
     depends_on:
       - api

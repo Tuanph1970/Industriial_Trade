@@ -18,6 +18,9 @@ public static class SecurityExtensions
         var authority = configuration["Keycloak:Authority"];
         var audience = configuration["Keycloak:Audience"];
         var requireHttps = configuration.GetValue("Keycloak:RequireHttpsMetadata", false);
+        // Optional: fetch OIDC metadata from a different (internal) URL than the public issuer, so the
+        // API can reach Keycloak over the container network while tokens still carry the public issuer.
+        var metadataAddress = configuration["Keycloak:MetadataAddress"];
 
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentUser, CurrentUser>();
@@ -28,11 +31,16 @@ public static class SecurityExtensions
                 options.Authority = authority;
                 options.Audience = audience;
                 options.RequireHttpsMetadata = requireHttps;
+                if (!string.IsNullOrWhiteSpace(metadataAddress))
+                    options.MetadataAddress = metadataAddress;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     NameClaimType = "preferred_username",
                     RoleClaimType = CurrentUser.PermissionClaim,
-                    ValidateAudience = !string.IsNullOrWhiteSpace(audience)
+                    ValidateAudience = !string.IsNullOrWhiteSpace(audience),
+                    // Tokens are issued by the public Keycloak URL even when metadata is fetched internally.
+                    ValidIssuer = authority,
+                    ValidateIssuer = !string.IsNullOrWhiteSpace(authority)
                 };
             });
 
